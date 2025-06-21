@@ -111,9 +111,9 @@ public class StudentInfoSheetTemplate {
                 // sheet.addMergedRegion(new CellRangeAddress(r, r, 0, 1));
                 // sheet.addMergedRegion(new CellRangeAddress(r, r, 2, 3));
 
-                FileOutputStream fileOutputStream = new FileOutputStream(excelFile);
-                workbook.write(fileOutputStream);
             }
+            FileOutputStream fileOutputStream = new FileOutputStream(excelFile);
+            workbook.write(fileOutputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -21,10 +21,10 @@ public class StudentInfoSheetTemplate {
     private final String academicYear;
     private final String program;
     private final String department;
-    private Object[][] courseInfo;
-    private String[][] studentInfo;
+    private final Object[][] courseInfo;
+    private final String[][] studentInfo;
 
-    public StudentInfoSheetTemplate(String instructor, String courseCode, String courseTitle, double credit, int totalStudents, double POThreshold, String academicYear, String program, String department) {
+    public StudentInfoSheetTemplate(String instructor, String courseCode, String courseTitle, double credit, int totalStudents, double POThreshold, String academicYear, String program, String department, Object[][] courseInfo, String[][] studentInfo) {
         this.instructor = instructor;
         this.courseCode = courseCode;
         this.courseTitle = courseTitle;
@@ -34,7 +34,8 @@ public class StudentInfoSheetTemplate {
         this.academicYear = academicYear;
         this.program = program;
         this.department = department;
-        setCourseInfo();
+        this.courseInfo = courseInfo;
+        this.studentInfo = studentInfo;
     }
 
     public String getInstructor() {
@@ -73,20 +74,6 @@ public class StudentInfoSheetTemplate {
         return academicYear;
     }
 
-    public void setCourseInfo() {
-        this.courseInfo = new Object[][]{
-                {"Instructor", getInstructor()},
-                {"Course Code", getCourseCode()},
-                {"Course Title", getCourseTitle()},
-                {"Credit", getCredit()},
-                {"Total Students", getTotalStudents()},
-                {"PO Threshold", getPOThreshold()},
-                {"Academic Year", getAcademicYear()},
-                {"Program", getProgram()},
-                {"Department", getDepartment()},
-        };
-    }
-
     public void createSheet(File excelFile) {
         try {
             XSSFWorkbook workbook = new XSSFWorkbook();
@@ -111,7 +98,28 @@ public class StudentInfoSheetTemplate {
                 // sheet.addMergedRegion(new CellRangeAddress(r, r, 0, 1));
                 // sheet.addMergedRegion(new CellRangeAddress(r, r, 2, 3));
 
+
             }
+
+            int studentInfoRowsIndex = courseInfoRows + 2;
+            XSSFRow studentInfoHeaderRow = sheet.createRow(studentInfoRowsIndex);
+            String[] studentInfoHeader = {"Student ID", "Name", "Email", "Contact No."};
+            int studentInfoRows = getTotalStudents();
+            int studentInfoCols = studentInfoHeader.length;
+            for (int c = 0; c < studentInfoCols; c++) {
+                XSSFCell cell = studentInfoHeaderRow.createCell(c);
+                String headerValue = studentInfoHeader[c];
+                cell.setCellValue(headerValue);
+            }
+            studentInfoRowsIndex++;
+
+            for (int r = 0; studentInfoRowsIndex < studentInfoRowsIndex + totalStudents && r < totalStudents; studentInfoRowsIndex++, r++) {
+                XSSFRow row = sheet.createRow(studentInfoRowsIndex);
+                for (int c = 0; c < studentInfoCols; c++) {
+                    row.createCell(c).setCellValue(studentInfo[r][c]);
+                }
+            }
+
             FileOutputStream fileOutputStream = new FileOutputStream(excelFile);
             workbook.write(fileOutputStream);
         } catch (IOException e) {

@@ -74,53 +74,54 @@ public class StudentInfoSheetTemplate {
         return academicYear;
     }
 
-    public void createSheet(File excelFile) {
-        try {
-            XSSFWorkbook workbook = new XSSFWorkbook();
-            XSSFSheet sheet = workbook.createSheet("StudentInfo");
-
-            int courseInfoRows = courseInfo.length;
-            int courseInfoCols = courseInfo[0].length;
-            for (int r = 0; r < courseInfoRows; r++) {
-                XSSFRow row = sheet.createRow(r);
-                for (int c = 0; c < courseInfoCols; c++) {
-                    XSSFCell cell = row.createCell(c);
-                    Object courseCellValue = courseInfo[r][c];
-                    if (courseCellValue instanceof String) {
-                        cell.setCellValue((String) courseCellValue);
-                    } else if (courseCellValue instanceof Integer) {
-                        cell.setCellValue((Integer) courseCellValue);
-                    } else if (courseCellValue instanceof Double) {
-                        cell.setCellValue((Double) courseCellValue);
-                    }
-                }
-                sheet.addMergedRegion(new CellRangeAddress(r, r, 0, 1));
-                sheet.addMergedRegion(new CellRangeAddress(r, r, 2, 3));
+    private void checkAndSetCellValue(Object value, XSSFCell cell) {
+        if (value instanceof String strVal) {
+            if (strVal.startsWith("=")) {
+                cell.setCellFormula(strVal.substring(1));
+            } else {
+                cell.setCellValue(strVal);
             }
+        } else if (value instanceof Double d) {
+            cell.setCellValue(d);
+        } else if (value instanceof Integer i) {
+            cell.setCellValue(i);
+        } else if (value == null) {
+            cell.setBlank();
+        } else {
+            cell.setCellValue(value.toString());
+        }
+    }
 
-            int studentInfoRowsIndex = courseInfoRows + 2;
-            XSSFRow studentInfoHeaderRow = sheet.createRow(studentInfoRowsIndex);
-            String[] studentInfoHeader = {"Student ID", "Name", "Email", "Contact No."};
-            int studentInfoRows = getTotalStudents();
-            int studentInfoCols = studentInfoHeader.length;
+    public void createSheet(XSSFSheet sheet) {
+        int courseInfoRows = courseInfo.length;
+        int courseInfoCols = courseInfo[0].length;
+        for (int r = 0; r < courseInfoRows; r++) {
+            XSSFRow row = sheet.createRow(r);
+            for (int c = 0; c < courseInfoCols; c++) {
+                XSSFCell cell = row.createCell(c);
+                Object courseCellValue = courseInfo[r][c];
+                checkAndSetCellValue(courseCellValue, cell);
+            }
+            sheet.addMergedRegion(new CellRangeAddress(r, r, 0, 1));
+            sheet.addMergedRegion(new CellRangeAddress(r, r, 2, 3));
+        }
+
+        int studentInfoRowsIndex = courseInfoRows + 2;
+        XSSFRow studentInfoHeaderRow = sheet.createRow(studentInfoRowsIndex);
+        String[] studentInfoHeader = {"Student ID", "Name", "Email", "Contact No."};
+        int studentInfoCols = studentInfoHeader.length;
+        for (int c = 0; c < studentInfoCols; c++) {
+            XSSFCell cell = studentInfoHeaderRow.createCell(c);
+            String headerValue = studentInfoHeader[c];
+            checkAndSetCellValue(headerValue, cell);
+        }
+        studentInfoRowsIndex++;
+
+        for (int r = 0; studentInfoRowsIndex < studentInfoRowsIndex + totalStudents && r < totalStudents; studentInfoRowsIndex++, r++) {
+            XSSFRow row = sheet.createRow(studentInfoRowsIndex);
             for (int c = 0; c < studentInfoCols; c++) {
-                XSSFCell cell = studentInfoHeaderRow.createCell(c);
-                String headerValue = studentInfoHeader[c];
-                cell.setCellValue(headerValue);
+                row.createCell(c).setCellValue(studentInfo[r][c]);
             }
-            studentInfoRowsIndex++;
-
-            for (int r = 0; studentInfoRowsIndex < studentInfoRowsIndex + totalStudents && r < totalStudents; studentInfoRowsIndex++, r++) {
-                XSSFRow row = sheet.createRow(studentInfoRowsIndex);
-                for (int c = 0; c < studentInfoCols; c++) {
-                    row.createCell(c).setCellValue(studentInfo[r][c]);
-                }
-            }
-
-            FileOutputStream fileOutputStream = new FileOutputStream(excelFile);
-            workbook.write(fileOutputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 }

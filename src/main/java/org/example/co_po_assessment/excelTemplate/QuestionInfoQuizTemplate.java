@@ -38,7 +38,14 @@ public class QuestionInfoQuizTemplate extends AbstractQuestionInfoTemplate {
             }
         }
 
+        addDropdown(sheet, 6, 66, 2, 2, coOptions);
+        addDropdown(sheet, 6, 66, 6, 6, coOptions);
+        addDropdown(sheet, 6, 66, 10, 10, coOptions);
+        addDropdown(sheet, 6, 66, 14, 14, coOptions);
 
-
+        addDropdown(sheet, 6, 66, 3, 3, poOptions);
+        addDropdown(sheet, 6, 66, 7, 7, poOptions);
+        addDropdown(sheet, 6, 66, 11, 11, poOptions);
+        addDropdown(sheet, 6, 66, 15, 15, poOptions);
     }
 }

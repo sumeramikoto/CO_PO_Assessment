@@ -17,6 +17,9 @@ abstract class AbstractQuestionInfoTemplate {
             {"Course Title", "=StudentInfo!$C$3", null, null, "Academic Year", "=StudentInfo!$C$7", null, null, "Department", "=StudentInfo!$C$9", null, null, "Total Students", "=StudentInfo!$C$5", null, null}
     };
 
+    protected String[] coOptions = {"C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08", "C09", "C010", "C011", "C012", "C013", "C014", "C015", "C016", "C017", "C018", "C019", "C020"};
+    protected String[] poOptions = {"P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "P09", "P010", "P011", "P012", "P013", "P014", "P015", "P016", "P017", "P018", "P019", "P020"};
+
     protected void checkAndSetCellValue(Object value, XSSFCell cell) {
         if (value instanceof String strVal) {
             if (strVal.startsWith("=")) {

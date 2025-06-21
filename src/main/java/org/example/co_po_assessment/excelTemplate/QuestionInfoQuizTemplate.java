@@ -38,6 +38,11 @@ public class QuestionInfoQuizTemplate extends AbstractQuestionInfoTemplate {
             }
         }
 
+        sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, 3));
+        sheet.addMergedRegion(new CellRangeAddress(4, 4, 4, 7));
+        sheet.addMergedRegion(new CellRangeAddress(4, 4, 8, 11));
+        sheet.addMergedRegion(new CellRangeAddress(4, 4, 12, 15));
+
         addDropdown(sheet, 6, 66, 2, 2, coOptions);
         addDropdown(sheet, 6, 66, 6, 6, coOptions);
         addDropdown(sheet, 6, 66, 10, 10, coOptions);

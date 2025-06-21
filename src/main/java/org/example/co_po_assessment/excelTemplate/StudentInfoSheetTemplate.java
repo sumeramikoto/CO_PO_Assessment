@@ -94,11 +94,8 @@ public class StudentInfoSheetTemplate {
                         cell.setCellValue((Double) courseCellValue);
                     }
                 }
-
-                // sheet.addMergedRegion(new CellRangeAddress(r, r, 0, 1));
-                // sheet.addMergedRegion(new CellRangeAddress(r, r, 2, 3));
-
-
+                sheet.addMergedRegion(new CellRangeAddress(r, r, 0, 1));
+                sheet.addMergedRegion(new CellRangeAddress(r, r, 2, 3));
             }
 
             int studentInfoRowsIndex = courseInfoRows + 2;

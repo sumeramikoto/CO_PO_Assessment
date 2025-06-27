@@ -7,9 +7,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.File;
 
 abstract class AbstractQuestionInfoTemplate {
     protected final Object[][] courseInfo = {
@@ -47,5 +44,5 @@ abstract class AbstractQuestionInfoTemplate {
         sheet.addValidationData(validation);
     }
 
-    abstract void createSheet(XSSFSheet sheet);
+    abstract void generateSheet(XSSFSheet sheet);
 }

@@ -17,7 +17,7 @@ public class StudentInfoSheetTemplate {
     private final Object[][] courseInfo;
     private final String[][] studentInfo;
 
-    public StudentInfoSheetTemplate(String instructor, String courseCode, String courseTitle, double credit, int totalStudents, double POThreshold, String academicYear, String program, String department, Object[][] courseInfo, String[][] studentInfo) {
+    public StudentInfoSheetTemplate(String instructor, String courseCode, String courseTitle, double credit, int totalStudents, String academicYear, String program, String department, Object[][] courseInfo, String[][] studentInfo) {
         this.instructor = instructor;
         this.courseCode = courseCode;
         this.courseTitle = courseTitle;

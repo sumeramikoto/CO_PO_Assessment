@@ -11,7 +11,6 @@ public class StudentInfoSheetTemplate {
     private final String courseTitle;
     private final double credit;
     private final int totalStudents;
-    private final double POThreshold;
     private final String academicYear;
     private final String program;
     private final String department;
@@ -24,7 +23,6 @@ public class StudentInfoSheetTemplate {
         this.courseTitle = courseTitle;
         this.credit = credit;
         this.totalStudents = totalStudents;
-        this.POThreshold = POThreshold;
         this.academicYear = academicYear;
         this.program = program;
         this.department = department;
@@ -50,10 +48,6 @@ public class StudentInfoSheetTemplate {
 
     public int getTotalStudents() {
         return totalStudents;
-    }
-
-    public double getPOThreshold() {
-        return POThreshold;
     }
 
     public String getProgram() {

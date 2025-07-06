@@ -1,15 +1,9 @@
 package org.example.co_po_assessment.excelTemplate;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class StudentInfoSheetTemplate {
     private final String instructor;
@@ -17,20 +11,18 @@ public class StudentInfoSheetTemplate {
     private final String courseTitle;
     private final double credit;
     private final int totalStudents;
-    private final double POThreshold;
     private final String academicYear;
     private final String program;
     private final String department;
     private final Object[][] courseInfo;
     private final String[][] studentInfo;
 
-    public StudentInfoSheetTemplate(String instructor, String courseCode, String courseTitle, double credit, int totalStudents, double POThreshold, String academicYear, String program, String department, Object[][] courseInfo, String[][] studentInfo) {
+    public StudentInfoSheetTemplate(String instructor, String courseCode, String courseTitle, double credit, int totalStudents, String academicYear, String program, String department, Object[][] courseInfo, String[][] studentInfo) {
         this.instructor = instructor;
         this.courseCode = courseCode;
         this.courseTitle = courseTitle;
         this.credit = credit;
         this.totalStudents = totalStudents;
-        this.POThreshold = POThreshold;
         this.academicYear = academicYear;
         this.program = program;
         this.department = department;
@@ -56,10 +48,6 @@ public class StudentInfoSheetTemplate {
 
     public int getTotalStudents() {
         return totalStudents;
-    }
-
-    public double getPOThreshold() {
-        return POThreshold;
     }
 
     public String getProgram() {
@@ -92,7 +80,7 @@ public class StudentInfoSheetTemplate {
         }
     }
 
-    public void createSheet(XSSFSheet sheet) {
+    public void generateSheet(XSSFSheet sheet) {
         int courseInfoRows = courseInfo.length;
         int courseInfoCols = courseInfo[0].length;
         for (int r = 0; r < courseInfoRows; r++) {

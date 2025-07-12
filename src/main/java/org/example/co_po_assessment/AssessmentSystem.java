@@ -11,7 +11,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-public class AcademicSystem extends Application {
+public class AssessmentSystem extends Application {
 
     private Stage primaryStage;
     private TextField emailField;

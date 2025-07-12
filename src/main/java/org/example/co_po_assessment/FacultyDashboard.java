@@ -60,6 +60,13 @@ public class FacultyDashboard extends Application {
             alert.setHeaderText(null);
             alert.setContentText("You have been logged out successfully!");
             alert.showAndWait();
+            // Close dashboard and reopen login
+            primaryStage.close();
+            try {
+                new AcademicSystem().start(new Stage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
 
         HBox rightMenu = new HBox(20, welcomeLabel, logoutButton);

@@ -107,8 +107,7 @@ public class AcademicSystem extends Application {
                 
                 // Launch appropriate dashboard based on user type
                 if (isAdmin) {
-                    // TODO: Launch admin dashboard
-                    messageLabel.setText("Admin dashboard coming soon!");
+                    launchAdminDashboard();
                 } else {
                     // Launch faculty dashboard
                     launchFacultyDashboard();
@@ -148,6 +147,22 @@ public class AcademicSystem extends Application {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("Failed to load Faculty Dashboard");
+            alert.setContentText("Please try again or contact support.");
+            alert.showAndWait();
+        }
+    }
+
+    private void launchAdminDashboard() {
+        try {
+            Stage adminStage = new Stage();
+            AdminDashboard adminDashboard = new AdminDashboard();
+            adminDashboard.start(adminStage);
+            primaryStage.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Failed to load Admin Dashboard");
             alert.setContentText("Please try again or contact support.");
             alert.showAndWait();
         }

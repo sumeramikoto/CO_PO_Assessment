@@ -12,7 +12,7 @@ public class QuestionInfoMidFinalTemplate extends AbstractQuestionInfoTemplate{
     };
 
     @Override
-    public void createSheet(XSSFSheet sheet) {
+    public void generateSheet(XSSFSheet sheet) {
         for (int r = 0; r < courseInfo.length; r++) {
             XSSFRow row = sheet.createRow(r);
             for (int c = 0; c < courseInfo[0].length; c++) {

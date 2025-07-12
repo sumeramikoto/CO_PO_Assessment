@@ -2,13 +2,6 @@ package org.example.co_po_assessment;
 
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-
-import java.io.IOException;
-
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,13 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import static javafx.application.Application.launch;
-
 public class FacultyDashboard extends Application {
-
-    public static void main(String[] args) {
-        launch(args);
-    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -73,6 +60,13 @@ public class FacultyDashboard extends Application {
             alert.setHeaderText(null);
             alert.setContentText("You have been logged out successfully!");
             alert.showAndWait();
+            // Close dashboard and reopen login
+            primaryStage.close();
+            try {
+                new AcademicSystem().start(new Stage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
 
         HBox rightMenu = new HBox(20, welcomeLabel, logoutButton);

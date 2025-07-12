@@ -11,7 +11,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-public class AcademicSystem extends Application {
+public class AssessmentSystem extends Application {
 
     private Stage primaryStage;
     private TextField emailField;
@@ -20,7 +20,7 @@ public class AcademicSystem extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        primaryStage.setTitle("Academic System Login");
+        primaryStage.setTitle("Assessment System Login");
         showLoginScreen();
     }
 
@@ -31,7 +31,7 @@ public class AcademicSystem extends Application {
         // Header
         HBox headerBox = new HBox();
         headerBox.setAlignment(Pos.CENTER);
-        Label title = new Label("ACADEMIC MANAGEMENT SYSTEM");
+        Label title = new Label("CO-PO ASSESSMENT SYSTEM");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
         title.setTextFill(Color.DARKBLUE);
         headerBox.getChildren().add(title);

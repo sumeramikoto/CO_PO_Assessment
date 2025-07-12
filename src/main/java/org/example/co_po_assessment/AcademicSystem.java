@@ -104,7 +104,15 @@ public class AcademicSystem extends Application {
             if (authenticated) {
                 messageLabel.setText("Login successful!");
                 messageLabel.setTextFill(Color.GREEN);
-                // TODO: Load next scene or dashboard if needed
+                
+                // Launch appropriate dashboard based on user type
+                if (isAdmin) {
+                    // TODO: Launch admin dashboard
+                    messageLabel.setText("Admin dashboard coming soon!");
+                } else {
+                    // Launch faculty dashboard
+                    launchFacultyDashboard();
+                }
             } else {
                 messageLabel.setText("Invalid credentials!");
                 messageLabel.setTextFill(Color.FIREBRICK);
@@ -122,6 +130,26 @@ public class AcademicSystem extends Application {
             return email.equalsIgnoreCase("admin@school.edu") && password.equals("admin123");
         } else {
             return email.equalsIgnoreCase("faculty@school.edu") && password.equals("faculty123");
+        }
+    }
+
+    private void launchFacultyDashboard() {
+        try {
+            // Create a new stage for the faculty dashboard
+            Stage facultyStage = new Stage();
+            FacultyDashboard facultyDashboard = new FacultyDashboard();
+            facultyDashboard.start(facultyStage);
+            
+            // Close the login window
+            primaryStage.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Show error message if dashboard fails to load
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Failed to load Faculty Dashboard");
+            alert.setContentText("Please try again or contact support.");
+            alert.showAndWait();
         }
     }
 

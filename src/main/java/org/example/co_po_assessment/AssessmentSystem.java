@@ -11,7 +11,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-public class AssessmentSystem extends Application {
+public class AcademicSystem extends Application {
 
     private Stage primaryStage;
     private TextField emailField;
@@ -20,7 +20,7 @@ public class AssessmentSystem extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        primaryStage.setTitle("Assessment System Login");
+        primaryStage.setTitle("Academic System Login");
         showLoginScreen();
     }
 
@@ -31,7 +31,7 @@ public class AssessmentSystem extends Application {
         // Header
         HBox headerBox = new HBox();
         headerBox.setAlignment(Pos.CENTER);
-        Label title = new Label("CO-PO ASSESSMENT SYSTEM");
+        Label title = new Label("CO PO Assessment SYSTEM");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
         title.setTextFill(Color.DARKBLUE);
         headerBox.getChildren().add(title);
@@ -45,7 +45,7 @@ public class AssessmentSystem extends Application {
         grid.setPadding(new Insets(25, 25, 25, 25));
 
         Label scenetitle = new Label("Login");
-        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 20));
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 22));
         grid.add(scenetitle, 0, 0, 2, 1);
 
         // User type selection
@@ -75,7 +75,7 @@ public class AssessmentSystem extends Application {
 
         // Login button
         Button loginBtn = new Button("Sign In");
-        loginBtn.setStyle("-fx-background-color: #2a5cbd; -fx-text-fill: white;");
+        loginBtn.setStyle("-fx-background-color: #243cf1; -fx-text-fill: #ffffff;");
 
         HBox hbBtn = new HBox(10);
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);

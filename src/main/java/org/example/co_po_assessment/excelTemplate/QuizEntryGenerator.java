@@ -11,7 +11,7 @@ import java.util.*;
 public class QuizEntryGenerator {
 
     public void generateSheet(String path) throws IOException {
-        Workbook wb;
+        XSSFWorkbook wb;
         try (FileInputStream fis = new FileInputStream(path)) {
             wb = new XSSFWorkbook(fis);
         }
@@ -77,7 +77,7 @@ public class QuizEntryGenerator {
         return questions;
     }
 
-    private void createEntrySheet(Workbook wb,
+    private void createEntrySheet(XSSFWorkbook wb,
                                          String sheetName,
                                          List<Question> questions,
                                          List<String> studentIds) {

@@ -49,15 +49,15 @@ public class FacultyDashboard extends Application {
         topBar.setStyle("-fx-background-color: #343a40;");
         topBar.setAlignment(Pos.CENTER_LEFT);
 
-        ImageView logo = new ImageView();
-        logo.setFitHeight(100);
-        logo.setPreserveRatio(true);
-        try {
-            logo.setImage(new Image(getClass().getResourceAsStream("/images/iut_logo.png")));
-        } catch (Exception e) {
-            System.out.println("Couldn't load logo image");
-            logo.setImage(new Image(getClass().getResourceAsStream("/images/placeholder.png")));
-        }
+//        ImageView logo = new ImageView();
+//        logo.setFitHeight(100);
+//        logo.setPreserveRatio(true);
+//        try {
+//            logo.setImage(new Image(getClass().getResourceAsStream("/images/iut_logo.png")));
+//        } catch (Exception e) {
+//            System.out.println("Couldn't load logo image");
+//            logo.setImage(new Image(getClass().getResourceAsStream("/images/placeholder.png")));
+//        }
 
         Label welcomeLabel = new Label("Welcome, Faculty Member");
         welcomeLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
@@ -77,7 +77,7 @@ public class FacultyDashboard extends Application {
         rightMenu.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(rightMenu, Priority.ALWAYS);
 
-        topBar.getChildren().addAll(logo, rightMenu);
+        topBar.getChildren().addAll(rightMenu);
         return topBar;
     }
 
@@ -148,7 +148,13 @@ public class FacultyDashboard extends Application {
         );
 
         quickActions.getChildren().addAll(uploadAction, reportAction, templateAction);
-        
+
+        centerContent.getChildren().addAll(
+                dashboardTitle,
+                quickActionsLabel,
+                quickActions
+        );
+
         return centerContent;
     }
 

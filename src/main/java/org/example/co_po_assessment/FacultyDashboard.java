@@ -63,7 +63,7 @@ public class FacultyDashboard extends Application {
             // Close dashboard and reopen login
             primaryStage.close();
             try {
-                new AcademicSystem().start(new Stage());
+                new AssessmentSystem().start(new Stage());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

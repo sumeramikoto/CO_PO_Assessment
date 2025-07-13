@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DashboardController {
@@ -21,7 +22,7 @@ public class DashboardController {
         this.primaryStage = primaryStage;
     }
 
-    public void handleUploadMarks() {
+    public void handleMarksTemplate() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Excel File");
         fileChooser.getExtensionFilters().add(
@@ -30,7 +31,7 @@ public class DashboardController {
 
         if (selectedFile != null) {
             try {
-                processExcelFile(selectedFile.getAbsolutePath());
+                generateEntrySheets(selectedFile.getAbsolutePath());
                 showAlert("Success", "Excel file processed successfully!");
             } catch (IOException e) {
                 showAlert("Error", "Failed to process Excel file: " + e.getMessage());
@@ -39,7 +40,7 @@ public class DashboardController {
         }
     }
 
-    public void handleGenerateReport() {
+    public void handleMarksProcessing() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Excel File for Report Generation");
         fileChooser.getExtensionFilters().add(
@@ -48,7 +49,7 @@ public class DashboardController {
 
         if (selectedFile != null) {
             try {
-                generateReports(selectedFile.getAbsolutePath());
+                parseMarks(selectedFile.getAbsolutePath());
                 showAlert("Success", "Reports generated successfully!");
             } catch (IOException e) {
                 showAlert("Error", "Failed to generate reports: " + e.getMessage());
@@ -75,42 +76,120 @@ public class DashboardController {
         }
     }
 
-    private void processExcelFile(String path) throws IOException {
-        try (FileInputStream fis = new FileInputStream(path);
-             XSSFWorkbook wb = new XSSFWorkbook(fis)) {
-
-            new QuizEntryGenerator().generateSheet(path);
-            new MidFinalEntryGenerator().generateSheet(path);
-
-            try (FileOutputStream fos = new FileOutputStream(path)) {
-                wb.write(fos);
-            }
+    private void generateEntrySheets(String path) throws IOException {
+        QuizEntryGenerator quizEntryGenerator = new QuizEntryGenerator();
+        MidFinalEntryGenerator midFinalEntryGenerator = new MidFinalEntryGenerator();
+        try {
+            quizEntryGenerator.generateSheet(path);
+            midFinalEntryGenerator.generateSheet(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+//        try (FileInputStream fis = new FileInputStream(path);
+//             XSSFWorkbook wb = new XSSFWorkbook(fis)) {
+//
+//            new QuizEntryGenerator().generateSheet(path);
+//            new MidFinalEntryGenerator().generateSheet(path);
+//
+//            try (FileOutputStream fos = new FileOutputStream(path)) {
+//                wb.write(fos);
+//            }
+//        }
     }
 
-    private void generateReports(String path) throws IOException {
-        try (FileInputStream fis = new FileInputStream(path);
-             XSSFWorkbook wb = new XSSFWorkbook(fis)) {
+    private void parseMarks(String path) throws IOException {
+        COPOThresholdGenerator copoThresholdGenerator = new COPOThresholdGenerator();
+        AggregateCOGenerator aggregateCOGenerator = new AggregateCOGenerator();
+        copoThresholdGenerator.generate(path);
+        aggregateCOGenerator.generate(path);
+        try (FileInputStream in = new FileInputStream(path);
+             XSSFWorkbook wb = new XSSFWorkbook(in)) {
+            Sheet aggSheet  = wb.getSheet("AggregateCO");
+            Sheet thresh    = wb.getSheet("CO_PO_Thresholds");
 
-            AggregateCOGenerator.generate(path);
+            // Build total‐marks & threshold maps
+            Map<String, Double> coTotals    = new LinkedHashMap<>();
+            Map<String, Double> coThresholds= new LinkedHashMap<>();
+            boolean start = false;
+            for (Row r : thresh) {
+                Cell c0 = r.getCell(0);
+                if (c0 == null) continue;
+                String v = c0.getStringCellValue();
+                if ("CO".equals(v)) {
+                    start = true;
+                    continue;
+                }
+                if (start && v.startsWith("C")) {
+                    String name = v.trim();
+                    coTotals.put(     name, r.getCell(1).getNumericCellValue());
+                    coThresholds.put(name, r.getCell(2).getNumericCellValue());
+                }
+                if (start && v.startsWith("PO")) break;
+            }
 
-            new COPOThresholdGenerator().generate(path);
+            // Generate Contribution sheet
+            COContributionGenerator contribGen =
+                    new COContributionGenerator(wb, aggSheet, coTotals);
+            contribGen.generate();
 
-            Sheet aggregateCO = wb.getSheet("AggregateCO");
-            Map<String, Double> coTotals = new HashMap<>(); // You'll need to populate this from your data
-            new COContributionGenerator(wb, aggregateCO, coTotals).generate();
+            // Generate Binary sheet
+            COBinaryGenerator binaryGen =
+                    new COBinaryGenerator(wb, aggSheet,
+                            contribGen.getSheet(),
+                            coThresholds);
+            binaryGen.generate();
 
-            Sheet contributionSheet = wb.getSheet("CO_Contribution");
-            Map<String, Double> coThresholds = new HashMap<>(); // You'll need to populate this from your data
-            new COBinaryGenerator(wb, aggregateCO, contributionSheet, coThresholds).generate();
+            COResultsGenerator resultsGen =
+                    new COResultsGenerator(wb, binaryGen.getSheet());
+            resultsGen.generate();
 
-            Sheet binarySheet = wb.getSheet("CO_Binary");
-            new COResultsGenerator(wb, binarySheet).generate();
-
-            try (FileOutputStream fos = new FileOutputStream(path)) {
-                wb.write(fos);
+            // Save
+            try (FileOutputStream out = new FileOutputStream(path)) {
+                wb.write(out);
             }
         }
+
+        System.out.println("Done.");
+//        try (FileInputStream fis = new FileInputStream(path);
+//             XSSFWorkbook wb = new XSSFWorkbook(fis)) {
+//
+//            AggregateCOGenerator.generate(path);
+//
+//            new COPOThresholdGenerator().generate(path);
+//
+//            Sheet aggregateCO = wb.getSheet("AggregateCO");
+//            Map<String, Double> coTotals = new HashMap<>(); // You'll need to populate this from your data
+//            Map<String, Double> coThresholds = new HashMap<>(); // You'll need to populate this from your data
+//            Sheet thresh    = wb.getSheet("CO_PO_Thresholds");
+//            boolean start = false;
+//            for (Row r : thresh) {
+//                Cell c0 = r.getCell(0);
+//                if (c0 == null) continue;
+//                String v = c0.getStringCellValue();
+//                if ("CO".equals(v)) {
+//                    start = true;
+//                    continue;
+//                }
+//                if (start && v.startsWith("C")) {
+//                    String name = v.trim();
+//                    coTotals.put(     name, r.getCell(1).getNumericCellValue());
+//                    coThresholds.put(name, r.getCell(2).getNumericCellValue());
+//                }
+//                if (start && v.startsWith("PO")) break;
+//            }
+//            new COContributionGenerator(wb, aggregateCO, coTotals).generate();
+//
+//            Sheet contributionSheet = wb.getSheet("CO_Contribution");
+//
+//            new COBinaryGenerator(wb, aggregateCO, contributionSheet, coThresholds).generate();
+//
+//            Sheet binarySheet = wb.getSheet("CO_Binary");
+//            new COResultsGenerator(wb, binarySheet).generate();
+//
+//            try (FileOutputStream fos = new FileOutputStream(path)) {
+//                wb.write(fos);
+//            }
+//        }
     }
 
     private void createTemplate(String path) throws IOException {

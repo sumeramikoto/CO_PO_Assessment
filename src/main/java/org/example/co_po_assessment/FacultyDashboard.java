@@ -101,11 +101,11 @@ public class FacultyDashboard extends Application {
 
         Button uploadBtn = new Button("Upload Data");
         uploadBtn.setMaxWidth(Double.MAX_VALUE);
-        uploadBtn.setOnAction(e -> controller.handleUploadMarks());
+        uploadBtn.setOnAction(e -> controller.handleMarksTemplate());
 
         Button reportsBtn = new Button("Generate Reports");
         reportsBtn.setMaxWidth(Double.MAX_VALUE);
-        reportsBtn.setOnAction(e -> controller.handleGenerateReport());
+        reportsBtn.setOnAction(e -> controller.handleMarksProcessing());
 
         Button settingsBtn = new Button("Settings");
         settingsBtn.setMaxWidth(Double.MAX_VALUE);
@@ -129,23 +129,23 @@ public class FacultyDashboard extends Application {
         quickActions.setAlignment(Pos.CENTER);
 
         VBox uploadAction = createQuickActionBox(
-                "Upload Marks",
+                "Get Marks Template",
                 "file:/C:/Users/User/Desktop/Induction/iut_logo.png",
-                "Upload student marks and CO/PO mappings",
-                () -> controller.handleUploadMarks()
+                "After filling course and student information to the plain template, input file here to get marks entry template",
+                () -> controller.handleMarksTemplate()
         );
 
         VBox reportAction = createQuickActionBox(
-                "Generate Report",
+                "Process Marks",
                 "file:/C:/Users/User/Desktop/Induction/iut_logo.png",
-                "Generate CO/PO attainment reports",
-                () -> controller.handleGenerateReport()
+                "Process marks to obtain CO/PO assessment of the course",
+                () -> controller.handleMarksProcessing()
         );
 
         VBox templateAction = createQuickActionBox(
-                "Get Template",
+                "Get Plain Template",
                 "file:/C:/Users/User/Desktop/Induction/iut_logo.png",
-                "Download Excel template for course",
+                "Get Excel template for course",
                 () -> controller.handleGetTemplate()
         );
 

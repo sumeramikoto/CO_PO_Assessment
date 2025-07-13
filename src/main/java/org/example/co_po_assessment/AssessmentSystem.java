@@ -155,7 +155,7 @@ public class AssessmentSystem extends Application {
     private void launchAdminDashboard() {
         try {
             Stage adminStage = new Stage();
-            AdminDashboard adminDashboard = new AdminDashboard();
+            AdminsDashboard adminDashboard = new AdminsDashboard();
             adminDashboard.start(adminStage);
             primaryStage.close();
         } catch (Exception e) {

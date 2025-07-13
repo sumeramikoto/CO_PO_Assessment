@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AggregateCOGenerator {
-    private static void generate(String path) throws IOException {
+    public void generate(String path) throws IOException {
         // Load workbook
         Workbook wb;
         try (FileInputStream fis = new FileInputStream(path)) {

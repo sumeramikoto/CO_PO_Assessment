@@ -1,6 +1,5 @@
 package org.example.co_po_assessment;
 
-
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,10 +10,16 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+
+import static javafx.application.Application.launch;
 public class FacultyDashboard extends Application {
+    private DashboardController controller;
+
 
     @Override
     public void start(Stage primaryStage) {
+        this.controller = new DashboardController(primaryStage);
+
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #f5f5f5;");
 
@@ -39,15 +44,15 @@ public class FacultyDashboard extends Application {
         topBar.setStyle("-fx-background-color: #343a40;");
         topBar.setAlignment(Pos.CENTER_LEFT);
 
-
-        ImageView logo = new ImageView();
-        logo.setFitHeight(100);
-        logo.setPreserveRatio(true);
-        try {
-            logo.setImage(new Image("file:/C:/Users/User/Desktop/Induction/iut_logo.png"));
-        } catch (Exception e) {
-            System.out.println("Couldn't load logo image");
-        }
+//        ImageView logo = new ImageView();
+//        logo.setFitHeight(100);
+//        logo.setPreserveRatio(true);
+//        try {
+//            logo.setImage(new Image(getClass().getResourceAsStream("/images/iut_logo.png")));
+//        } catch (Exception e) {
+//            System.out.println("Couldn't load logo image");
+//            logo.setImage(new Image(getClass().getResourceAsStream("/images/placeholder.png")));
+//        }
 
         Label welcomeLabel = new Label("Welcome, Faculty Member");
         welcomeLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
@@ -60,6 +65,7 @@ public class FacultyDashboard extends Application {
             alert.setHeaderText(null);
             alert.setContentText("You have been logged out successfully!");
             alert.showAndWait();
+
             // Close dashboard and reopen login
             primaryStage.close();
             try {
@@ -73,7 +79,7 @@ public class FacultyDashboard extends Application {
         rightMenu.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(rightMenu, Priority.ALWAYS);
 
-        topBar.getChildren().addAll(logo, rightMenu);
+        topBar.getChildren().addAll(rightMenu);
         return topBar;
     }
 
@@ -95,9 +101,11 @@ public class FacultyDashboard extends Application {
 
         Button uploadBtn = new Button("Upload Data");
         uploadBtn.setMaxWidth(Double.MAX_VALUE);
+        uploadBtn.setOnAction(e -> controller.handleMarksTemplate());
 
         Button reportsBtn = new Button("Generate Reports");
         reportsBtn.setMaxWidth(Double.MAX_VALUE);
+        reportsBtn.setOnAction(e -> controller.handleMarksProcessing());
 
         Button settingsBtn = new Button("Settings");
         settingsBtn.setMaxWidth(Double.MAX_VALUE);
@@ -121,54 +129,45 @@ public class FacultyDashboard extends Application {
         quickActions.setAlignment(Pos.CENTER);
 
         VBox uploadAction = createQuickActionBox(
-                "Upload Marks",
+                "Get Marks Template",
                 "file:/C:/Users/User/Desktop/Induction/iut_logo.png",
-                "Upload student marks and CO/PO mappings"
+                "After filling course and student information to the plain template, input file here to get marks entry template",
+                () -> controller.handleMarksTemplate()
         );
 
         VBox reportAction = createQuickActionBox(
-                "Generate Report",
+                "Process Marks",
                 "file:/C:/Users/User/Desktop/Induction/iut_logo.png",
-                "Generate CO/PO attainment reports"
+                "Process marks to obtain CO/PO assessment of the course",
+                () -> controller.handleMarksProcessing()
         );
 
         VBox templateAction = createQuickActionBox(
-                "Get Template",
+                "Get Plain Template",
                 "file:/C:/Users/User/Desktop/Induction/iut_logo.png",
-                "Download Excel template for course"
+                "Get Excel template for course",
+                () -> controller.handleGetTemplate()
         );
 
         quickActions.getChildren().addAll(uploadAction, reportAction, templateAction);
 
-        Label recentLabel = new Label("Recent Courses");
-        recentLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-
-        TableView<String> recentCoursesTable = new TableView<>();
-        TableColumn<String, String> courseCol = new TableColumn<>("Course");
-        TableColumn<String, String> codeCol = new TableColumn<>("Code");
-        TableColumn<String, String> semesterCol = new TableColumn<>("Semester");
-
-        recentCoursesTable.getColumns().addAll(courseCol, codeCol, semesterCol);
-        recentCoursesTable.setPrefHeight(200);
-        recentCoursesTable.setPlaceholder(new Label("No recent courses found"));
-
         centerContent.getChildren().addAll(
                 dashboardTitle,
                 quickActionsLabel,
-                quickActions,
-                recentLabel,
-                recentCoursesTable
+                quickActions
         );
 
         return centerContent;
     }
 
-    private VBox createQuickActionBox(String title, String imageUrl, String description) {
+    private VBox createQuickActionBox(String title, String imageUrl, String description, Runnable action) {
         VBox box = new VBox(10);
         box.setAlignment(Pos.CENTER);
         box.setPadding(new Insets(15));
         box.setStyle("-fx-background-color: white; -fx-border-color: #ddd; -fx-border-radius: 5;");
         box.setPrefSize(200, 180);
+
+        box.setOnMouseClicked(e -> action.run());
 
         ImageView icon = new ImageView();
         try {
@@ -188,5 +187,9 @@ public class FacultyDashboard extends Application {
 
         box.getChildren().addAll(icon, titleLabel, descLabel);
         return box;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }

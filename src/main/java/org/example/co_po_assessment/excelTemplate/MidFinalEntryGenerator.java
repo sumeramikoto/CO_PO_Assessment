@@ -14,7 +14,7 @@ public class MidFinalEntryGenerator {
     public void generateSheet(String path) throws IOException {
         // adjust paths if needed
 
-        Workbook wb;
+        XSSFWorkbook wb;
         try (FileInputStream fis = new FileInputStream(path)) {
             wb = new XSSFWorkbook(fis);
         }
@@ -105,7 +105,7 @@ public class MidFinalEntryGenerator {
      *  Row 0: SID | Q1 (max1) … Qn (maxn) | Total
      *  Rows 1…: each student’s SID, blank cells for answers, and a SUM() in Total.
      */
-    private void createEntrySheet(Workbook wb,
+    private void createEntrySheet(XSSFWorkbook wb,
                                         String sheetName,
                                         List<Question> questions,
                                         List<String> studentIds) {

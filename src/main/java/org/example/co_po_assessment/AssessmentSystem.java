@@ -21,6 +21,9 @@ public class AssessmentSystem extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         primaryStage.setTitle("Academic System Login");
+        primaryStage.setWidth(1920);
+        primaryStage.setHeight(1080);
+        primaryStage.setMaximized(true);
         showLoginScreen();
     }
 
@@ -32,7 +35,7 @@ public class AssessmentSystem extends Application {
         HBox headerBox = new HBox();
         headerBox.setAlignment(Pos.CENTER);
         Label title = new Label("CO PO Assessment SYSTEM");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 48));
         title.setTextFill(Color.DARKBLUE);
         headerBox.getChildren().add(title);
         borderPane.setTop(headerBox);
@@ -45,7 +48,7 @@ public class AssessmentSystem extends Application {
         grid.setPadding(new Insets(25, 25, 25, 25));
 
         Label scenetitle = new Label("Login");
-        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 22));
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 36));
         grid.add(scenetitle, 0, 0, 2, 1);
 
         // User type selection
@@ -53,29 +56,35 @@ public class AssessmentSystem extends Application {
         RadioButton adminRadio = new RadioButton("Admin");
         adminRadio.setToggleGroup(userTypeGroup);
         adminRadio.setSelected(true);
+        adminRadio.setFont(Font.font("Arial", 24));
 
         RadioButton facultyRadio = new RadioButton("Faculty");
         facultyRadio.setToggleGroup(userTypeGroup);
+        facultyRadio.setFont(Font.font("Arial", 24));
 
         HBox radioBox = new HBox(10, adminRadio, facultyRadio);
+        radioBox.setSpacing(30);
         grid.add(new Label("Login as:"), 0, 1);
         grid.add(radioBox, 1, 1);
 
         // Email field
         emailField = new TextField();
         emailField.setPromptText("yourname@institution.edu");
-        grid.add(new Label("Email:"), 0, 2);
+        emailField.setFont(Font.font("Arial", 22));
+        grid.add(new Label("Email:") {{ setFont(Font.font("Arial", 22)); }}, 0, 2);
         grid.add(emailField, 1, 2);
 
         // Password field
         passwordField = new PasswordField();
         passwordField.setPromptText("Enter password");
-        grid.add(new Label("Password:"), 0, 3);
+        passwordField.setFont(Font.font("Arial", 22));
+        grid.add(new Label("Password:") {{ setFont(Font.font("Arial", 22)); }}, 0, 3);
         grid.add(passwordField, 1, 3);
 
         // Login button
         Button loginBtn = new Button("Sign In");
-        loginBtn.setStyle("-fx-background-color: #243cf1; -fx-text-fill: #ffffff;");
+        loginBtn.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        loginBtn.setStyle("-fx-background-color: #243cf1; -fx-text-fill: #ffffff; -fx-padding: 12 32 12 32; -fx-background-radius: 8;");
 
         HBox hbBtn = new HBox(10);
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
@@ -83,6 +92,7 @@ public class AssessmentSystem extends Application {
         grid.add(hbBtn, 1, 4);
 
         final Label messageLabel = new Label();
+        messageLabel.setFont(Font.font("Arial", 20));
         grid.add(messageLabel, 1, 6);
 
         borderPane.setCenter(grid);
@@ -118,7 +128,7 @@ public class AssessmentSystem extends Application {
             }
         });
 
-        Scene scene = new Scene(borderPane, 600, 500);
+        Scene scene = new Scene(borderPane, 1920, 1080);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

@@ -155,7 +155,7 @@ public class FacultyDashboard extends Application {
         VBox templateAction = createQuickActionBox(
                 "Get Plain Template",
                 "file:/C:/Users/User/Desktop/Induction/iut_logo.png",
-                "Get Excel template for course",
+                "Get Excel template ",
                 () -> controller.handleGetTemplate()
         );
 

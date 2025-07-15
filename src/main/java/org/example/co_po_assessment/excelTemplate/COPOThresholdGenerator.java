@@ -13,7 +13,6 @@ public class COPOThresholdGenerator {
 
     public void generate(String path) throws IOException {
         // String path = "aggregateTemp.xlsx";
-
         // Load workbook
         Workbook wb;
         try (FileInputStream fis = new FileInputStream(path)) {

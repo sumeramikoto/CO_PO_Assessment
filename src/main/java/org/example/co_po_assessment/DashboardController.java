@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -40,7 +39,7 @@ public class DashboardController {
         }
     }
 
-    public void handleMarksProcessing() {
+    public void generateReport() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Excel File for Report Generation");
         fileChooser.getExtensionFilters().add(
@@ -49,8 +48,15 @@ public class DashboardController {
 
         if (selectedFile != null) {
             try {
+                COResultsPdfGenerator coResultsPdfGenerator = new COResultsPdfGenerator();
                 parseMarks(selectedFile.getAbsolutePath());
-                showAlert("Success", "Reports generated successfully!");
+                FileChooser pdfFileChooser = new FileChooser();
+                pdfFileChooser.getExtensionFilters().add(
+                        new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+                File savedPdfFile = pdfFileChooser.showSaveDialog(primaryStage);
+                coResultsPdfGenerator.generatePDFReport(selectedFile, savedPdfFile);
+
+                showAlert("Success", "Report generated successfully!");
             } catch (IOException e) {
                 showAlert("Error", "Failed to generate reports: " + e.getMessage());
                 e.printStackTrace();

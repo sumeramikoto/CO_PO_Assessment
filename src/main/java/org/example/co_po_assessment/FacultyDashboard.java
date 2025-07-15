@@ -114,7 +114,7 @@ public class FacultyDashboard extends Application {
         Button reportsBtn = new Button("Generate Reports");
         reportsBtn.setMaxWidth(Double.MAX_VALUE);
         reportsBtn.setFont(Font.font("Arial", FontWeight.BOLD, 20));
-        reportsBtn.setOnAction(e -> controller.handleMarksProcessing());
+        reportsBtn.setOnAction(e -> controller.generateReport());
 
         Button settingsBtn = new Button("Settings");
         settingsBtn.setMaxWidth(Double.MAX_VALUE);
@@ -146,10 +146,10 @@ public class FacultyDashboard extends Application {
         );
 
         VBox reportAction = createQuickActionBox(
-                "       Process Marks",
+                "Generate Report",
                 "file:/C:/Users/User/Desktop/Induction/iut_logo.png",
-                "Process marks to obtain CO/PO assessment of the course",
-                () -> controller.handleMarksProcessing()
+                "Process marks to obtain CO/PO assessment report of the course",
+                () -> controller.generateReport()
         );
 
         VBox templateAction = createQuickActionBox(

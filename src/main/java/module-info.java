@@ -12,6 +12,7 @@ module org.example.co_po_assessment {
     requires org.apache.poi.poi;
 
     requires org.apache.poi.ooxml;
+    requires java.desktop;
 
     opens org.example.co_po_assessment to javafx.fxml;
     exports org.example.co_po_assessment;

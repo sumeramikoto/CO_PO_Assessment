@@ -49,7 +49,7 @@ public class DashboardController {
         if (selectedFile != null) {
             try {
                 COResultsPdfGenerator coResultsPdfGenerator = new COResultsPdfGenerator();
-                parseMarks(selectedFile.getAbsolutePath());
+                parseMarks(selectedFile);
                 FileChooser pdfFileChooser = new FileChooser();
                 pdfFileChooser.getExtensionFilters().add(
                         new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
@@ -103,7 +103,7 @@ public class DashboardController {
 //        }
     }
 
-    private void parseMarks(String path) throws IOException {
+    private void parseMarks(File path) throws IOException {
         COPOThresholdGenerator copoThresholdGenerator = new COPOThresholdGenerator();
         AggregateCOGenerator aggregateCOGenerator = new AggregateCOGenerator();
         copoThresholdGenerator.generate(path);

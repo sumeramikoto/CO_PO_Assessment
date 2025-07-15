@@ -11,7 +11,7 @@ public class COPOThresholdGenerator {
     private static final double CO_THRESHOLD = 60.0;
     private static final double PO_THRESHOLD = 40.0;
 
-    public void generate(String path) throws IOException {
+    public void generate(File path) throws IOException {
         // String path = "aggregateTemp.xlsx";
 
         // Load workbook

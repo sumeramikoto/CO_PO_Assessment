@@ -62,9 +62,17 @@ public class AssessmentSystem extends Application {
         facultyRadio.setToggleGroup(userTypeGroup);
         facultyRadio.setFont(Font.font("Arial", 24));
 
-        HBox radioBox = new HBox(10, adminRadio, facultyRadio);
-        radioBox.setSpacing(30);
-        grid.add(new Label("Login as:"), 0, 1);
+        // Updated 'Login as:' label with larger, bold font
+        Label loginAsLabel = new Label("Login as:");
+        loginAsLabel.setFont(Font.font("Arial", FontWeight.BOLD, 26));
+        loginAsLabel.setMinWidth(120); // Ensures some spacing
+        loginAsLabel.setAlignment(Pos.CENTER_RIGHT);
+
+        HBox radioBox = new HBox(30, adminRadio, facultyRadio);
+        radioBox.setAlignment(Pos.CENTER_LEFT);
+        
+        // Place both label and radio buttons in the same row
+        grid.add(loginAsLabel, 0, 1);
         grid.add(radioBox, 1, 1);
 
         // Email field

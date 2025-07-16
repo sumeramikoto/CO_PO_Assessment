@@ -2,7 +2,6 @@ module org.example.co_po_assessment {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
-
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;
@@ -14,8 +13,8 @@ module org.example.co_po_assessment {
     requires layout;
     requires kernel;
     requires io;
-    requires org.jfree.jfreechart;
-//    requires org.jfree.jfreechart;
+    requires org.jfree.jfreechart;// For basic controls (Button, Label, etc.)
+    requires javafx.graphics; // For Scene, Stage, etc.
 
     opens org.example.co_po_assessment to javafx.fxml;
     exports org.example.co_po_assessment;

@@ -1,5 +1,3 @@
-package org.example.co_po_assessment;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 

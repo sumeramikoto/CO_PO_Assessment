@@ -1,5 +1,3 @@
-package org.example.co_po_assessment;
-
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;

@@ -1,5 +1,3 @@
-package org.example.co_po_assessment;
-
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

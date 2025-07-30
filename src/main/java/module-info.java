@@ -13,9 +13,13 @@ module org.example.co_po_assessment {
     requires layout;
     requires kernel;
     requires io;
-    requires org.jfree.jfreechart;// For basic controls (Button, Label, etc.)
+    //requires org.jfree.jfreechart;// For basic controls (Button, Label, etc.)
     requires javafx.graphics; // For Scene, Stage, etc.
 
     opens org.example.co_po_assessment to javafx.fxml;
-    exports org.example.co_po_assessment;
+    //exports org.example.co_po_assessment;
+    exports frontend;
+    opens frontend to javafx.fxml;
+    exports;
+    opens to
 }

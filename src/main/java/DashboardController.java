@@ -1,5 +1,3 @@
-package org.example.co_po_assessment;
-
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -11,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -40,7 +37,7 @@ public class DashboardController {
         }
     }
 
-    public void handleMarksProcessing() {
+    public void generateReport() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Excel File for Report Generation");
         fileChooser.getExtensionFilters().add(
@@ -49,8 +46,15 @@ public class DashboardController {
 
         if (selectedFile != null) {
             try {
-                parseMarks(selectedFile.getAbsolutePath());
-                showAlert("Success", "Reports generated successfully!");
+                COResultsPdfGenerator coResultsPdfGenerator = new COResultsPdfGenerator();
+                parseMarks(selectedFile);
+                FileChooser pdfFileChooser = new FileChooser();
+                pdfFileChooser.getExtensionFilters().add(
+                        new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+                File savedPdfFile = pdfFileChooser.showSaveDialog(primaryStage);
+                coResultsPdfGenerator.generatePDFReport(selectedFile, savedPdfFile);
+
+                showAlert("Success", "Report generated successfully!");
             } catch (IOException e) {
                 showAlert("Error", "Failed to generate reports: " + e.getMessage());
                 e.printStackTrace();
@@ -97,7 +101,7 @@ public class DashboardController {
 //        }
     }
 
-    private void parseMarks(String path) throws IOException {
+    private void parseMarks(File path) throws IOException {
         COPOThresholdGenerator copoThresholdGenerator = new COPOThresholdGenerator();
         AggregateCOGenerator aggregateCOGenerator = new AggregateCOGenerator();
         copoThresholdGenerator.generate(path);

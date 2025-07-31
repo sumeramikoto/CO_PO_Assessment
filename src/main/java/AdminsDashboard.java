@@ -1,4 +1,3 @@
-package org.example.co_po_assessment;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -62,6 +61,7 @@ public class AdminsDashboard extends Application {
         Button logoutButton = new Button("Logout");
         logoutButton.setFont(Font.font("Arial", FontWeight.BOLD, 22));
         logoutButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-padding: 10 30 10 30; -fx-background-radius: 8;");
+        logoutButton.setCursor(javafx.scene.Cursor.HAND);
         logoutButton.setOnAction(e -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Logout");
@@ -98,21 +98,25 @@ public class AdminsDashboard extends Application {
         addCourseBtn.setMaxWidth(Double.MAX_VALUE);
         addCourseBtn.setFont(Font.font("Arial", FontWeight.BOLD, 20));
         addCourseBtn.setStyle("-fx-background-color: #007bff; -fx-text-fill: white;");
+        addCourseBtn.setCursor(javafx.scene.Cursor.HAND);
         addCourseBtn.setOnAction(e -> showAddCourseDialog());
 
         Button showStudentInfoBtn = new Button("Show Student Information");
         showStudentInfoBtn.setMaxWidth(Double.MAX_VALUE);
         showStudentInfoBtn.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        showStudentInfoBtn.setCursor(javafx.scene.Cursor.HAND);
         showStudentInfoBtn.setOnAction(e -> showStudentInformation());
 
         Button showCOPOBtn = new Button("Show CO PO");
         showCOPOBtn.setMaxWidth(Double.MAX_VALUE);
         showCOPOBtn.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        showCOPOBtn.setCursor(javafx.scene.Cursor.HAND);
         showCOPOBtn.setOnAction(e -> showCOPODialog());
 
         Button facultyInfoBtn = new Button("Faculty Info");
         facultyInfoBtn.setMaxWidth(Double.MAX_VALUE);
         facultyInfoBtn.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        facultyInfoBtn.setCursor(javafx.scene.Cursor.HAND);
         facultyInfoBtn.setOnAction(e -> showFacultyInfo());
 
         leftMenu.getChildren().addAll(menuTitle, addCourseBtn, showStudentInfoBtn, showCOPOBtn, facultyInfoBtn);
@@ -188,6 +192,7 @@ public class AdminsDashboard extends Application {
         Button addButton = new Button("Add Course");
         addButton.setStyle("-fx-background-color: #28a745; -fx-text-fill: white;");
         addButton.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        addButton.setCursor(javafx.scene.Cursor.HAND);
         addButton.setOnAction(e -> {
             String courseCode = courseCodeField.getText().trim();
             String courseName = courseNameField.getText().trim();
@@ -209,6 +214,7 @@ public class AdminsDashboard extends Application {
         Button cancelButton = new Button("Cancel");
         cancelButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white;");
         cancelButton.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        cancelButton.setCursor(javafx.scene.Cursor.HAND);
         cancelButton.setOnAction(e -> dialog.close());
 
         buttonBox.getChildren().addAll(addButton, cancelButton);
@@ -254,6 +260,7 @@ public class AdminsDashboard extends Application {
         Button closeButton = new Button("Close");
         closeButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white;");
         closeButton.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        closeButton.setCursor(javafx.scene.Cursor.HAND);
         closeButton.setOnAction(e -> dialog.close());
 
         dialogContent.getChildren().addAll(titleLabel, studentListView, closeButton);
@@ -291,6 +298,7 @@ public class AdminsDashboard extends Application {
         Button viewButton = new Button("View CO/PO Assessment");
         viewButton.setStyle("-fx-background-color: #007bff; -fx-text-fill: white;");
         viewButton.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        viewButton.setCursor(javafx.scene.Cursor.HAND);
         viewButton.setOnAction(e -> {
             String selectedYear = yearComboBox.getValue();
             if (selectedYear != null) {
@@ -309,6 +317,7 @@ public class AdminsDashboard extends Application {
         Button closeButton = new Button("Close");
         closeButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white;");
         closeButton.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        closeButton.setCursor(javafx.scene.Cursor.HAND);
         closeButton.setOnAction(e -> dialog.close());
 
         dialogContent.getChildren().addAll(
@@ -353,6 +362,7 @@ public class AdminsDashboard extends Application {
         Button closeButton = new Button("Close");
         closeButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white;");
         closeButton.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        closeButton.setCursor(javafx.scene.Cursor.HAND);
         closeButton.setOnAction(e -> dialog.close());
 
         dialogContent.getChildren().addAll(titleLabel, facultyListView, closeButton);

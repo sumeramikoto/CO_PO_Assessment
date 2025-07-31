@@ -1,7 +1,6 @@
 package org.example.co_po_assessment.excelTemplate;
 
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import java.io.*;
@@ -9,7 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AggregateCOGenerator {
-    public void generate(String path) throws IOException {
+    public void generate(File path) throws IOException {
         // Load workbook
         Workbook wb;
         try (FileInputStream fis = new FileInputStream(path)) {

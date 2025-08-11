@@ -169,7 +169,7 @@ private Tab createQuizEntryTab(String title) {
     TableView<String> marksTable = new TableView<>();
     TableColumn<String, String> sidCol = new TableColumn<>("Student ID");
     TableColumn<String, String> nameCol = new TableColumn<>("Name");
-    
+
     for (int i = 1; i <= 5; i++) {
         TableColumn<String, String> qCol = new TableColumn<>("Q" + i);
         marksTable.getColumns().add(qCol);
@@ -184,7 +184,27 @@ private Tab createQuizEntryTab(String title) {
 
     return tab;
 }
+private Tab createExamEntryTab(String title) {
+    Tab tab = new Tab(title);
 
+    TableView<String> marksTable = new TableView<>();
+    TableColumn<String, String> sidCol = new TableColumn<>("Student ID");
+    TableColumn<String, String> nameCol = new TableColumn<>("Name");
+
+    for (int i = 1; i <= 10; i++) {
+        TableColumn<String, String> qCol = new TableColumn<>("Q" + i);
+        marksTable.getColumns().add(qCol);
+    }
+
+    TableColumn<String, String> totalCol = new TableColumn<>("Total");
+    marksTable.getColumns().add(totalCol);
+
+    VBox vbox = new VBox(10);
+    vbox.getChildren().add(marksTable);
+    tab.setContent(vbox);
+
+    return tab;
+}
 
 
 

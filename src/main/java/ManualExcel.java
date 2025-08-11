@@ -32,6 +32,23 @@ public void start(Stage primaryStage) {
     primaryStage.show();
 }
 
+
+private MenuBar createMenuBar() {
+    MenuBar menuBar = new MenuBar();
+    Menu fileMenu = new Menu("File");
+    MenuItem newItem = new MenuItem("New");
+    MenuItem saveItem = new MenuItem("Save");
+    MenuItem exitItem = new MenuItem("Exit");
+    fileMenu.getItems().addAll(newItem, saveItem, new SeparatorMenuItem(), exitItem);
+
+    Menu editMenu = new Menu("Edit");
+
+    Menu reportsMenu = new Menu("Reports");
+
+    menuBar.getMenus().addAll(fileMenu, editMenu, reportsMenu);
+    return menuBar;
+}
+
 private Tab createStudentInfoTab() {
     Tab tab = new Tab("Student Information");
     tab.setClosable(false);

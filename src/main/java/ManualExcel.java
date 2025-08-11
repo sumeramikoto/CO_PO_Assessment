@@ -32,5 +32,47 @@ public void start(Stage primaryStage) {
     primaryStage.show();
 }
 
+private Tab createStudentInfoTab() {
+    Tab tab = new Tab("Student Information");
+    tab.setClosable(false);
+
+    GridPane grid = new GridPane();
+    grid.setHgap(10);
+    grid.setVgap(10);
+    grid.setPadding(new Insets(20, 10, 10, 10));
+
+    grid.add(new Label("Course Information:"), 0, 0, 2, 1);
+
+    grid.add(new Label("Course Code:"), 0, 1);
+    grid.add(new TextField(), 1, 1);
+
+    grid.add(new Label("Course Title:"), 0, 2);
+    grid.add(new TextField(), 1, 2);
+
+    grid.add(new Label("Instructor:"), 0, 3);
+    grid.add(new TextField(), 1, 3);
+
+    grid.add(new Label("Academic Year:"), 0, 4);
+    grid.add(new TextField(), 1, 4);
+
+    TableView<String> studentTable = new TableView<>();
+    TableColumn<String, String> idCol = new TableColumn<>("Student ID");
+    TableColumn<String, String> nameCol = new TableColumn<>("Name");
+    TableColumn<String, String> emailCol = new TableColumn<>("Email");
+    studentTable.getColumns().addAll(idCol, nameCol, emailCol);
+
+    HBox buttonBox = new HBox(10);
+    Button addBtn = new Button("Add Student");
+    Button removeBtn = new Button("Remove Student");
+    buttonBox.getChildren().addAll(addBtn, removeBtn);
+
+    VBox vbox = new VBox(10);
+    vbox.getChildren().addAll(grid, new Separator(), studentTable, buttonBox);
+
+    tab.setContent(vbox);
+    return tab;
+}
+
+
 public void main() {
 }

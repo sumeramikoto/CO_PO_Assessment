@@ -206,6 +206,53 @@ private Tab createExamEntryTab(String title) {
     return tab;
 }
 
+private Tab createResultsTab() {
+    Tab tab = new Tab("Results");
+    tab.setClosable(false);
+
+    VBox coBox = new VBox(10);
+    coBox.setPadding(new Insets(10));
+    coBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
+
+    Label coLabel = new Label("CO Attainment");
+    coLabel.setStyle("-fx-font-weight: bold;");
+
+    TableView<String> coTable = new TableView<>();
+    coTable.getColumns().addAll(
+            new TableColumn<>("CO"),
+            new TableColumn<>("Attainment %"),
+            new TableColumn<>("Status")
+    );
+
+    coBox.getChildren().addAll(coLabel, coTable);
+
+    VBox poBox = new VBox(10);
+    poBox.setPadding(new Insets(10));
+    poBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
+
+    Label poLabel = new Label("PO Attainment");
+    poLabel.setStyle("-fx-font-weight: bold;");
+
+    TableView<String> poTable = new TableView<>();
+    poTable.getColumns().addAll(
+            new TableColumn<>("PO"),
+            new TableColumn<>("Attainment %"),
+            new TableColumn<>("Status")
+    );
+
+    poBox.getChildren().addAll(poLabel, poTable);
+
+    HBox buttonBox = new HBox(10);
+    Button calculateBtn = new Button("Calculate Results");
+    Button exportBtn = new Button("Export Report");
+    buttonBox.getChildren().addAll(calculateBtn, exportBtn);
+
+    VBox mainBox = new VBox(20);
+    mainBox.getChildren().addAll(coBox, poBox, buttonBox);
+    tab.setContent(mainBox);
+
+    return tab;
+}
 
 
 public void main() {

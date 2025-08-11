@@ -147,6 +147,22 @@ private Tab createQuestionInfoTab() {
     return tab;
 }
 
+private Tab createMarksEntryTab() {
+    Tab tab = new Tab("Marks Entry");
+    tab.setClosable(false);
+
+    TabPane entryTabs = new TabPane();
+    entryTabs.getTabs().addAll(
+            createQuizEntryTab("Quiz 1"),
+            createQuizEntryTab("Quiz 2"),
+            createExamEntryTab("Mid Exam"),
+            createExamEntryTab("Final Exam")
+    );
+
+    tab.setContent(entryTabs);
+    return tab;
+}
+
 
 
 

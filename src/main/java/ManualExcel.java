@@ -3,6 +3,7 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
@@ -89,6 +90,64 @@ private Tab createStudentInfoTab() {
     tab.setContent(vbox);
     return tab;
 }
+private Tab createQuestionInfoTab() {
+    Tab tab = new Tab("Question Information");
+    tab.setClosable(false);
+
+    String[] coOptions = {"CO1", "CO2", "CO3", "CO4", "CO5"};
+    String[] poOptions = {"PO1", "PO2", "PO3", "PO4", "PO5"};
+
+    VBox quizBox = new VBox(10);
+    quizBox.setPadding(new Insets(10));
+    quizBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
+
+    Label quizLabel = new Label("Quiz Questions");
+    quizLabel.setStyle("-fx-font-weight: bold;");
+
+    TableView<String> quizTable = new TableView<>();
+    TableColumn<String, String> qNoCol = new TableColumn<>("Q.No");
+    TableColumn<String, String> marksCol = new TableColumn<>("Marks");
+    TableColumn<String, String> coCol = new TableColumn<>("CO");
+    TableColumn<String, String> poCol = new TableColumn<>("PO");
+    quizTable.getColumns().addAll(qNoCol, marksCol, coCol, poCol);
+
+    HBox quizButtonBox = new HBox(10);
+    Button addQuizBtn = new Button("Add Question");
+    Button removeQuizBtn = new Button("Remove Question");
+    quizButtonBox.getChildren().addAll(addQuizBtn, removeQuizBtn);
+
+    quizBox.getChildren().addAll(quizLabel, quizTable, quizButtonBox);
+
+    VBox examBox = new VBox(10);
+    examBox.setPadding(new Insets(10));
+    examBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
+
+    Label examLabel = new Label("Mid/Final Questions");
+    examLabel.setStyle("-fx-font-weight: bold;");
+
+    TableView<String> examTable = new TableView<>();
+    examTable.getColumns().addAll(
+            new TableColumn<>("Q.No"),
+            new TableColumn<>("Marks"),
+            new TableColumn<>("CO"),
+            new TableColumn<>("PO")
+    );
+
+    HBox examButtonBox = new HBox(10);
+    Button addExamBtn = new Button("Add Question");
+    Button removeExamBtn = new Button("Remove Question");
+    examButtonBox.getChildren().addAll(addExamBtn, removeExamBtn);
+
+    examBox.getChildren().addAll(examLabel, examTable, examButtonBox);
+
+    VBox mainBox = new VBox(20);
+    mainBox.getChildren().addAll(quizBox, examBox);
+    tab.setContent(mainBox);
+
+    return tab;
+}
+
+
 
 
 public void main() {

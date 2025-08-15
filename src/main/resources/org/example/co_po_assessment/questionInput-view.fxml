@@ -15,16 +15,16 @@
       <RadioButton fx:id="quiz4RB" layoutX="244.0" layoutY="101.0" mnemonicParsing="false" text="Quiz 4" />
       <RadioButton fx:id="midRB" layoutX="315.0" layoutY="101.0" mnemonicParsing="false" text="Mid" />
       <RadioButton fx:id="finalRB" layoutX="371.0" layoutY="101.0" mnemonicParsing="false" text="Final" />
-      <Label layoutX="25.0" layoutY="75.0" text="Exam" />
+      <Label fx:id="examLabel" layoutX="25.0" layoutY="75.0" text="Exam" />
       <TextField fx:id="questionNoTextField" layoutX="163.0" layoutY="145.0" />
       <Label layoutX="25.0" layoutY="149.0" text="Question No." />
-      <Label layoutX="25.0" layoutY="179.0" text="Marks" />
-      <Label layoutX="25.0" layoutY="209.0" text="CO No." />
-      <Label layoutX="25.0" layoutY="239.0" text="PO No." />
+      <Label fx:id="marksLabel" layoutX="25.0" layoutY="179.0" text="Marks" />
+      <Label fx:id="coLabel" layoutX="25.0" layoutY="209.0" text="CO No." />
+      <Label fx:id="poLabel" layoutX="25.0" layoutY="239.0" text="PO No." />
       <TextField fx:id="marksTextField" layoutX="163.0" layoutY="175.0" />
       <ChoiceBox fx:id="coChoiceBox" layoutX="163.0" layoutY="205.0" prefWidth="150.0" />
       <ChoiceBox fx:id="poChoiceBox" layoutX="163.0" layoutY="235.0" prefWidth="150.0" />
-      <Button layoutX="202.0" layoutY="360.0" mnemonicParsing="false" text="Add Question" />
-      <Button layoutX="325.0" layoutY="360.0" mnemonicParsing="false" text="Go Back" />
+      <Button fx:id="confirmButton" layoutX="202.0" layoutY="360.0" mnemonicParsing="false" text="Confirm" />
+      <Button fx:id="backButton" layoutX="325.0" layoutY="360.0" mnemonicParsing="false" text="Go Back" />
    </children>
 </AnchorPane>

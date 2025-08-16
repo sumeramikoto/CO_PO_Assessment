@@ -1,12 +1,16 @@
 package org.example.co_po_assessment;
 
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
-public class QuestionInputWindow {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class QuestionInputController implements Initializable {
     @FXML
     RadioButton quiz1RB;
-    @FXML    @FXML
+    @FXML
     RadioButton quiz2RB;
     @FXML
     RadioButton quiz3RB;
@@ -45,6 +49,10 @@ public class QuestionInputWindow {
     private final String[] poArray = {"PO1","PO2","PO3","PO4","PO5","PO6","PO7","PO8","PO9","PO10",
                                 "PO11","PO12"};
 
-    
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        coChoiceBox.getItems().addAll(coArray);
+        poChoiceBox.getItems().addAll(poArray);
+    }
 }

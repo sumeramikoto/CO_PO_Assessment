@@ -7,7 +7,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.QuestionInputView">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.QuestionInputController">
    <children>
       <RadioButton fx:id="quiz1RB" layoutX="25.0" layoutY="101.0" mnemonicParsing="false" text="Quiz 1" />
       <RadioButton fx:id="quiz2RB" layoutX="96.0" layoutY="101.0" mnemonicParsing="false" text="Quiz 2" />
@@ -17,7 +17,7 @@
       <RadioButton fx:id="finalRB" layoutX="371.0" layoutY="101.0" mnemonicParsing="false" text="Final" />
       <Label fx:id="examLabel" layoutX="25.0" layoutY="75.0" text="Exam" />
       <TextField fx:id="questionNoTextField" layoutX="163.0" layoutY="145.0" />
-      <Label layoutX="25.0" layoutY="149.0" text="Question No." />
+      <Label fx:id="questionNoLabel" layoutX="25.0" layoutY="149.0" text="Question No." />
       <Label fx:id="marksLabel" layoutX="25.0" layoutY="179.0" text="Marks" />
       <Label fx:id="coLabel" layoutX="25.0" layoutY="209.0" text="CO No." />
       <Label fx:id="poLabel" layoutX="25.0" layoutY="239.0" text="PO No." />

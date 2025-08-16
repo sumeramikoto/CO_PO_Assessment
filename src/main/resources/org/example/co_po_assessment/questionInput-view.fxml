@@ -3,28 +3,22 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.QuestionInputView">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.QuestionInputController">
    <children>
-      <RadioButton fx:id="quiz1RB" layoutX="25.0" layoutY="101.0" mnemonicParsing="false" text="Quiz 1" />
-      <RadioButton fx:id="quiz2RB" layoutX="96.0" layoutY="101.0" mnemonicParsing="false" text="Quiz 2" />
-      <RadioButton fx:id="quiz3RB" layoutX="170.0" layoutY="101.0" mnemonicParsing="false" text="Quiz 3" />
-      <RadioButton fx:id="quiz4RB" layoutX="244.0" layoutY="101.0" mnemonicParsing="false" text="Quiz 4" />
-      <RadioButton fx:id="midRB" layoutX="315.0" layoutY="101.0" mnemonicParsing="false" text="Mid" />
-      <RadioButton fx:id="finalRB" layoutX="371.0" layoutY="101.0" mnemonicParsing="false" text="Final" />
-      <Label fx:id="examLabel" layoutX="25.0" layoutY="75.0" text="Exam" />
+      <Label fx:id="examLabel" layoutX="25.0" layoutY="269.0" text="Exam" />
       <TextField fx:id="questionNoTextField" layoutX="163.0" layoutY="145.0" />
-      <Label layoutX="25.0" layoutY="149.0" text="Question No." />
+      <Label fx:id="questionNoLabel" layoutX="25.0" layoutY="149.0" text="Question No." />
       <Label fx:id="marksLabel" layoutX="25.0" layoutY="179.0" text="Marks" />
       <Label fx:id="coLabel" layoutX="25.0" layoutY="209.0" text="CO No." />
       <Label fx:id="poLabel" layoutX="25.0" layoutY="239.0" text="PO No." />
       <TextField fx:id="marksTextField" layoutX="163.0" layoutY="175.0" />
       <ChoiceBox fx:id="coChoiceBox" layoutX="163.0" layoutY="205.0" prefWidth="150.0" />
       <ChoiceBox fx:id="poChoiceBox" layoutX="163.0" layoutY="235.0" prefWidth="150.0" />
-      <Button fx:id="confirmButton" layoutX="202.0" layoutY="360.0" mnemonicParsing="false" text="Confirm" />
+      <Button fx:id="confirmButton" layoutX="202.0" layoutY="360.0" mnemonicParsing="false" onAction="#addQuestion" text="Confirm" />
       <Button fx:id="backButton" layoutX="325.0" layoutY="360.0" mnemonicParsing="false" text="Go Back" />
+      <ChoiceBox fx:id="examChoiceBox" layoutX="163.0" layoutY="265.0" prefWidth="150.0" />
    </children>
 </AnchorPane>

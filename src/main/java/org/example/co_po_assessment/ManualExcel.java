@@ -19,8 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static javafx.application.Application.launch;
-
 public class ManualExcel extends Application {
 
     private Course currentCourse;
@@ -60,9 +58,9 @@ public class ManualExcel extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-
         initializeSampleData();
     }
+
     private void initializeSampleData() {
 
         currentCourse = new Course("CSE 4101", "Introduction to Data Structure", "Shariar Ivan",
@@ -92,12 +90,9 @@ public class ManualExcel extends Application {
         marksData.put("Final", FXCollections.observableArrayList());
     }
 
-
-
-
-
     private MenuBar createMenuBar() {
         MenuBar menuBar = new MenuBar();
+
         Menu fileMenu = new Menu("File");
         MenuItem newItem = new MenuItem("New");
         newItem.setOnAction(e -> resetApplication());
@@ -130,26 +125,24 @@ public class ManualExcel extends Application {
         quizQuestions.clear();
         examQuestions.clear();
         marksData.values().forEach(ObservableList::clear);
+
         showCourseEditDialog();
     }
 
     private void saveData() {
-        // TImplement data saving logic
+        // Implement data saving logic
         // Could save to file or database
         System.out.println("Data saved (implementation needed)");
     }
 
     private void showCourseEditDialog() {
-        // Create a dialog to edit course information
         Dialog<Course> dialog = new Dialog<>();
         dialog.setTitle("Course Information");
         dialog.setHeaderText("Enter course details");
 
-        // Set the button types
         ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 
-        // Create form fields
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -190,6 +183,7 @@ public class ManualExcel extends Application {
 
         dialog.getDialogPane().setContent(grid);
 
+        // Convert the result to a Course object when the save button is clicked
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
                 try {
@@ -212,15 +206,16 @@ public class ManualExcel extends Application {
 
         dialog.showAndWait().ifPresent(course -> {
             currentCourse = course;
-            // Update UI if needed
+            // Update UI
         });
     }
 
     private void generateReport() {
         // Implement report generation
-        // generate PDF or Excel report
+        // Could generate PDF or Excel report
         System.out.println("Report generated (implementation needed)");
     }
+
     private Tab createStudentInfoTab() {
         Tab tab = new Tab("Student Information");
         tab.setClosable(false);
@@ -277,7 +272,6 @@ public class ManualExcel extends Application {
         studentTable.getColumns().addAll(idCol, nameCol, emailCol);
         studentTable.setItems(students);
 
-        // Buttons
         HBox buttonBox = new HBox(10);
         Button addBtn = new Button("Add Student");
         addBtn.setOnAction(e -> showAddStudentDialog());
@@ -298,6 +292,7 @@ public class ManualExcel extends Application {
         tab.setContent(vbox);
         return tab;
     }
+
     private void showAddStudentDialog() {
         Dialog<Student> dialog = new Dialog<>();
         dialog.setTitle("Add Student");
@@ -338,8 +333,10 @@ public class ManualExcel extends Application {
             }
             return null;
         });
+
         dialog.showAndWait().ifPresent(student -> {
             students.add(student);
+            // Add empty marks entries for this student for all assessments
             marksData.forEach((assessment, marksList) -> {
                 marksList.add(new StudentMark(student.getId(), assessment));
             });
@@ -360,7 +357,7 @@ public class ManualExcel extends Application {
         quizTable = new TableView<>();
         quizTable.setEditable(true);
 
-        TableColumn<AssessmentQuestion, String> qNoCol = new TableColumn<>("Q.No");
+        TableColumn<AssessmentQuestion, String> qNoCol = new TableColumn<>("Question");
         qNoCol.setCellValueFactory(new PropertyValueFactory<>("number"));
         qNoCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
@@ -408,7 +405,6 @@ public class ManualExcel extends Application {
         examTable = new TableView<>();
         examTable.setEditable(true);
 
-
         TableColumn<AssessmentQuestion, String> eqNoCol = new TableColumn<>("Question");
         eqNoCol.setCellValueFactory(new PropertyValueFactory<>("number"));
         eqNoCol.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -453,6 +449,7 @@ public class ManualExcel extends Application {
 
         return tab;
     }
+
     private void showAddQuestionDialog(String type) {
         Dialog<AssessmentQuestion> dialog = new Dialog<>();
         dialog.setTitle("Add " + type + " Question");
@@ -521,6 +518,7 @@ public class ManualExcel extends Application {
             }
         });
     }
+
     private Tab createMarksEntryTab() {
         Tab tab = new Tab("Marks Entry");
         tab.setClosable(false);
@@ -546,7 +544,6 @@ public class ManualExcel extends Application {
 
         TableColumn<StudentMark, String> sidCol = new TableColumn<>("Student ID");
         sidCol.setCellValueFactory(cellData -> cellData.getValue().studentIdProperty());
-
 
         TableColumn<StudentMark, String> nameCol = new TableColumn<>("Name");
         nameCol.setCellValueFactory(cellData -> {
@@ -579,7 +576,6 @@ public class ManualExcel extends Application {
             });
             qCol.setCellFactory(column -> new TextFieldTableCell<>(new DoubleStringConverter()));
 
-
             qCol.setOnEditCommit(event -> {
                 StudentMark studentMark = event.getRowValue();
                 studentMark.addQuestionMark(question.getNumber(), event.getNewValue());
@@ -588,12 +584,10 @@ public class ManualExcel extends Application {
             marksTable.getColumns().add(qCol);
         }
 
-        // Total column
         TableColumn<StudentMark, Double> totalCol = new TableColumn<>("Total");
         totalCol.setCellValueFactory(cellData -> cellData.getValue().totalProperty().asObject());
         marksTable.getColumns().add(totalCol);
 
-        // Set the items for this assessment type
         marksTable.setItems(marksData.get(assessmentType));
 
         tab.setContent(marksTable);
@@ -679,13 +673,14 @@ public class ManualExcel extends Application {
         Map<String, Double> poAttainment = calculatePOAttainment();
         poTable.setItems(FXCollections.observableArrayList(poAttainment.entrySet()));
     }
+
     private Map<String, Double> calculateCOAttainment() {
         Map<String, Double> coAttainment = new HashMap<>();
 
-        // for now average of all marks for each CO
-        //  replaced with actual CO calculation logic
+        // average of all marks for each CO
+        // should be replaced with actual CO calculation logic
 
-        // Get all questions grouped by CO
+
         Map<String, List<AssessmentQuestion>> coQuestions = new HashMap<>();
         for (AssessmentQuestion q : quizQuestions) {
             coQuestions.computeIfAbsent(q.getCo(), k -> new ArrayList<>()).add(q);
@@ -694,7 +689,7 @@ public class ManualExcel extends Application {
             coQuestions.computeIfAbsent(q.getCo(), k -> new ArrayList<>()).add(q);
         }
 
-        // Calculate attainment for each CO
+
         for (Map.Entry<String, List<AssessmentQuestion>> entry : coQuestions.entrySet()) {
             String co = entry.getKey();
             List<AssessmentQuestion> questions = entry.getValue();
@@ -706,7 +701,7 @@ public class ManualExcel extends Application {
             for (Student student : students) {
                 double studentTotal = 0;
                 for (AssessmentQuestion q : questions) {
-                    // Find the student's mark for this question
+
                     StudentMark mark = marksData.get(q.getAssessmentType()).stream()
                             .filter(m -> m.getStudentId().equals(student.getId()))
                             .findFirst()
@@ -734,9 +729,9 @@ public class ManualExcel extends Application {
         Map<String, Double> poAttainment = new HashMap<>();
 
         // average of all marks for each PO
-        //  replaced with your actual PO calculation logic
+        // should be replaced with actual PO calculation logic
 
-        // Get all questions grouped by PO
+
         Map<String, List<AssessmentQuestion>> poQuestions = new HashMap<>();
         for (AssessmentQuestion q : quizQuestions) {
             poQuestions.computeIfAbsent(q.getPo(), k -> new ArrayList<>()).add(q);
@@ -745,7 +740,7 @@ public class ManualExcel extends Application {
             poQuestions.computeIfAbsent(q.getPo(), k -> new ArrayList<>()).add(q);
         }
 
-        // Calculate attainment for each PO
+
         for (Map.Entry<String, List<AssessmentQuestion>> entry : poQuestions.entrySet()) {
             String po = entry.getKey();
             List<AssessmentQuestion> questions = entry.getValue();
@@ -757,7 +752,7 @@ public class ManualExcel extends Application {
             for (Student student : students) {
                 double studentTotal = 0;
                 for (AssessmentQuestion q : questions) {
-
+                    
                     StudentMark mark = marksData.get(q.getAssessmentType()).stream()
                             .filter(m -> m.getStudentId().equals(student.getId()))
                             .findFirst()
@@ -781,9 +776,7 @@ public class ManualExcel extends Application {
         return poAttainment;
     }
 
-    }
-
-    
     public static void main(String[] args) {
         launch(args);
     }
+}

@@ -188,7 +188,25 @@ public class ManualExcel extends Application {
 
         dialog.getDialogPane().setContent(grid);
 
-       
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                try {
+                    return new Course(
+                            codeField.getText(),
+                            titleField.getText(),
+                            instructorField.getText(),
+                            yearField.getText(),
+                            Double.parseDouble(creditField.getText()),
+                            programField.getText(),
+                            deptField.getText()
+                    );
+                } catch (NumberFormatException e) {
+                    new Alert(Alert.AlertType.ERROR, "Invalid credit value").show();
+                    return null;
+                }
+            }
+            return null;
+        });
     }
 
 

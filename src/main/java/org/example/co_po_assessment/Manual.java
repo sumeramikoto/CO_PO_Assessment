@@ -33,8 +33,12 @@ public class Manual extends Application {
     private TableView<Map.Entry<String, Double>> coTable;
     private TableView<Map.Entry<String, Double>> poTable;
 
+    // Add this to keep track of marks entry tabs
+    private Map<String, TableView<StudentMark>> marksEntryTables = new HashMap<>();
+
     @Override
     public void start(Stage primaryStage) {
+        initializeSampleData();
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(10));
 
@@ -58,11 +62,10 @@ public class Manual extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        initializeSampleData();
+
     }
 
     private void initializeSampleData() {
-
         currentCourse = new Course("CSE 4101", "Introduction to Data Structure", "Shariar Ivan",
                 "2023-2024", 3.0, "SWE", "CSE");
 
@@ -84,10 +87,53 @@ public class Manual extends Application {
                 new AssessmentQuestion("Q1", 30, "CO4", "PO4", "Final")
         );
 
-        marksData.put("Quiz1", FXCollections.observableArrayList());
-        marksData.put("Quiz2", FXCollections.observableArrayList());
-        marksData.put("Mid", FXCollections.observableArrayList());
-        marksData.put("Final", FXCollections.observableArrayList());
+        // Initialize marks data AFTER adding students
+        initializeMarksData();
+    }
+
+    // Add this method to properly initialize marks data
+    private void initializeMarksData() {
+        String[] assessmentTypes = {"Quiz1", "Quiz2", "Quiz3", "Quiz4", "Mid", "Final"};
+
+        marksData.clear(); // Clear existing data
+
+        for (String assessmentType : assessmentTypes) {
+            ObservableList<StudentMark> marksList = FXCollections.observableArrayList();
+
+            // Add a StudentMark entry for each student for this assessment type
+            for (Student student : students) {
+                marksList.add(new StudentMark(student.getId(), assessmentType));
+            }
+
+            marksData.put(assessmentType, marksList);
+        }
+    }
+    // Add this method to refresh marks data when students are added/removed
+    private void refreshMarksData() {
+        for (Map.Entry<String, ObservableList<StudentMark>> entry : marksData.entrySet()) {
+            String assessmentType = entry.getKey();
+            ObservableList<StudentMark> marksList = entry.getValue();
+
+            // Clear existing marks
+            marksList.clear();
+
+            // Add marks for all current students
+            for (Student student : students) {
+                marksList.add(new StudentMark(student.getId(), assessmentType));
+            }
+        }
+
+        // Refresh the marks entry tables
+        refreshMarksEntryTables();
+    }
+
+    // Add this method to refresh marks entry tables
+    private void refreshMarksEntryTables() {
+        for (TableView<StudentMark> table : marksEntryTables.values()) {
+            if (table != null) {
+                table.refresh();
+            }
+        }
     }
 
     private MenuBar createMenuBar() {
@@ -281,6 +327,8 @@ public class Manual extends Application {
             Student selected = studentTable.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 students.remove(selected);
+                // Refresh marks data after removing student
+                refreshMarksData();
             }
         });
 
@@ -336,10 +384,8 @@ public class Manual extends Application {
 
         dialog.showAndWait().ifPresent(student -> {
             students.add(student);
-            // Add empty marks entries for this student for all assessments
-            marksData.forEach((assessment, marksList) -> {
-                marksList.add(new StudentMark(student.getId(), assessment));
-            });
+            // Refresh marks data after adding new student
+            refreshMarksData();
         });
     }
 
@@ -542,6 +588,9 @@ public class Manual extends Application {
         TableView<StudentMark> marksTable = new TableView<>();
         marksTable.setEditable(true);
 
+        // Store reference to the marks table for refreshing
+        marksEntryTables.put(assessmentType, marksTable);
+
         TableColumn<StudentMark, String> sidCol = new TableColumn<>("Student ID");
         sidCol.setCellValueFactory(cellData -> cellData.getValue().studentIdProperty());
 
@@ -552,12 +601,50 @@ public class Manual extends Application {
                     .filter(s -> s.getId().equals(studentId))
                     .findFirst()
                     .orElse(null);
-            return student != null ? student.nameProperty() : null;
+            return student != null ? student.nameProperty() : new javafx.beans.property.SimpleStringProperty("");
         });
 
         marksTable.getColumns().addAll(sidCol, nameCol);
 
+        // Get questions for this assessment type
+        List<AssessmentQuestion> questions = getQuestionsForAssessment(assessmentType);
+
+        for (AssessmentQuestion question : questions) {
+            TableColumn<StudentMark, Double> qCol = new TableColumn<>(question.getNumber() + " (" + question.getMarks() + ")");
+
+            qCol.setCellValueFactory(cellData -> {
+                Double mark = cellData.getValue().getQuestionMarks().get(question.getNumber());
+                return new javafx.beans.property.SimpleDoubleProperty(mark != null ? mark : 0.0).asObject();
+            });
+
+            qCol.setCellFactory(column -> new TextFieldTableCell<>(new DoubleStringConverter()));
+
+            qCol.setOnEditCommit(event -> {
+                StudentMark studentMark = event.getRowValue();
+                Double newValue = event.getNewValue();
+                if (newValue != null) {
+                    studentMark.addQuestionMark(question.getNumber(), newValue);
+                }
+            });
+
+            marksTable.getColumns().add(qCol);
+        }
+
+        TableColumn<StudentMark, Double> totalCol = new TableColumn<>("Total");
+        totalCol.setCellValueFactory(cellData -> cellData.getValue().totalProperty().asObject());
+        marksTable.getColumns().add(totalCol);
+
+        // Set the items for this assessment type
+        marksTable.setItems(marksData.get(assessmentType));
+
+        tab.setContent(marksTable);
+        return tab;
+    }
+
+    // Helper method to get questions for a specific assessment type
+    private List<AssessmentQuestion> getQuestionsForAssessment(String assessmentType) {
         List<AssessmentQuestion> questions = new ArrayList<>();
+
         if (assessmentType.startsWith("Quiz")) {
             questions = quizQuestions.stream()
                     .filter(q -> q.getAssessmentType().equals(assessmentType))
@@ -568,30 +655,7 @@ public class Manual extends Application {
                     .toList();
         }
 
-        for (AssessmentQuestion question : questions) {
-            TableColumn<StudentMark, Double> qCol = new TableColumn<>(question.getNumber());
-            qCol.setCellValueFactory(cellData -> {
-                Double mark = cellData.getValue().getQuestionMarks().get(question.getNumber());
-                return mark != null ? javafx.beans.binding.Bindings.createObjectBinding(() -> mark) : null;
-            });
-            qCol.setCellFactory(column -> new TextFieldTableCell<>(new DoubleStringConverter()));
-
-            qCol.setOnEditCommit(event -> {
-                StudentMark studentMark = event.getRowValue();
-                studentMark.addQuestionMark(question.getNumber(), event.getNewValue());
-            });
-
-            marksTable.getColumns().add(qCol);
-        }
-
-        TableColumn<StudentMark, Double> totalCol = new TableColumn<>("Total");
-        totalCol.setCellValueFactory(cellData -> cellData.getValue().totalProperty().asObject());
-        marksTable.getColumns().add(totalCol);
-
-        marksTable.setItems(marksData.get(assessmentType));
-
-        tab.setContent(marksTable);
-        return tab;
+        return questions;
     }
 
     private Tab createResultsTab() {
@@ -680,7 +744,6 @@ public class Manual extends Application {
         // average of all marks for each CO
         // should be replaced with actual CO calculation logic
 
-
         Map<String, List<AssessmentQuestion>> coQuestions = new HashMap<>();
         for (AssessmentQuestion q : quizQuestions) {
             coQuestions.computeIfAbsent(q.getCo(), k -> new ArrayList<>()).add(q);
@@ -688,7 +751,6 @@ public class Manual extends Application {
         for (AssessmentQuestion q : examQuestions) {
             coQuestions.computeIfAbsent(q.getCo(), k -> new ArrayList<>()).add(q);
         }
-
 
         for (Map.Entry<String, List<AssessmentQuestion>> entry : coQuestions.entrySet()) {
             String co = entry.getKey();
@@ -731,7 +793,6 @@ public class Manual extends Application {
         // average of all marks for each PO
         // should be replaced with actual PO calculation logic
 
-
         Map<String, List<AssessmentQuestion>> poQuestions = new HashMap<>();
         for (AssessmentQuestion q : quizQuestions) {
             poQuestions.computeIfAbsent(q.getPo(), k -> new ArrayList<>()).add(q);
@@ -739,7 +800,6 @@ public class Manual extends Application {
         for (AssessmentQuestion q : examQuestions) {
             poQuestions.computeIfAbsent(q.getPo(), k -> new ArrayList<>()).add(q);
         }
-
 
         for (Map.Entry<String, List<AssessmentQuestion>> entry : poQuestions.entrySet()) {
             String po = entry.getKey();
@@ -752,7 +812,7 @@ public class Manual extends Application {
             for (Student student : students) {
                 double studentTotal = 0;
                 for (AssessmentQuestion q : questions) {
-                    
+
                     StudentMark mark = marksData.get(q.getAssessmentType()).stream()
                             .filter(m -> m.getStudentId().equals(student.getId()))
                             .findFirst()

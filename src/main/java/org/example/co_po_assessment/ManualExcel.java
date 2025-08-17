@@ -132,7 +132,7 @@ public class ManualExcel extends Application {
     }
 
     private void saveData() {
-        // TODO: Implement data saving logic
+        // TImplement data saving logic
         // Could save to file or database
         System.out.println("Data saved (implementation needed)");
     }
@@ -212,6 +212,12 @@ public class ManualExcel extends Application {
             currentCourse = course;
             // Update UI if needed
         });
+    }
+
+    private void generateReport() {
+        // Implement report generation
+        // generate PDF or Excel report
+        System.out.println("Report generated (implementation needed)");
     }
     }
 

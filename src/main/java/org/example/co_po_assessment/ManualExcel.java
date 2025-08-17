@@ -673,10 +673,61 @@ public class ManualExcel extends Application {
     private void calculateResults() {
         Map<String, Double> coAttainment = calculateCOAttainment();
         coTable.setItems(FXCollections.observableArrayList(coAttainment.entrySet()));
-        
+
         Map<String, Double> poAttainment = calculatePOAttainment();
         poTable.setItems(FXCollections.observableArrayList(poAttainment.entrySet()));
     }
+    private Map<String, Double> calculateCOAttainment() {
+        Map<String, Double> coAttainment = new HashMap<>();
+
+        // for now average of all marks for each CO
+        //  replaced with actual CO calculation logic
+
+        // Get all questions grouped by CO
+        Map<String, List<AssessmentQuestion>> coQuestions = new HashMap<>();
+        for (AssessmentQuestion q : quizQuestions) {
+            coQuestions.computeIfAbsent(q.getCo(), k -> new ArrayList<>()).add(q);
+        }
+        for (AssessmentQuestion q : examQuestions) {
+            coQuestions.computeIfAbsent(q.getCo(), k -> new ArrayList<>()).add(q);
+        }
+
+        // Calculate attainment for each CO
+        for (Map.Entry<String, List<AssessmentQuestion>> entry : coQuestions.entrySet()) {
+            String co = entry.getKey();
+            List<AssessmentQuestion> questions = entry.getValue();
+
+            double totalPossible = questions.stream().mapToDouble(AssessmentQuestion::getMarks).sum();
+            double totalAchieved = 0;
+            int studentCount = 0;
+
+            for (Student student : students) {
+                double studentTotal = 0;
+                for (AssessmentQuestion q : questions) {
+                    // Find the student's mark for this question
+                    StudentMark mark = marksData.get(q.getAssessmentType()).stream()
+                            .filter(m -> m.getStudentId().equals(student.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (mark != null) {
+                        Double qMark = mark.getQuestionMarks().get(q.getNumber());
+                        if (qMark != null) {
+                            studentTotal += qMark;
+                        }
+                    }
+                }
+                totalAchieved += (studentTotal / totalPossible) * 100;
+                studentCount++;
+            }
+
+            double averageAttainment = studentCount > 0 ? totalAchieved / studentCount : 0;
+            coAttainment.put(co, averageAttainment);
+        }
+
+        return coAttainment;
+    }
+
     }
 
     }

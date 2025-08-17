@@ -601,7 +601,7 @@ public class ManualExcel extends Application {
     private Tab createResultsTab() {
         Tab tab = new Tab("Results");
         tab.setClosable(false);
-        
+
         VBox coBox = new VBox(10);
         coBox.setPadding(new Insets(10));
         coBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
@@ -627,6 +627,32 @@ public class ManualExcel extends Application {
         coTable.getColumns().addAll(coNameCol, coValueCol, coStatusCol);
 
         coBox.getChildren().addAll(coLabel, coTable);
+        
+        VBox poBox = new VBox(10);
+        poBox.setPadding(new Insets(10));
+        poBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
+
+        Label poLabel = new Label("PO Attainment");
+        poLabel.setStyle("-fx-font-weight: bold;");
+
+        poTable = new TableView<>();
+
+        TableColumn<Map.Entry<String, Double>, String> poNameCol = new TableColumn<>("PO");
+        poNameCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getKey()));
+
+        TableColumn<Map.Entry<String, Double>, Double> poValueCol = new TableColumn<>("Attainment %");
+        poValueCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleDoubleProperty(cellData.getValue().getValue()).asObject());
+
+        TableColumn<Map.Entry<String, Double>, String> poStatusCol = new TableColumn<>("Status");
+        poStatusCol.setCellValueFactory(cellData -> {
+            double value = cellData.getValue().getValue();
+            String status = value >= 70 ? "Achieved" : value >= 50 ? "Partially Achieved" : "Not Achieved";
+            return new javafx.beans.property.SimpleStringProperty(status);
+        });
+
+        poTable.getColumns().addAll(poNameCol, poValueCol, poStatusCol);
+
+        poBox.getChildren().addAll(poLabel, poTable);
     }
     }
 

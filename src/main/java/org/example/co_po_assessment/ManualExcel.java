@@ -669,6 +669,11 @@ public class ManualExcel extends Application {
 
         return tab;
     }
+
+    private void calculateResults() {
+        Map<String, Double> coAttainment = calculateCOAttainment();
+        coTable.setItems(FXCollections.observableArrayList(coAttainment.entrySet()));
+    }
     }
 
     }

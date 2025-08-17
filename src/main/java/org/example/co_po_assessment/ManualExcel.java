@@ -728,6 +728,57 @@ public class ManualExcel extends Application {
         return coAttainment;
     }
 
+    private Map<String, Double> calculatePOAttainment() {
+        Map<String, Double> poAttainment = new HashMap<>();
+
+        // average of all marks for each PO
+        //  replaced with your actual PO calculation logic
+
+        // Get all questions grouped by PO
+        Map<String, List<AssessmentQuestion>> poQuestions = new HashMap<>();
+        for (AssessmentQuestion q : quizQuestions) {
+            poQuestions.computeIfAbsent(q.getPo(), k -> new ArrayList<>()).add(q);
+        }
+        for (AssessmentQuestion q : examQuestions) {
+            poQuestions.computeIfAbsent(q.getPo(), k -> new ArrayList<>()).add(q);
+        }
+
+        // Calculate attainment for each PO
+        for (Map.Entry<String, List<AssessmentQuestion>> entry : poQuestions.entrySet()) {
+            String po = entry.getKey();
+            List<AssessmentQuestion> questions = entry.getValue();
+
+            double totalPossible = questions.stream().mapToDouble(AssessmentQuestion::getMarks).sum();
+            double totalAchieved = 0;
+            int studentCount = 0;
+
+            for (Student student : students) {
+                double studentTotal = 0;
+                for (AssessmentQuestion q : questions) {
+
+                    StudentMark mark = marksData.get(q.getAssessmentType()).stream()
+                            .filter(m -> m.getStudentId().equals(student.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (mark != null) {
+                        Double qMark = mark.getQuestionMarks().get(q.getNumber());
+                        if (qMark != null) {
+                            studentTotal += qMark;
+                        }
+                    }
+                }
+                totalAchieved += (studentTotal / totalPossible) * 100;
+                studentCount++;
+            }
+
+            double averageAttainment = studentCount > 0 ? totalAchieved / studentCount : 0;
+            poAttainment.put(po, averageAttainment);
+        }
+
+        return poAttainment;
+    }
+
     }
 
     }

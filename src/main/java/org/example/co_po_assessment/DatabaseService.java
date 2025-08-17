@@ -534,6 +534,69 @@ public class DatabaseService {
         return performance;
     }
 
+
+    public void insertCourse(String courseId, String courseCode, String courseName, double credits, int instructorId) throws SQLException {
+        String sql = "INSERT INTO Course (id, course_code, course_name, credits, instructor_id) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseId);
+            stmt.setString(2, courseCode);
+            stmt.setString(3, courseName);
+            stmt.setDouble(4, credits);
+            stmt.setInt(5, instructorId);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void insertStudent(int id, int batch, String name, String email, int year) throws SQLException {
+        String sql = "INSERT INTO Student (id, batch, name, email, year) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.setInt(2, batch);
+            stmt.setString(3, name);
+            stmt.setString(4, email);
+            stmt.setInt(5, year);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void enrollStudent(int studentId, String courseId) throws SQLException {
+        String sql = "INSERT INTO Enrollment (student_id, course_id) VALUES (?, ?)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, studentId);
+            stmt.setString(2, courseId);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void insertCO(String courseId, String coNumber, String description) throws SQLException {
+        String sql = "INSERT INTO CO (course_id, co_number, description) VALUES (?, ?, ?)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseId);
+            stmt.setString(2, coNumber);
+            stmt.setString(3, description);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void insertPO(String poNumber, String description) throws SQLException {
+        String sql = "INSERT INTO PO (po_number, description) VALUES (?, ?) ON DUPLICATE KEY UPDATE description = VALUES(description)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, poNumber);
+            stmt.setString(2, description);
+            stmt.executeUpdate();
+        }
+    }
+
     // Data classes
     public static class QuestionData {
         public final String title;

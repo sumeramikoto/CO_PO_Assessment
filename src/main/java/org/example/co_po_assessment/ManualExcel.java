@@ -131,6 +131,12 @@ public class ManualExcel extends Application {
         showCourseEditDialog();
     }
 
+    private void saveData() {
+        // TODO: Implement data saving logic
+        // Could save to file or database
+        System.out.println("Data saved (implementation needed)");
+    }
+
 
     private Tab createQuestionInfoTab() {
         Tab tab = new Tab("Question Information");

@@ -58,9 +58,38 @@ public class ManualExcel extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        // Initialize with sample data (remove in production)
+
         initializeSampleData();
     }
+    private void initializeSampleData() {
+
+        currentCourse = new Course("CSE 4101", "Introduction to Data Structure", "Shariar Ivan",
+                "2023-2024", 3.0, "SWE", "CSE");
+
+        students.addAll(
+                new Student("220042101", "Navid Ibrahim", "navidibhrahimovic@iut-dhaka.edu", "01717655515"),
+                new Student("220042128", "Naybur Rahman Sinha", "sinhawiz@iut-dhaka.edu", "0144456416"),
+                new Student("220042134", "Tahir Zaman Umar", "tahirumar@iut-dhaka.edu", "01779770359")
+        );
+
+        quizQuestions.addAll(
+                new AssessmentQuestion("Q1", 5, "CO1", "PO1", "Quiz1"),
+                new AssessmentQuestion("Q2", 5, "CO2", "PO2", "Quiz1"),
+                new AssessmentQuestion("Q1", 10, "CO3", "PO3", "Quiz2")
+        );
+
+        examQuestions.addAll(
+                new AssessmentQuestion("Q1", 20, "CO1", "PO1", "Mid"),
+                new AssessmentQuestion("Q2", 20, "CO2", "PO2", "Mid"),
+                new AssessmentQuestion("Q1", 30, "CO4", "PO4", "Final")
+        );
+
+        marksData.put("Quiz1", FXCollections.observableArrayList());
+        marksData.put("Quiz2", FXCollections.observableArrayList());
+        marksData.put("Mid", FXCollections.observableArrayList());
+        marksData.put("Final", FXCollections.observableArrayList());
+    }
+
 
 
 

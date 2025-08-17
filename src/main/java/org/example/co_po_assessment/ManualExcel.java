@@ -336,6 +336,12 @@ public class ManualExcel extends Application {
             }
             return null;
         });
+        dialog.showAndWait().ifPresent(student -> {
+            students.add(student);
+            marksData.forEach((assessment, marksList) -> {
+                marksList.add(new StudentMark(student.getId(), assessment));
+            });
+        });
     }
 
 

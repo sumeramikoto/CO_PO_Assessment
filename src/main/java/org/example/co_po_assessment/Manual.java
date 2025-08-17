@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,8 @@ import java.util.Map;
 public class Manual extends Application {
     private TabPane marksEntryTabPane;
     private Course currentCourse;
+    private DatabaseService.CourseData selectedCourseData;
+    private String selectedAcademicYear;
     private ObservableList<Student> students = FXCollections.observableArrayList();
     private ObservableList<AssessmentQuestion> quizQuestions = FXCollections.observableArrayList();
     private ObservableList<AssessmentQuestion> examQuestions = FXCollections.observableArrayList();
@@ -35,6 +38,15 @@ public class Manual extends Application {
 
     // Store reference to primary stage
     private Stage primaryStage;
+    
+    // Database service instance
+    private DatabaseService dbService = DatabaseService.getInstance();
+
+    // Course selection fields for UI updates
+    private TextField displayCourseCodeField;
+    private TextField displayCourseTitleField;
+    private TextField displayInstructorField;
+    private TextField displayAcademicYearField;
 
     // Add this to keep track of marks entry tabs
     private Map<String, TableView<StudentMark>> marksEntryTables = new HashMap<>();
@@ -218,84 +230,246 @@ public class Manual extends Application {
     }
 
     private void showCourseEditDialog() {
-        Dialog<Course> dialog = new Dialog<>();
-        dialog.setTitle("Course Information");
-        dialog.setHeaderText("Enter course details");
+        Dialog<Boolean> dialog = new Dialog<>();
+        dialog.setTitle("Course Selection");
+        dialog.setHeaderText("Select course details from database");
 
-        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+        ButtonType selectButtonType = new ButtonType("Select Course", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(selectButtonType, ButtonType.CANCEL);
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 10, 10, 10));
 
-        TextField codeField = new TextField();
-        TextField titleField = new TextField();
-        TextField instructorField = new TextField();
-        TextField yearField = new TextField();
-        TextField creditField = new TextField();
-        TextField programField = new TextField();
-        TextField deptField = new TextField();
+        // Create dropdowns
+        ComboBox<String> courseCodeCombo = new ComboBox<>();
+        ComboBox<String> instructorCombo = new ComboBox<>();
+        ComboBox<String> courseTitleCombo = new ComboBox<>();
+        ComboBox<String> academicYearCombo = new ComboBox<>();
+        
+        // Labels for readonly fields
+        Label creditLabel = new Label("");
+        Label statusLabel = new Label("Please select course details");
+        statusLabel.setStyle("-fx-text-fill: blue;");
 
-        if (currentCourse != null) {
-            codeField.setText(currentCourse.getCode());
-            titleField.setText(currentCourse.getTitle());
-            instructorField.setText(currentCourse.getInstructor());
-            yearField.setText(currentCourse.getAcademicYear());
-            creditField.setText(String.valueOf(currentCourse.getCredit()));
-            programField.setText(currentCourse.getProgram());
-            deptField.setText(currentCourse.getDepartment());
+        try {
+            // Populate dropdowns from database
+            courseCodeCombo.getItems().addAll(dbService.getCourseCodes());
+            instructorCombo.getItems().addAll(dbService.getInstructorNames());
+            academicYearCombo.getItems().addAll(dbService.getAcademicYears());
+        } catch (SQLException e) {
+            statusLabel.setText("Error loading data from database: " + e.getMessage());
+            statusLabel.setStyle("-fx-text-fill: red;");
         }
 
+        // Event handlers for dropdown changes
+        courseCodeCombo.setOnAction(e -> updateCourseTitlesByCode(courseCodeCombo.getValue(), courseTitleCombo, instructorCombo, creditLabel, statusLabel));
+        instructorCombo.setOnAction(e -> updateCoursesByInstructor(instructorCombo.getValue(), courseTitleCombo, courseCodeCombo, creditLabel, statusLabel));
+        
+        // When both course code and instructor are selected, validate and show course details
+        Runnable validateSelection = () -> {
+            String selectedCode = courseCodeCombo.getValue();
+            String selectedInstructor = instructorCombo.getValue();
+            
+            if (selectedCode != null && selectedInstructor != null) {
+                try {
+                    DatabaseService.CourseData courseData = dbService.getCourseByCodeAndInstructor(selectedCode, selectedInstructor);
+                    if (courseData != null) {
+                        courseTitleCombo.setValue(courseData.courseName);
+                        creditLabel.setText(String.valueOf(courseData.credits));
+                        statusLabel.setText("Course found - ready to select");
+                        statusLabel.setStyle("-fx-text-fill: green;");
+                        selectedCourseData = courseData;
+                    } else {
+                        statusLabel.setText("No matching course found for this combination");
+                        statusLabel.setStyle("-fx-text-fill: red;");
+                        selectedCourseData = null;
+                    }
+                } catch (SQLException ex) {
+                    statusLabel.setText("Database error: " + ex.getMessage());
+                    statusLabel.setStyle("-fx-text-fill: red;");
+                    selectedCourseData = null;
+                }
+            }
+        };
+
+        courseCodeCombo.setOnAction(e -> validateSelection.run());
+        instructorCombo.setOnAction(e -> validateSelection.run());
+
         grid.add(new Label("Course Code:"), 0, 0);
-        grid.add(codeField, 1, 0);
-        grid.add(new Label("Course Title:"), 0, 1);
-        grid.add(titleField, 1, 1);
-        grid.add(new Label("Instructor:"), 0, 2);
-        grid.add(instructorField, 1, 2);
+        grid.add(courseCodeCombo, 1, 0);
+        grid.add(new Label("Instructor:"), 0, 1);
+        grid.add(instructorCombo, 1, 1);
+        grid.add(new Label("Course Title:"), 0, 2);
+        grid.add(courseTitleCombo, 1, 2);
         grid.add(new Label("Academic Year:"), 0, 3);
-        grid.add(yearField, 1, 3);
-        grid.add(new Label("Credit:"), 0, 4);
-        grid.add(creditField, 1, 4);
-        grid.add(new Label("Program:"), 0, 5);
-        grid.add(programField, 1, 5);
-        grid.add(new Label("Department:"), 0, 6);
-        grid.add(deptField, 1, 6);
+        grid.add(academicYearCombo, 1, 3);
+        grid.add(new Label("Credits:"), 0, 4);
+        grid.add(creditLabel, 1, 4);
+        grid.add(new Label("Status:"), 0, 5);
+        grid.add(statusLabel, 1, 5);
+
+        // Make course title readonly
+        courseTitleCombo.setEditable(false);
 
         dialog.getDialogPane().setContent(grid);
 
-        // Convert the result to a Course object when the save button is clicked
+        // Convert the result to boolean when the select button is clicked
         dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == saveButtonType) {
-                try {
-                    return new Course(
-                            codeField.getText(),
-                            titleField.getText(),
-                            instructorField.getText(),
-                            yearField.getText(),
-                            Double.parseDouble(creditField.getText()),
-                            programField.getText(),
-                            deptField.getText()
-                    );
-                } catch (NumberFormatException e) {
-                    new Alert(Alert.AlertType.ERROR, "Invalid credit value").show();
-                    return null;
+            if (dialogButton == selectButtonType) {
+                if (selectedCourseData != null && academicYearCombo.getValue() != null) {
+                    selectedAcademicYear = academicYearCombo.getValue();
+                    return true;
+                } else {
+                    new Alert(Alert.AlertType.ERROR, "Please select all required fields").show();
+                    return false;
                 }
             }
-            return null;
+            return false;
         });
 
-        dialog.showAndWait().ifPresent(course -> {
-            currentCourse = course;
-            // Update UI
+        dialog.showAndWait().ifPresent(success -> {
+            if (success && selectedCourseData != null) {
+                // Update the current course object
+                currentCourse = new Course(
+                    selectedCourseData.courseCode,
+                    selectedCourseData.courseName,
+                    selectedCourseData.instructorName,
+                    selectedAcademicYear,
+                    selectedCourseData.credits,
+                    "SWE", // Default program
+                    "CSE"  // Default department
+                );
+                
+                // Load students and questions from database
+                loadCourseDataFromDatabase();
+                
+                // Update UI displays
+                updateCourseDisplayFields();
+            }
         });
     }
 
-    private void generateReport() {
-        // Implement report generation
-        // Could generate PDF or Excel report
-        System.out.println("Report generated (implementation needed)");
+    private void updateCourseTitlesByCode(String courseCode, ComboBox<String> courseTitleCombo, 
+                                        ComboBox<String> instructorCombo, Label creditLabel, Label statusLabel) {
+        if (courseCode != null) {
+            try {
+                // Get courses with this code (there might be multiple with different instructors)
+                List<String> instructors = dbService.getInstructorNames();
+                // Filter instructors who teach this course
+                instructorCombo.getItems().clear();
+                for (String instructor : instructors) {
+                    DatabaseService.CourseData courseData = dbService.getCourseByCodeAndInstructor(courseCode, instructor);
+                    if (courseData != null) {
+                        instructorCombo.getItems().add(instructor);
+                    }
+                }
+                statusLabel.setText("Select instructor for " + courseCode);
+                statusLabel.setStyle("-fx-text-fill: blue;");
+            } catch (SQLException e) {
+                statusLabel.setText("Error loading instructors: " + e.getMessage());
+                statusLabel.setStyle("-fx-text-fill: red;");
+            }
+        }
+    }
+
+    private void updateCoursesByInstructor(String instructor, ComboBox<String> courseTitleCombo, 
+                                         ComboBox<String> courseCodeCombo, Label creditLabel, Label statusLabel) {
+        if (instructor != null) {
+            try {
+                List<String> courseNames = dbService.getCoursesByInstructor(instructor);
+                courseTitleCombo.getItems().clear();
+                courseTitleCombo.getItems().addAll(courseNames);
+                statusLabel.setText("Select course code for " + instructor);
+                statusLabel.setStyle("-fx-text-fill: blue;");
+            } catch (SQLException e) {
+                statusLabel.setText("Error loading courses: " + e.getMessage());
+                statusLabel.setStyle("-fx-text-fill: red;");
+            }
+        }
+    }
+
+    private void loadCourseDataFromDatabase() {
+        if (selectedCourseData == null) return;
+        
+        try {
+            // Clear existing data
+            students.clear();
+            quizQuestions.clear();
+            examQuestions.clear();
+            
+            // Load enrolled students
+            List<DatabaseService.StudentData> dbStudents = dbService.getEnrolledStudents(selectedCourseData.id);
+            for (DatabaseService.StudentData studentData : dbStudents) {
+                students.add(new Student(
+                    String.valueOf(studentData.id),
+                    studentData.name,
+                    studentData.email,
+                    "" // Contact info not in database
+                ));
+            }
+            
+            // Load quiz questions
+            for (int quizNum = 1; quizNum <= 4; quizNum++) {
+                List<DatabaseService.QuestionData> quizQs = dbService.getQuizQuestions(selectedCourseData.id, quizNum);
+                for (DatabaseService.QuestionData questionData : quizQs) {
+                    quizQuestions.add(new AssessmentQuestion(
+                        questionData.title,
+                        questionData.marks,
+                        questionData.co,
+                        questionData.po,
+                        "Quiz" + quizNum
+                    ));
+                }
+            }
+            
+            // Load mid questions
+            List<DatabaseService.QuestionData> midQs = dbService.getMidQuestions(selectedCourseData.id);
+            for (DatabaseService.QuestionData questionData : midQs) {
+                examQuestions.add(new AssessmentQuestion(
+                    questionData.title,
+                    questionData.marks,
+                    questionData.co,
+                    questionData.po,
+                    "Mid"
+                ));
+            }
+            
+            // Load final questions
+            List<DatabaseService.QuestionData> finalQs = dbService.getFinalQuestions(selectedCourseData.id);
+            for (DatabaseService.QuestionData questionData : finalQs) {
+                examQuestions.add(new AssessmentQuestion(
+                    questionData.title,
+                    questionData.marks,
+                    questionData.co,
+                    questionData.po,
+                    "Final"
+                ));
+            }
+            
+            // Refresh marks data and UI
+            initializeMarksData();
+            refreshMarksEntryTab();
+            
+        } catch (SQLException e) {
+            new Alert(Alert.AlertType.ERROR, "Error loading course data: " + e.getMessage()).show();
+        }
+    }
+
+    private void updateCourseDisplayFields() {
+        if (displayCourseCodeField != null && currentCourse != null) {
+            displayCourseCodeField.setText(currentCourse.getCode());
+        }
+        if (displayCourseTitleField != null && currentCourse != null) {
+            displayCourseTitleField.setText(currentCourse.getTitle());
+        }
+        if (displayInstructorField != null && currentCourse != null) {
+            displayInstructorField.setText(currentCourse.getInstructor());
+        }
+        if (displayAcademicYearField != null && currentCourse != null) {
+            displayAcademicYearField.setText(currentCourse.getAcademicYear());
+        }
     }
 
     private Tab createStudentInfoTab() {
@@ -310,30 +484,36 @@ public class Manual extends Application {
         grid.add(new Label("Course Information:"), 0, 0, 2, 1);
 
         grid.add(new Label("Course Code:"), 0, 1);
-        TextField codeField = new TextField();
-        codeField.setEditable(false);
-        grid.add(codeField, 1, 1);
+        displayCourseCodeField = new TextField();
+        displayCourseCodeField.setEditable(false);
+        grid.add(displayCourseCodeField, 1, 1);
 
         grid.add(new Label("Course Title:"), 0, 2);
-        TextField titleField = new TextField();
-        titleField.setEditable(false);
-        grid.add(titleField, 1, 2);
+        displayCourseTitleField = new TextField();
+        displayCourseTitleField.setEditable(false);
+        grid.add(displayCourseTitleField, 1, 2);
 
         grid.add(new Label("Instructor:"), 0, 3);
-        TextField instructorField = new TextField();
-        instructorField.setEditable(false);
-        grid.add(instructorField, 1, 3);
+        displayInstructorField = new TextField();
+        displayInstructorField.setEditable(false);
+        grid.add(displayInstructorField, 1, 3);
 
         grid.add(new Label("Academic Year:"), 0, 4);
-        TextField yearField = new TextField();
-        yearField.setEditable(false);
-        grid.add(yearField, 1, 4);
+        displayAcademicYearField = new TextField();
+        displayAcademicYearField.setEditable(false);
+        grid.add(displayAcademicYearField, 1, 4);
 
+        // Add button to select/change course
+        Button selectCourseBtn = new Button("Select Course");
+        selectCourseBtn.setOnAction(e -> showCourseEditDialog());
+        grid.add(selectCourseBtn, 2, 1);
+
+        // Initialize with current course data if available
         if (currentCourse != null) {
-            codeField.setText(currentCourse.getCode());
-            titleField.setText(currentCourse.getTitle());
-            instructorField.setText(currentCourse.getInstructor());
-            yearField.setText(currentCourse.getAcademicYear());
+            displayCourseCodeField.setText(currentCourse.getCode());
+            displayCourseTitleField.setText(currentCourse.getTitle());
+            displayInstructorField.setText(currentCourse.getInstructor());
+            displayAcademicYearField.setText(currentCourse.getAcademicYear());
         }
 
         studentTable = new TableView<>();
@@ -368,10 +548,21 @@ public class Manual extends Application {
             }
         });
 
-        buttonBox.getChildren().addAll(addBtn, removeBtn);
+        Button refreshBtn = new Button("Refresh from Database");
+        refreshBtn.setOnAction(e -> {
+            if (selectedCourseData != null) {
+                loadCourseDataFromDatabase();
+                new Alert(Alert.AlertType.INFORMATION, "Data refreshed from database").show();
+            } else {
+                new Alert(Alert.AlertType.WARNING, "Please select a course first").show();
+            }
+        });
+
+        buttonBox.getChildren().addAll(addBtn, removeBtn, refreshBtn);
 
         VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(grid, new Separator(), studentTable, buttonBox);
+        vbox.getChildren().addAll(grid, new Separator(), 
+                                new Label("Enrolled Students:"), studentTable, buttonBox);
 
         tab.setContent(vbox);
         return tab;
@@ -860,6 +1051,12 @@ public class Manual extends Application {
         return poAttainment;
     }
 
+    private void generateReport() {
+        // Implement report generation
+        // Could generate PDF or Excel report
+        System.out.println("Report generated (implementation needed)");
+    }
+
     public void refreshQuestionTables() {
         // Refresh quiz table
         if (quizTable != null) {
@@ -876,3 +1073,4 @@ public class Manual extends Application {
         launch(args);
     }
 }
+

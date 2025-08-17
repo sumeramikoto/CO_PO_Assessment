@@ -406,7 +406,7 @@ public class ManualExcel extends Application {
         examTable = new TableView<>();
         examTable.setEditable(true);
 
-        
+
         TableColumn<AssessmentQuestion, String> eqNoCol = new TableColumn<>("Question");
         eqNoCol.setCellValueFactory(new PropertyValueFactory<>("number"));
         eqNoCol.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -451,6 +451,75 @@ public class ManualExcel extends Application {
 
         return tab;
     }
+    private void showAddQuestionDialog(String type) {
+        Dialog<AssessmentQuestion> dialog = new Dialog<>();
+        dialog.setTitle("Add " + type + " Question");
+        dialog.setHeaderText("Enter question details");
+
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 10, 10, 10));
+
+        TextField numberField = new TextField();
+        TextField marksField = new TextField();
+
+        ChoiceBox<String> coChoiceBox = new ChoiceBox<>();
+        coChoiceBox.getItems().addAll("CO1", "CO2", "CO3", "CO4", "CO5", "CO6");
+
+        ChoiceBox<String> poChoiceBox = new ChoiceBox<>();
+        poChoiceBox.getItems().addAll("PO1", "PO2", "PO3", "PO4", "PO5", "PO6");
+
+        ChoiceBox<String> assessmentChoiceBox = new ChoiceBox<>();
+        if (type.equals("Quiz")) {
+            assessmentChoiceBox.getItems().addAll("Quiz1", "Quiz2", "Quiz3", "Quiz4");
+        } else {
+            assessmentChoiceBox.getItems().addAll("Mid", "Final");
+        }
+
+        grid.add(new Label("Question Number:"), 0, 0);
+        grid.add(numberField, 1, 0);
+        grid.add(new Label("Marks:"), 0, 1);
+        grid.add(marksField, 1, 1);
+        grid.add(new Label("CO:"), 0, 2);
+        grid.add(coChoiceBox, 1, 2);
+        grid.add(new Label("PO:"), 0, 3);
+        grid.add(poChoiceBox, 1, 3);
+        grid.add(new Label("Assessment:"), 0, 4);
+        grid.add(assessmentChoiceBox, 1, 4);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                try {
+                    return new AssessmentQuestion(
+                            numberField.getText(),
+                            Double.parseDouble(marksField.getText()),
+                            coChoiceBox.getValue(),
+                            poChoiceBox.getValue(),
+                            assessmentChoiceBox.getValue()
+                    );
+                } catch (NumberFormatException e) {
+                    new Alert(Alert.AlertType.ERROR, "Invalid marks value").show();
+                    return null;
+                }
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(question -> {
+            if (type.equals("Quiz")) {
+                quizQuestions.add(question);
+            } else {
+                examQuestions.add(question);
+            }
+        });
+    }
+
     }
 
     }

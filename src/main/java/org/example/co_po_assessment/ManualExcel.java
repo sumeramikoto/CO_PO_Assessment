@@ -219,6 +219,40 @@ public class ManualExcel extends Application {
         // generate PDF or Excel report
         System.out.println("Report generated (implementation needed)");
     }
+    private Tab createStudentInfoTab() {
+        Tab tab = new Tab("Student Information");
+        tab.setClosable(false);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 10, 10, 10));
+        
+        grid.add(new Label("Course Information:"), 0, 0, 2, 1);
+
+        grid.add(new Label("Course Code:"), 0, 1);
+        TextField codeField = new TextField();
+        codeField.setEditable(false);
+        grid.add(codeField, 1, 1);
+
+        grid.add(new Label("Course Title:"), 0, 2);
+        TextField titleField = new TextField();
+        titleField.setEditable(false);
+        grid.add(titleField, 1, 2);
+
+        grid.add(new Label("Instructor:"), 0, 3);
+        TextField instructorField = new TextField();
+        instructorField.setEditable(false);
+        grid.add(instructorField, 1, 3);
+
+        grid.add(new Label("Academic Year:"), 0, 4);
+        TextField yearField = new TextField();
+        yearField.setEditable(false);
+        grid.add(yearField, 1, 4);
+    }
+
+
+
     }
 
 

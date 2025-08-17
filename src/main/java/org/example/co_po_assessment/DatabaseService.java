@@ -597,6 +597,95 @@ public class DatabaseService {
         }
     }
 
+    // Database-related methods for dropdowns
+    public List<String> getCourseCodes() throws SQLException {
+        String sql = "SELECT DISTINCT course_code FROM Course ORDER BY course_code";
+        List<String> courseCodes = new ArrayList<>();
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                courseCodes.add(rs.getString("course_code"));
+            }
+        }
+        return courseCodes;
+    }
+
+    public List<String> getInstructorNames() throws SQLException {
+        String sql = "SELECT DISTINCT f.full_name FROM Faculty f ORDER BY f.full_name";
+        List<String> instructors = new ArrayList<>();
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                instructors.add(rs.getString("full_name"));
+            }
+        }
+        return instructors;
+    }
+
+    public List<String> getCoursesByInstructor(String instructorName) throws SQLException {
+        String sql = """
+            SELECT c.course_name FROM Course c
+            JOIN Faculty f ON c.instructor_id = f.id
+            WHERE f.full_name = ?
+            ORDER BY c.course_name
+            """;
+        List<String> courses = new ArrayList<>();
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, instructorName);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                courses.add(rs.getString("course_name"));
+            }
+        }
+        return courses;
+    }
+
+    public List<String> getAcademicYears() throws SQLException {
+        // Generate academic years - you can modify this logic based on your needs
+        List<String> years = new ArrayList<>();
+        int currentYear = java.time.Year.now().getValue();
+        for (int i = currentYear - 5; i <= currentYear + 2; i++) {
+            years.add(i + "-" + (i + 1));
+        }
+        return years;
+    }
+
+    public CourseData getCourseByCodeAndInstructor(String courseCode, String instructorName) throws SQLException {
+        String sql = """
+            SELECT c.id, c.course_code, c.course_name, c.credits, f.full_name as instructor_name
+            FROM Course c
+            JOIN Faculty f ON c.instructor_id = f.id
+            WHERE c.course_code = ? AND f.full_name = ?
+            """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseCode);
+            stmt.setString(2, instructorName);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new CourseData(
+                    rs.getString("id"),
+                    rs.getString("course_code"),
+                    rs.getString("course_name"),
+                    rs.getDouble("credits"),
+                    rs.getString("instructor_name")
+                );
+            }
+        }
+        return null;
+    }
+
     // Data classes
     public static class QuestionData {
         public final String title;

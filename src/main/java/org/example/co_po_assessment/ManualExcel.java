@@ -227,7 +227,7 @@ public class ManualExcel extends Application {
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 10, 10, 10));
-        
+
         grid.add(new Label("Course Information:"), 0, 0, 2, 1);
 
         grid.add(new Label("Course Code:"), 0, 1);
@@ -249,6 +249,13 @@ public class ManualExcel extends Application {
         TextField yearField = new TextField();
         yearField.setEditable(false);
         grid.add(yearField, 1, 4);
+
+        if (currentCourse != null) {
+            codeField.setText(currentCourse.getCode());
+            titleField.setText(currentCourse.getTitle());
+            instructorField.setText(currentCourse.getInstructor());
+            yearField.setText(currentCourse.getAcademicYear());
+        }
     }
 
 

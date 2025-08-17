@@ -627,7 +627,7 @@ public class ManualExcel extends Application {
         coTable.getColumns().addAll(coNameCol, coValueCol, coStatusCol);
 
         coBox.getChildren().addAll(coLabel, coTable);
-        
+
         VBox poBox = new VBox(10);
         poBox.setPadding(new Insets(10));
         poBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
@@ -653,6 +653,21 @@ public class ManualExcel extends Application {
         poTable.getColumns().addAll(poNameCol, poValueCol, poStatusCol);
 
         poBox.getChildren().addAll(poLabel, poTable);
+
+        HBox buttonBox = new HBox(10);
+        Button calculateBtn = new Button("Calculate Results");
+        calculateBtn.setOnAction(e -> calculateResults());
+
+        Button exportBtn = new Button("Export Report");
+        exportBtn.setOnAction(e -> generateReport());
+
+        buttonBox.getChildren().addAll(calculateBtn, exportBtn);
+
+        VBox mainBox = new VBox(20);
+        mainBox.getChildren().addAll(coBox, poBox, buttonBox);
+        tab.setContent(mainBox);
+
+        return tab;
     }
     }
 

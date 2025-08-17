@@ -52,7 +52,7 @@ public class QuestionInputController implements Initializable {
 
     // Course context - will be set by the calling window
     private String courseId;
-    private ManualExcel parentWindow;
+    private Manual parentWindow;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -61,7 +61,7 @@ public class QuestionInputController implements Initializable {
         examChoiceBox.getItems().addAll(exams);
     }
 
-    public void setCourseContext(String courseId, ManualExcel parentWindow) {
+    public void setCourseContext(String courseId, Manual parentWindow) {
         this.courseId = courseId;
         this.parentWindow = parentWindow;
     }

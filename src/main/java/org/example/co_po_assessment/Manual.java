@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ManualExcel extends Application {
+public class Manual extends Application {
 
     private Course currentCourse;
     private ObservableList<Student> students = FXCollections.observableArrayList();
@@ -774,6 +774,18 @@ public class ManualExcel extends Application {
         }
 
         return poAttainment;
+    }
+
+    public void refreshQuestionTables() {
+        // Refresh quiz table
+        if (quizTable != null) {
+            quizTable.refresh();
+        }
+
+        // Refresh exam table
+        if (examTable != null) {
+            examTable.refresh();
+        }
     }
 
     public static void main(String[] args) {

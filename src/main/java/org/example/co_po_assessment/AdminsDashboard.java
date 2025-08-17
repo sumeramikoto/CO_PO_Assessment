@@ -205,7 +205,7 @@ public class AdminsDashboard extends Application {
                 return;
             }
 
-            Course newCourse = new Course(courseCode, courseName, instructor);
+            Course newCourse = new Course(courseCode, courseName, instructor, "2024-2025", 3.0, "CSE", "Computer Science");
             courses.add(newCourse);
             updateCourseList();
             
@@ -380,7 +380,7 @@ public class AdminsDashboard extends Application {
             courseListView.getItems().clear();
             for (Course course : courses) {
                 courseListView.getItems().add(
-                    course.getCourseCode() + " - " + course.getCourseName() + " (Instructor: " + course.getInstructor() + ")"
+                    course.getCode() + " - " + course.getTitle() + " (Instructor: " + course.getInstructor() + ")"
                 );
             }
         }
@@ -392,20 +392,5 @@ public class AdminsDashboard extends Application {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
-    }
-    private static class Course {
-        private String courseCode;
-        private String courseName;
-        private String instructor;
-
-        public Course(String courseCode, String courseName, String instructor) {
-            this.courseCode = courseCode;
-            this.courseName = courseName;
-            this.instructor = instructor;
-        }
-
-        public String getCourseCode() { return courseCode; }
-        public String getCourseName() { return courseName; }
-        public String getInstructor() { return instructor; }
     }
 }

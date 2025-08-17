@@ -137,6 +137,60 @@ public class ManualExcel extends Application {
         System.out.println("Data saved (implementation needed)");
     }
 
+    private void showCourseEditDialog() {
+        // Create a dialog to edit course information
+        Dialog<Course> dialog = new Dialog<>();
+        dialog.setTitle("Course Information");
+        dialog.setHeaderText("Enter course details");
+
+        // Set the button types
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        // Create form fields
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 10, 10, 10));
+
+        TextField codeField = new TextField();
+        TextField titleField = new TextField();
+        TextField instructorField = new TextField();
+        TextField yearField = new TextField();
+        TextField creditField = new TextField();
+        TextField programField = new TextField();
+        TextField deptField = new TextField();
+
+        if (currentCourse != null) {
+            codeField.setText(currentCourse.getCode());
+            titleField.setText(currentCourse.getTitle());
+            instructorField.setText(currentCourse.getInstructor());
+            yearField.setText(currentCourse.getAcademicYear());
+            creditField.setText(String.valueOf(currentCourse.getCredit()));
+            programField.setText(currentCourse.getProgram());
+            deptField.setText(currentCourse.getDepartment());
+        }
+
+        grid.add(new Label("Course Code:"), 0, 0);
+        grid.add(codeField, 1, 0);
+        grid.add(new Label("Course Title:"), 0, 1);
+        grid.add(titleField, 1, 1);
+        grid.add(new Label("Instructor:"), 0, 2);
+        grid.add(instructorField, 1, 2);
+        grid.add(new Label("Academic Year:"), 0, 3);
+        grid.add(yearField, 1, 3);
+        grid.add(new Label("Credit:"), 0, 4);
+        grid.add(creditField, 1, 4);
+        grid.add(new Label("Program:"), 0, 5);
+        grid.add(programField, 1, 5);
+        grid.add(new Label("Department:"), 0, 6);
+        grid.add(deptField, 1, 6);
+
+        dialog.getDialogPane().setContent(grid);
+
+       
+    }
+
 
     private Tab createQuestionInfoTab() {
         Tab tab = new Tab("Question Information");

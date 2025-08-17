@@ -122,6 +122,14 @@ public class ManualExcel extends Application {
         return menuBar;
     }
 
+    private void resetApplication() {
+        currentCourse = null;
+        students.clear();
+        quizQuestions.clear();
+        examQuestions.clear();
+        marksData.values().forEach(ObservableList::clear);
+        showCourseEditDialog();
+    }
 
 
     private Tab createQuestionInfoTab() {

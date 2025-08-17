@@ -1,4 +1,4 @@
--- CO/PO Assessment System MySQL Schema (Fixed)
+-- CO/PO Assessment System MySQL Schema
 
 CREATE TABLE Admin (
                        id INT AUTO_INCREMENT PRIMARY KEY,
@@ -72,7 +72,7 @@ CREATE TABLE Quiz (
                       total_marks DECIMAL(5,2) DEFAULT 0,
                       FOREIGN KEY (course_id) REFERENCES Course(id),
                       UNIQUE(course_id, quiz_number),
-                      CHECK (quiz_number BETWEEN 1 AND 4)  -- Moved CHECK constraint to end
+                      CHECK (quiz_number BETWEEN 1 AND 4)
 );
 
 CREATE TABLE `Mid` (
@@ -226,17 +226,56 @@ FROM Student s
          JOIN CO co ON fq.co_id = co.id
          JOIN PO po ON fq.po_id = po.id;
 
--- Sample data insertion
+-- INSERT SAMPLE DATA
+
+-- Insert Faculty (asaduzzamanherok with shortname 'ah')
+INSERT INTO Faculty (id, shortname, full_name, email, password)
+VALUES (101, 'azh', 'Asaduzzaman Herok', 'asaduzzamanherok@example.com', 'password123');
+
+-- Insert Course CSE4403 with 3.0 credits
+INSERT INTO Course (id, course_code, course_name, credits, instructor_id)
+VALUES ('CSE4403', 'CSE4403', 'Algorithm', 3.0, 101);
+
+-- Insert basic Program Outcomes (POs)
 INSERT INTO PO (po_number, description) VALUES
-                                            ('PO1', 'Engineering knowledge'),
-                                            ('PO2', 'Problem analysis'),
-                                            ('PO3', 'Design/development of solutions'),
-                                            ('PO4', 'Conduct investigations'),
-                                            ('PO5', 'Modern tool usage'),
-                                            ('PO6', 'The engineer and society'),
-                                            ('PO7', 'Environment and sustainability'),
-                                            ('PO8', 'Ethics'),
-                                            ('PO9', 'Individual and team work'),
-                                            ('PO10', 'Communication'),
-                                            ('PO11', 'Project management'),
-                                            ('PO12', 'Life-long learning');
+('PO1', 'Engineering knowledge: Apply the knowledge of mathematics, science, engineering fundamentals'),
+('PO2', 'Problem analysis: Identify, formulate, review research literature, and analyze complex engineering problems'),
+('PO3', 'Design/development of solutions: Design solutions for complex engineering problems'),
+('PO4', 'Conduct investigations of complex problems: Use research-based knowledge and research methods'),
+('PO5', 'Modern tool usage: Create, select, and apply appropriate techniques, resources, and modern engineering tools');
+
+-- Insert Course Outcomes (COs) for CSE4403
+INSERT INTO CO (course_id, co_number, description) VALUES
+('CSE4403', 'CO1', 'Apply software engineering principles to develop software systems'),
+('CSE4403', 'CO2', 'Design and implement software architectures using appropriate design patterns'),
+('CSE4403', 'CO3', 'Develop software projects using modern development methodologies'),
+('CSE4403', 'CO4', 'Test and validate software systems using various testing techniques');
+
+-- Insert sample students
+INSERT INTO Student (id, batch, name, email, year) VALUES
+(1901001, 19, 'John Doe', 'john.doe@student.example.com', 4),
+(1901002, 19, 'Jane Smith', 'jane.smith@student.example.com', 4),
+(1901003, 19, 'Bob Johnson', 'bob.johnson@student.example.com', 4),
+(1901004, 19, 'Alice Brown', 'alice.brown@student.example.com', 4),
+(1901005, 19, 'Charlie Wilson', 'charlie.wilson@student.example.com', 4);
+
+-- Enroll students in CSE4403
+INSERT INTO Enrollment (student_id, course_id) VALUES
+(1901001, 'CSE4403'),
+(1901002, 'CSE4403'),
+(1901003, 'CSE4403'),
+(1901004, 'CSE4403'),
+(1901005, 'CSE4403');
+
+-- Create assessments for CSE4403
+INSERT INTO Quiz (course_id, quiz_number, date) VALUES
+('CSE4403', 1, '2024-02-15'),
+('CSE4403', 2, '2024-03-15'),
+('CSE4403', 3, '2024-04-15'),
+('CSE4403', 4, '2024-05-15');
+
+INSERT INTO `Mid` (course_id, date) VALUES
+('CSE4403', '2024-03-30');
+
+INSERT INTO `Final` (course_id, date) VALUES
+('CSE4403', '2024-06-15');

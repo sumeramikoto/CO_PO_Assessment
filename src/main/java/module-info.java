@@ -15,6 +15,7 @@ module org.example.co_po_assessment {
     requires io;
  requires jfreechart;
     requires javafx.graphics;
+    requires java.sql;
 
     opens org.example.co_po_assessment to javafx.fxml;
     exports org.example.co_po_assessment;

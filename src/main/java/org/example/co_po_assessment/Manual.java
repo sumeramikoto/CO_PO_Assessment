@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Manual extends Application {
-
+    private TabPane marksEntryTabPane;
     private Course currentCourse;
     private ObservableList<Student> students = FXCollections.observableArrayList();
     private ObservableList<AssessmentQuestion> quizQuestions = FXCollections.observableArrayList();
@@ -33,11 +33,16 @@ public class Manual extends Application {
     private TableView<Map.Entry<String, Double>> coTable;
     private TableView<Map.Entry<String, Double>> poTable;
 
+    // Store reference to primary stage
+    private Stage primaryStage;
+
     // Add this to keep track of marks entry tabs
     private Map<String, TableView<StudentMark>> marksEntryTables = new HashMap<>();
 
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+
         initializeSampleData();
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(10));
@@ -61,8 +66,38 @@ public class Manual extends Application {
         primaryStage.setTitle("CO/PO Assessment System");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
 
+    private Tab createMarksEntryTab() {
+        Tab tab = new Tab("Marks Entry");
+        tab.setClosable(false);
 
+        marksEntryTabPane = new TabPane(); // Store reference
+
+        marksEntryTabPane.getTabs().addAll(
+                createAssessmentEntryTab("Quiz1"),
+                createAssessmentEntryTab("Quiz2"),
+                createAssessmentEntryTab("Mid"),
+                createAssessmentEntryTab("Final")
+        );
+
+        tab.setContent(marksEntryTabPane);
+        return tab;
+    }
+
+    private void refreshMarksEntryTab() {
+        if (marksEntryTabPane != null) {
+            // Clear existing tabs
+            marksEntryTabPane.getTabs().clear();
+
+            // Recreate tabs with updated question columns
+            marksEntryTabPane.getTabs().addAll(
+                    createAssessmentEntryTab("Quiz1"),
+                    createAssessmentEntryTab("Quiz2"),
+                    createAssessmentEntryTab("Mid"),
+                    createAssessmentEntryTab("Final")
+            );
+        }
     }
 
     private void initializeSampleData() {
@@ -108,6 +143,7 @@ public class Manual extends Application {
             marksData.put(assessmentType, marksList);
         }
     }
+
     // Add this method to refresh marks data when students are added/removed
     private void refreshMarksData() {
         for (Map.Entry<String, ObservableList<StudentMark>> entry : marksData.entrySet()) {
@@ -435,6 +471,7 @@ public class Manual extends Application {
             AssessmentQuestion selected = quizTable.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 quizQuestions.remove(selected);
+                refreshMarksEntryTab();
             }
         });
 
@@ -483,6 +520,7 @@ public class Manual extends Application {
             AssessmentQuestion selected = examTable.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 examQuestions.remove(selected);
+                refreshMarksEntryTab();
             }
         });
 
@@ -562,24 +600,10 @@ public class Manual extends Application {
             } else {
                 examQuestions.add(question);
             }
+
+            // Refresh the marks entry tabs to show new question columns
+            refreshMarksEntryTab();
         });
-    }
-
-    private Tab createMarksEntryTab() {
-        Tab tab = new Tab("Marks Entry");
-        tab.setClosable(false);
-
-        TabPane entryTabs = new TabPane();
-
-        entryTabs.getTabs().addAll(
-                createAssessmentEntryTab("Quiz1"),
-                createAssessmentEntryTab("Quiz2"),
-                createAssessmentEntryTab("Mid"),
-                createAssessmentEntryTab("Final")
-        );
-
-        tab.setContent(entryTabs);
-        return tab;
     }
 
     private Tab createAssessmentEntryTab(String assessmentType) {

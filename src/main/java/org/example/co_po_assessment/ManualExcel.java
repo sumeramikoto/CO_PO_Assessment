@@ -577,7 +577,7 @@ public class ManualExcel extends Application {
             });
             qCol.setCellFactory(column -> new TextFieldTableCell<>(new DoubleStringConverter()));
 
-            
+
             qCol.setOnEditCommit(event -> {
                 StudentMark studentMark = event.getRowValue();
                 studentMark.addQuestionMark(question.getNumber(), event.getNewValue());
@@ -596,6 +596,37 @@ public class ManualExcel extends Application {
 
         tab.setContent(marksTable);
         return tab;
+    }
+
+    private Tab createResultsTab() {
+        Tab tab = new Tab("Results");
+        tab.setClosable(false);
+        
+        VBox coBox = new VBox(10);
+        coBox.setPadding(new Insets(10));
+        coBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
+
+        Label coLabel = new Label("CO Attainment");
+        coLabel.setStyle("-fx-font-weight: bold;");
+
+        coTable = new TableView<>();
+
+        TableColumn<Map.Entry<String, Double>, String> coNameCol = new TableColumn<>("CO");
+        coNameCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getKey()));
+
+        TableColumn<Map.Entry<String, Double>, Double> coValueCol = new TableColumn<>("Attainment %");
+        coValueCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleDoubleProperty(cellData.getValue().getValue()).asObject());
+
+        TableColumn<Map.Entry<String, Double>, String> coStatusCol = new TableColumn<>("Status");
+        coStatusCol.setCellValueFactory(cellData -> {
+            double value = cellData.getValue().getValue();
+            String status = value >= 70 ? "Achieved" : value >= 50 ? "Partially Achieved" : "Not Achieved";
+            return new javafx.beans.property.SimpleStringProperty(status);
+        });
+
+        coTable.getColumns().addAll(coNameCol, coValueCol, coStatusCol);
+
+        coBox.getChildren().addAll(coLabel, coTable);
     }
     }
 

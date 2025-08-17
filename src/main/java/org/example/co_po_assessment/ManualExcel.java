@@ -541,7 +541,7 @@ public class ManualExcel extends Application {
 
         TableView<StudentMark> marksTable = new TableView<>();
         marksTable.setEditable(true);
-        
+
         TableColumn<StudentMark, String> sidCol = new TableColumn<>("Student ID");
         sidCol.setCellValueFactory(cellData -> cellData.getValue().studentIdProperty());
 
@@ -557,6 +557,46 @@ public class ManualExcel extends Application {
         });
 
         marksTable.getColumns().addAll(sidCol, nameCol);
+
+        List<AssessmentQuestion> questions = new ArrayList<>();
+        if (assessmentType.startsWith("Quiz")) {
+            questions = quizQuestions.stream()
+                    .filter(q -> q.getAssessmentType().equals(assessmentType))
+                    .toList();
+        } else {
+            questions = examQuestions.stream()
+                    .filter(q -> q.getAssessmentType().equals(assessmentType))
+                    .toList();
+        }
+
+        for (AssessmentQuestion question : questions) {
+            TableColumn<StudentMark, Double> qCol = new TableColumn<>(question.getNumber());
+            qCol.setCellValueFactory(cellData -> {
+                Double mark = cellData.getValue().getQuestionMarks().get(question.getNumber());
+                return mark != null ? javafx.beans.binding.Bindings.createObjectBinding(() -> mark) : null;
+            });
+            qCol.setCellFactory(column -> new TextFieldTableCell<>(new DoubleStringConverter()));
+
+            
+            qCol.setOnEditCommit(event -> {
+                StudentMark studentMark = event.getRowValue();
+                studentMark.addQuestionMark(question.getNumber(), event.getNewValue());
+            });
+
+            marksTable.getColumns().add(qCol);
+        }
+
+        // Total column
+        TableColumn<StudentMark, Double> totalCol = new TableColumn<>("Total");
+        totalCol.setCellValueFactory(cellData -> cellData.getValue().totalProperty().asObject());
+        marksTable.getColumns().add(totalCol);
+
+        // Set the items for this assessment type
+        marksTable.setItems(marksData.get(assessmentType));
+
+        tab.setContent(marksTable);
+        return tab;
+    }
     }
 
     }

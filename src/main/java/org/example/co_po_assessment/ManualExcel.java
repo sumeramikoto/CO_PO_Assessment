@@ -256,6 +256,46 @@ public class ManualExcel extends Application {
             instructorField.setText(currentCourse.getInstructor());
             yearField.setText(currentCourse.getAcademicYear());
         }
+
+        studentTable = new TableView<>();
+        studentTable.setEditable(true);
+
+        TableColumn<Student, String> idCol = new TableColumn<>("Student ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<Student, String> nameCol = new TableColumn<>("Name");
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<Student, String> emailCol = new TableColumn<>("Email");
+        emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
+        emailCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        studentTable.getColumns().addAll(idCol, nameCol, emailCol);
+        studentTable.setItems(students);
+
+        // Buttons
+        HBox buttonBox = new HBox(10);
+        Button addBtn = new Button("Add Student");
+        addBtn.setOnAction(e -> showAddStudentDialog());
+
+        Button removeBtn = new Button("Remove Student");
+        removeBtn.setOnAction(e -> {
+            Student selected = studentTable.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                students.remove(selected);
+            }
+        });
+
+        buttonBox.getChildren().addAll(addBtn, removeBtn);
+
+        VBox vbox = new VBox(10);
+        vbox.getChildren().addAll(grid, new Separator(), studentTable, buttonBox);
+
+        tab.setContent(vbox);
+        return tab;
+    }
     }
 
 

@@ -7,21 +7,15 @@ CREATE TABLE Admin (
 );
 
 CREATE TABLE Faculty (
-    id INT  PRIMARY KEY,
+    id INT PRIMARY KEY,
     shortname VARCHAR(50) NOT NULL,
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(100) NOT NULL
 );
-CREATE TABLE CourseAssignment (
-    faculty_id INT NOT NULL,
-    course_id VARCHAR NOT NULL,
-    FOREIGN KEY (faculty_id) REFERENCES Faculty(id),
-    FOREIGN KEY (course_id) REFERENCES Course(id),
-    UNIQUE (faculty_id, course_id)
-);
+
 CREATE TABLE Course (
-    id VARCHAR PRIMARY KEY,  -- CSE 4341 etc
+    id VARCHAR(20) PRIMARY KEY,  -- CSE 4341 etc
     course_code VARCHAR(20) NOT NULL UNIQUE,
     course_name VARCHAR(100) NOT NULL,
     credits DECIMAL(3,1) NOT NULL,
@@ -29,8 +23,16 @@ CREATE TABLE Course (
     FOREIGN KEY (instructor_id) REFERENCES Faculty(id)
 );
 
+CREATE TABLE CourseAssignment (
+    faculty_id INT NOT NULL,
+    course_id VARCHAR(20) NOT NULL,
+    FOREIGN KEY (faculty_id) REFERENCES Faculty(id),
+    FOREIGN KEY (course_id) REFERENCES Course(id),
+    UNIQUE (faculty_id, course_id)
+);
+
 CREATE TABLE Student (
-    id INT  PRIMARY KEY,
+    id INT PRIMARY KEY,
     batch INT NOT NULL,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -39,150 +41,201 @@ CREATE TABLE Student (
 
 CREATE TABLE Enrollment (
     student_id INT NOT NULL,
-    course_id VARCHAR NOT NULL,
+    course_id VARCHAR(20) NOT NULL,
     FOREIGN KEY (student_id) REFERENCES Student(id),
     FOREIGN KEY (course_id) REFERENCES Course(id),
     UNIQUE (student_id, course_id)
 );
 
-CREATE TABLE Assessment (
+-- CO and PO master tables
+CREATE TABLE CO (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    course_id INT NOT NULL,
-    type ENUM('quiz', 'mid', 'final') NOT NULL,
-    date DATE NOT NULL,
-    FOREIGN KEY (course_id) REFERENCES Course(id)
+    course_id VARCHAR(20) NOT NULL,
+    co_number VARCHAR(10) NOT NULL, -- CO1, CO2, etc.
+    description TEXT,
+    FOREIGN KEY (course_id) REFERENCES Course(id),
+    UNIQUE(course_id, co_number)
 );
 
--- Tables for different exam types per course
--- Tables for different exam types per course
-
-CREATE TABLE Quiz (
-                      id INT AUTO_INCREMENT PRIMARY KEY,
-                      course_id VARCHAR NOT NULL,
-                      quiz_number INT NOT NULL CHECK (quiz_number BETWEEN 1 AND 4),
-                      date DATE NOT NULL,
-                      FOREIGN KEY (course_id) REFERENCES Course(id),
-                      UNIQUE(course_id, quiz_number)
+CREATE TABLE PO (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    po_number VARCHAR(10) NOT NULL UNIQUE, -- PO1, PO2, etc.
+    description TEXT
 );
 
-CREATE TABLE Mid (
-                     id INT AUTO_INCREMENT PRIMARY KEY,
-                     course_id VARCHAR NOT NULL,
-                     date DATE NOT NULL,
-                     FOREIGN KEY (course_id) REFERENCES Course(id),
-                     UNIQUE(course_id)
-);
-
-CREATE TABLE Final (
-                       id INT AUTO_INCREMENT PRIMARY KEY,
-                       course_id VARCHAR NOT NULL,
-                       date DATE NOT NULL,
-                       FOREIGN KEY (course_id) REFERENCES Course(id),
-                       UNIQUE(course_id)
-);
-
+-- Assessment tables
 CREATE TABLE Quiz (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    course_id VARCHAR NOT NULL,
+    course_id VARCHAR(20) NOT NULL,
     quiz_number INT NOT NULL CHECK (quiz_number BETWEEN 1 AND 4),
     date DATE NOT NULL,
+    total_marks DECIMAL(5,2) DEFAULT 0,
     FOREIGN KEY (course_id) REFERENCES Course(id),
     UNIQUE(course_id, quiz_number)
 );
-To support multiple questions per quiz/mid/final with unique titles, marks, and CO/PO assignment, replace the duplicated block with question and mapping tables in `src/main/resources/schema.sql`.
 
+CREATE TABLE Mid (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id VARCHAR(20) NOT NULL,
+    date DATE NOT NULL,
+    total_marks DECIMAL(5,2) DEFAULT 0,
+    FOREIGN KEY (course_id) REFERENCES Course(id),
+    UNIQUE(course_id)
+);
 
+CREATE TABLE Final (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id VARCHAR(20) NOT NULL,
+    date DATE NOT NULL,
+    total_marks DECIMAL(5,2) DEFAULT 0,
+    FOREIGN KEY (course_id) REFERENCES Course(id),
+    UNIQUE(course_id)
+);
+
+-- Question tables with unique titles (1a, 1b, 3a, etc.)
 CREATE TABLE QuizQuestion (
     id INT AUTO_INCREMENT PRIMARY KEY,
     quiz_id INT NOT NULL,
-    title VARCHAR(20) NOT NULL,
+    title VARCHAR(20) NOT NULL, -- 1a, 1b, 2a, 3a, etc.
     marks DECIMAL(5,2) NOT NULL,
     co_id INT NOT NULL,
-    FOREIGN KEY (quiz_id) REFERENCES Quiz(id),
+    po_id INT NOT NULL,
+    FOREIGN KEY (quiz_id) REFERENCES Quiz(id) ON DELETE CASCADE,
     FOREIGN KEY (co_id) REFERENCES CO(id),
+    FOREIGN KEY (po_id) REFERENCES PO(id),
     UNIQUE(quiz_id, title)
 );
 
 CREATE TABLE MidQuestion (
     id INT AUTO_INCREMENT PRIMARY KEY,
     mid_id INT NOT NULL,
-    title VARCHAR(20) NOT NULL,
+    title VARCHAR(20) NOT NULL, -- 1a, 1b, 2a, 3a, etc.
     marks DECIMAL(5,2) NOT NULL,
     co_id INT NOT NULL,
-    FOREIGN KEY (mid_id) REFERENCES Mid(id),
+    po_id INT NOT NULL,
+    FOREIGN KEY (mid_id) REFERENCES Mid(id) ON DELETE CASCADE,
     FOREIGN KEY (co_id) REFERENCES CO(id),
+    FOREIGN KEY (po_id) REFERENCES PO(id),
     UNIQUE(mid_id, title)
 );
 
 CREATE TABLE FinalQuestion (
     id INT AUTO_INCREMENT PRIMARY KEY,
     final_id INT NOT NULL,
-    title VARCHAR(20) NOT NULL,
+    title VARCHAR(20) NOT NULL, -- 1a, 1b, 2a, 3a, etc.
     marks DECIMAL(5,2) NOT NULL,
     co_id INT NOT NULL,
-    FOREIGN KEY (final_id) REFERENCES Final(id),
+    po_id INT NOT NULL,
+    FOREIGN KEY (final_id) REFERENCES Final(id) ON DELETE CASCADE,
     FOREIGN KEY (co_id) REFERENCES CO(id),
+    FOREIGN KEY (po_id) REFERENCES PO(id),
     UNIQUE(final_id, title)
 );
 
--- Student marks for each question
-CREATE TABLE QuizStudentMarks (
+-- Student marks tables
+CREATE TABLE StudentQuizMarks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
-    question_id INT NOT NULL,
-    marks_obtained DECIMAL(5,2) NOT NULL,
+    quiz_question_id INT NOT NULL,
+    marks_obtained DECIMAL(5,2) NOT NULL DEFAULT 0,
     FOREIGN KEY (student_id) REFERENCES Student(id),
-    FOREIGN KEY (question_id) REFERENCES QuizQuestion(id),
-    UNIQUE(student_id, question_id)
+    FOREIGN KEY (quiz_question_id) REFERENCES QuizQuestion(id) ON DELETE CASCADE,
+    UNIQUE(student_id, quiz_question_id)
 );
 
-CREATE TABLE MidStudentMarks (
+CREATE TABLE StudentMidMarks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
-    question_id INT NOT NULL,
-    marks_obtained DECIMAL(5,2) NOT NULL,
+    mid_question_id INT NOT NULL,
+    marks_obtained DECIMAL(5,2) NOT NULL DEFAULT 0,
     FOREIGN KEY (student_id) REFERENCES Student(id),
-    FOREIGN KEY (question_id) REFERENCES MidQuestion(id),
-    UNIQUE(student_id, question_id)
+    FOREIGN KEY (mid_question_id) REFERENCES MidQuestion(id) ON DELETE CASCADE,
+    UNIQUE(student_id, mid_question_id)
 );
 
-CREATE TABLE FinalStudentMarks (
+CREATE TABLE StudentFinalMarks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
-    question_id INT NOT NULL,
-    marks_obtained DECIMAL(5,2) NOT NULL,
+    final_question_id INT NOT NULL,
+    marks_obtained DECIMAL(5,2) NOT NULL DEFAULT 0,
     FOREIGN KEY (student_id) REFERENCES Student(id),
-    FOREIGN KEY (question_id) REFERENCES FinalQuestion(id),
-    UNIQUE(student_id, question_id)
+    FOREIGN KEY (final_question_id) REFERENCES FinalQuestion(id) ON DELETE CASCADE,
+    UNIQUE(student_id, final_question_id)
 );
 
-CREATE TABLE CO (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    course_id INT NOT NULL,
-    co_code VARCHAR(10) NOT NULL,
-    description VARCHAR(255),
-    threshold DECIMAL(5,2) NOT NULL DEFAULT 60.0,
-    FOREIGN KEY (course_id) REFERENCES Course(id),
-    UNIQUE(course_id, co_code)
-);
+-- Views for easy mark retrieval and CO/PO analysis
+CREATE VIEW StudentQuizPerformance AS
+SELECT
+    s.id as student_id,
+    s.name as student_name,
+    c.id as course_id,
+    c.course_name,
+    q.quiz_number,
+    qq.title as question_title,
+    qq.marks as max_marks,
+    sqm.marks_obtained,
+    co.co_number,
+    po.po_number
+FROM Student s
+JOIN Enrollment e ON s.id = e.student_id
+JOIN Course c ON e.course_id = c.id
+JOIN Quiz q ON c.id = q.course_id
+JOIN QuizQuestion qq ON q.id = qq.quiz_id
+LEFT JOIN StudentQuizMarks sqm ON s.id = sqm.student_id AND qq.id = sqm.quiz_question_id
+JOIN CO co ON qq.co_id = co.id
+JOIN PO po ON qq.po_id = po.id;
 
-CREATE TABLE PO (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    po_code VARCHAR(10) NOT NULL UNIQUE,
-    description VARCHAR(255),
-    threshold DECIMAL(5,2) NOT NULL DEFAULT 40.0
-);
+CREATE VIEW StudentMidPerformance AS
+SELECT
+    s.id as student_id,
+    s.name as student_name,
+    c.id as course_id,
+    c.course_name,
+    mq.title as question_title,
+    mq.marks as max_marks,
+    smm.marks_obtained,
+    co.co_number,
+    po.po_number
+FROM Student s
+JOIN Enrollment e ON s.id = e.student_id
+JOIN Course c ON e.course_id = c.id
+JOIN Mid m ON c.id = m.course_id
+JOIN MidQuestion mq ON m.id = mq.mid_id
+LEFT JOIN StudentMidMarks smm ON s.id = smm.student_id AND mq.id = smm.mid_question_id
+JOIN CO co ON mq.co_id = co.id
+JOIN PO po ON mq.po_id = po.id;
 
-CREATE TABLE CO_PO_Map (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    co_id INT NOT NULL,
-    po_id INT NOT NULL,
-    FOREIGN KEY (co_id) REFERENCES CO(id),
-    FOREIGN KEY (po_id) REFERENCES PO(id),
-    PRIMARY KEY(co_id, po_id)
-);
+CREATE VIEW StudentFinalPerformance AS
+SELECT
+    s.id as student_id,
+    s.name as student_name,
+    c.id as course_id,
+    c.course_name,
+    fq.title as question_title,
+    fq.marks as max_marks,
+    sfm.marks_obtained,
+    co.co_number,
+    po.po_number
+FROM Student s
+JOIN Enrollment e ON s.id = e.student_id
+JOIN Course c ON e.course_id = c.id
+JOIN Final f ON c.id = f.course_id
+JOIN FinalQuestion fq ON f.id = fq.final_id
+LEFT JOIN StudentFinalMarks sfm ON s.id = sfm.student_id AND fq.id = sfm.final_question_id
+JOIN CO co ON fq.co_id = co.id
+JOIN PO po ON fq.po_id = po.id;
 
--- CREATE TABLE QUESTION_CO_MAP(
-
--- ;
--- CREATE TABLE QUESTION_MARKS_MAP();
+-- Sample data insertion
+INSERT INTO PO (po_number, description) VALUES
+('PO1', 'Engineering knowledge'),
+('PO2', 'Problem analysis'),
+('PO3', 'Design/development of solutions'),
+('PO4', 'Conduct investigations'),
+('PO5', 'Modern tool usage'),
+('PO6', 'The engineer and society'),
+('PO7', 'Environment and sustainability'),
+('PO8', 'Ethics'),
+('PO9', 'Individual and team work'),
+('PO10', 'Communication'),
+('PO11', 'Project management'),
+('PO12', 'Life-long learning');

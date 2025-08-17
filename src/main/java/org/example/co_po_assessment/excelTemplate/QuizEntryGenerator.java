@@ -90,7 +90,7 @@ public class QuizEntryGenerator {
         for (int i = 0; i < questions.size(); i++) {
             Question q = questions.get(i);
             header.createCell(i + 1)
-                    .setCellValue(q.number + " (" + q.maxMark + ")");
+                    .setCellValue(q.title + " (" + q.maxMark + ")");
         }
         int totalCol = 1 + questions.size();
         header.createCell(totalCol).setCellValue("Total");

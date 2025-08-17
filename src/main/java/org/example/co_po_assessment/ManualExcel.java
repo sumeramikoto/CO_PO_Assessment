@@ -673,6 +673,9 @@ public class ManualExcel extends Application {
     private void calculateResults() {
         Map<String, Double> coAttainment = calculateCOAttainment();
         coTable.setItems(FXCollections.observableArrayList(coAttainment.entrySet()));
+        
+        Map<String, Double> poAttainment = calculatePOAttainment();
+        poTable.setItems(FXCollections.observableArrayList(poAttainment.entrySet()));
     }
     }
 

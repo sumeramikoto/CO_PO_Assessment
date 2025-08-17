@@ -519,6 +519,22 @@ public class ManualExcel extends Application {
             }
         });
     }
+    private Tab createMarksEntryTab() {
+        Tab tab = new Tab("Marks Entry");
+        tab.setClosable(false);
+
+        TabPane entryTabs = new TabPane();
+        
+        entryTabs.getTabs().addAll(
+                createAssessmentEntryTab("Quiz1"),
+                createAssessmentEntryTab("Quiz2"),
+                createAssessmentEntryTab("Mid"),
+                createAssessmentEntryTab("Final")
+        );
+
+        tab.setContent(entryTabs);
+        return tab;
+    }
 
     }
 

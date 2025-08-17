@@ -347,7 +347,7 @@ public class ManualExcel extends Application {
     private Tab createQuestionInfoTab() {
         Tab tab = new Tab("Question Information");
         tab.setClosable(false);
-        
+
         VBox quizBox = new VBox(10);
         quizBox.setPadding(new Insets(10));
         quizBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
@@ -395,6 +395,16 @@ public class ManualExcel extends Application {
 
         quizButtonBox.getChildren().addAll(addQuizBtn, removeQuizBtn);
         quizBox.getChildren().addAll(quizLabel, quizTable, quizButtonBox);
+
+        VBox examBox = new VBox(10);
+        examBox.setPadding(new Insets(10));
+        examBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
+
+        Label examLabel = new Label("Mid/Final Questions");
+        examLabel.setStyle("-fx-font-weight: bold;");
+
+        examTable = new TableView<>();
+        examTable.setEditable(true);
     }
 
     }

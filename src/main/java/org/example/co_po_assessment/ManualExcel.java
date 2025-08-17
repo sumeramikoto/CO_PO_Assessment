@@ -296,6 +296,49 @@ public class ManualExcel extends Application {
         tab.setContent(vbox);
         return tab;
     }
+    private void showAddStudentDialog() {
+        Dialog<Student> dialog = new Dialog<>();
+        dialog.setTitle("Add Student");
+        dialog.setHeaderText("Enter student details");
+
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 10, 10, 10));
+
+        TextField idField = new TextField();
+        TextField nameField = new TextField();
+        TextField emailField = new TextField();
+        TextField contactField = new TextField();
+
+        grid.add(new Label("Student ID:"), 0, 0);
+        grid.add(idField, 1, 0);
+        grid.add(new Label("Name:"), 0, 1);
+        grid.add(nameField, 1, 1);
+        grid.add(new Label("Email:"), 0, 2);
+        grid.add(emailField, 1, 2);
+        grid.add(new Label("Contact No:"), 0, 3);
+        grid.add(contactField, 1, 3);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                return new Student(
+                        idField.getText(),
+                        nameField.getText(),
+                        emailField.getText(),
+                        contactField.getText()
+                );
+            }
+            return null;
+        });
+    }
+
+
     }
 
 

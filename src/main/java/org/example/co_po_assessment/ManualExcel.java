@@ -344,6 +344,58 @@ public class ManualExcel extends Application {
         });
     }
 
+    private Tab createQuestionInfoTab() {
+        Tab tab = new Tab("Question Information");
+        tab.setClosable(false);
+        
+        VBox quizBox = new VBox(10);
+        quizBox.setPadding(new Insets(10));
+        quizBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
+
+        Label quizLabel = new Label("Quiz Questions");
+        quizLabel.setStyle("-fx-font-weight: bold;");
+
+        quizTable = new TableView<>();
+        quizTable.setEditable(true);
+
+        TableColumn<AssessmentQuestion, String> qNoCol = new TableColumn<>("Q.No");
+        qNoCol.setCellValueFactory(new PropertyValueFactory<>("number"));
+        qNoCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<AssessmentQuestion, Double> marksCol = new TableColumn<>("Marks");
+        marksCol.setCellValueFactory(new PropertyValueFactory<>("marks"));
+        marksCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+
+        TableColumn<AssessmentQuestion, String> coCol = new TableColumn<>("CO");
+        coCol.setCellValueFactory(new PropertyValueFactory<>("co"));
+        coCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<AssessmentQuestion, String> poCol = new TableColumn<>("PO");
+        poCol.setCellValueFactory(new PropertyValueFactory<>("po"));
+        poCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<AssessmentQuestion, String> typeCol = new TableColumn<>("Quiz");
+        typeCol.setCellValueFactory(new PropertyValueFactory<>("assessmentType"));
+        typeCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        quizTable.getColumns().addAll(qNoCol, marksCol, coCol, poCol, typeCol);
+        quizTable.setItems(quizQuestions);
+
+        HBox quizButtonBox = new HBox(10);
+        Button addQuizBtn = new Button("Add Question");
+        addQuizBtn.setOnAction(e -> showAddQuestionDialog("Quiz"));
+
+        Button removeQuizBtn = new Button("Remove Question");
+        removeQuizBtn.setOnAction(e -> {
+            AssessmentQuestion selected = quizTable.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                quizQuestions.remove(selected);
+            }
+        });
+
+        quizButtonBox.getChildren().addAll(addQuizBtn, removeQuizBtn);
+        quizBox.getChildren().addAll(quizLabel, quizTable, quizButtonBox);
+    }
 
     }
 

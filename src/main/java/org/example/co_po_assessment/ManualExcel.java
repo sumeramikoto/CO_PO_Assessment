@@ -207,6 +207,12 @@ public class ManualExcel extends Application {
             }
             return null;
         });
+
+        dialog.showAndWait().ifPresent(course -> {
+            currentCourse = course;
+            // Update UI if needed
+        });
+    }
     }
 
 

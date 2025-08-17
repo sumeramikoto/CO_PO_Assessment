@@ -524,7 +524,7 @@ public class ManualExcel extends Application {
         tab.setClosable(false);
 
         TabPane entryTabs = new TabPane();
-        
+
         entryTabs.getTabs().addAll(
                 createAssessmentEntryTab("Quiz1"),
                 createAssessmentEntryTab("Quiz2"),
@@ -534,6 +534,29 @@ public class ManualExcel extends Application {
 
         tab.setContent(entryTabs);
         return tab;
+    }
+
+    private Tab createAssessmentEntryTab(String assessmentType) {
+        Tab tab = new Tab(assessmentType);
+
+        TableView<StudentMark> marksTable = new TableView<>();
+        marksTable.setEditable(true);
+        
+        TableColumn<StudentMark, String> sidCol = new TableColumn<>("Student ID");
+        sidCol.setCellValueFactory(cellData -> cellData.getValue().studentIdProperty());
+
+
+        TableColumn<StudentMark, String> nameCol = new TableColumn<>("Name");
+        nameCol.setCellValueFactory(cellData -> {
+            String studentId = cellData.getValue().getStudentId();
+            Student student = students.stream()
+                    .filter(s -> s.getId().equals(studentId))
+                    .findFirst()
+                    .orElse(null);
+            return student != null ? student.nameProperty() : null;
+        });
+
+        marksTable.getColumns().addAll(sidCol, nameCol);
     }
 
     }

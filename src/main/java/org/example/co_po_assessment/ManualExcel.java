@@ -405,6 +405,52 @@ public class ManualExcel extends Application {
 
         examTable = new TableView<>();
         examTable.setEditable(true);
+
+        
+        TableColumn<AssessmentQuestion, String> eqNoCol = new TableColumn<>("Question");
+        eqNoCol.setCellValueFactory(new PropertyValueFactory<>("number"));
+        eqNoCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<AssessmentQuestion, Double> emarksCol = new TableColumn<>("Marks");
+        emarksCol.setCellValueFactory(new PropertyValueFactory<>("marks"));
+        emarksCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+
+        TableColumn<AssessmentQuestion, String> ecoCol = new TableColumn<>("CO");
+        ecoCol.setCellValueFactory(new PropertyValueFactory<>("co"));
+        ecoCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<AssessmentQuestion, String> epoCol = new TableColumn<>("PO");
+        epoCol.setCellValueFactory(new PropertyValueFactory<>("po"));
+        epoCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<AssessmentQuestion, String> etypeCol = new TableColumn<>("Exam");
+        etypeCol.setCellValueFactory(new PropertyValueFactory<>("assessmentType"));
+        etypeCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        examTable.getColumns().addAll(eqNoCol, emarksCol, ecoCol, epoCol, etypeCol);
+        examTable.setItems(examQuestions);
+
+        HBox examButtonBox = new HBox(10);
+        Button addExamBtn = new Button("Add Question");
+        addExamBtn.setOnAction(e -> showAddQuestionDialog("Exam"));
+
+        Button removeExamBtn = new Button("Remove Question");
+        removeExamBtn.setOnAction(e -> {
+            AssessmentQuestion selected = examTable.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                examQuestions.remove(selected);
+            }
+        });
+
+        examButtonBox.getChildren().addAll(addExamBtn, removeExamBtn);
+        examBox.getChildren().addAll(examLabel, examTable, examButtonBox);
+
+        VBox mainBox = new VBox(20);
+        mainBox.getChildren().addAll(quizBox, examBox);
+        tab.setContent(mainBox);
+
+        return tab;
+    }
     }
 
     }

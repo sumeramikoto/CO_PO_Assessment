@@ -13,7 +13,7 @@ module org.example.co_po_assessment {
     requires layout;
     requires kernel;
     requires io;
-    requires org.jfree.jfreechart;
+ requires jfreechart;
     requires javafx.graphics;
 
     opens org.example.co_po_assessment to javafx.fxml;

@@ -2,14 +2,37 @@ package org.example.co_po_assessment;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.util.converter.DoubleStringConverter;
+import javafx.util.converter.IntegerStringConverter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ManualExcel extends Application {
+
+    private Course currentCourse;
+    private ObservableList<Student> students = FXCollections.observableArrayList();
+    private ObservableList<AssessmentQuestion> quizQuestions = FXCollections.observableArrayList();
+    private ObservableList<AssessmentQuestion> examQuestions = FXCollections.observableArrayList();
+    private Map<String, ObservableList<StudentMark>> marksData = new HashMap<>();
+
+    private TableView<Student> studentTable;
+    private TableView<AssessmentQuestion> quizTable;
+    private TableView<AssessmentQuestion> examTable;
+    private TableView<Map.Entry<String, Double>> coTable;
+    private TableView<Map.Entry<String, Double>> poTable;
+
     @Override
     public void start(Stage primaryStage) {
         BorderPane root = new BorderPane();
@@ -34,7 +57,12 @@ public class ManualExcel extends Application {
         primaryStage.setTitle("CO/PO Assessment System");
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        // Initialize with sample data (remove in production)
+        initializeSampleData();
     }
+
+
 
 
     private MenuBar createMenuBar() {

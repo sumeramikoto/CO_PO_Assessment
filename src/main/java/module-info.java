@@ -13,9 +13,9 @@ module org.example.co_po_assessment {
     requires layout;
     requires kernel;
     requires io;
-    requires org.jfree.jfreechart;
     requires javafx.graphics;
     requires java.sql;
+    requires org.jfree.jfreechart;
 
     opens org.example.co_po_assessment to javafx.fxml;
     exports org.example.co_po_assessment;

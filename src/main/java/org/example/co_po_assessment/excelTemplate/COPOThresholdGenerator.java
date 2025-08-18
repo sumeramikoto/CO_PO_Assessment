@@ -31,17 +31,17 @@ public class COPOThresholdGenerator {
         Map<String, Double> poTotals = new TreeMap<>();
 
         Map<String,Question> mapQuiz1 = quiz1Qs.stream()
-                .collect(Collectors.toMap(q->q.number, q->q));
+                .collect(Collectors.toMap(q->q.title, q->q));
         Map<String,Question> mapQuiz2 = quiz2Qs.stream()
-                .collect(Collectors.toMap(q->q.number, q->q));
+                .collect(Collectors.toMap(q->q.title, q->q));
         Map<String,Question> mapQuiz3 = quiz3Qs.stream()
-                .collect(Collectors.toMap(q->q.number, q->q));
+                .collect(Collectors.toMap(q->q.title, q->q));
         Map<String,Question> mapQuiz4 = quiz4Qs.stream()
-                .collect(Collectors.toMap(q->q.number, q->q));
+                .collect(Collectors.toMap(q->q.title, q->q));
         Map<String,Question> mapMid = midQs.stream()
-                .collect(Collectors.toMap(q->q.number, q->q));
+                .collect(Collectors.toMap(q->q.title, q->q));
         Map<String,Question> mapFin = finalQs.stream()
-                .collect(Collectors.toMap(q->q.number, q->q));
+                .collect(Collectors.toMap(q->q.title, q->q));
 
         Map<String,Map<String,Question>> sheetMap = Map.of(
                 "Quiz1Entry", mapQuiz1,

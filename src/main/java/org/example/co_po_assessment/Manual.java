@@ -655,7 +655,7 @@ public class Manual extends Application {
 
         HBox quizButtonBox = new HBox(10);
         Button addQuizBtn = new Button("Add Question");
-        addQuizBtn.setOnAction(e -> showAddQuestionDialog("Quiz"));
+        addQuizBtn.setOnAction(e -> openQuestionInputWindow());
 
         Button removeQuizBtn = new Button("Remove Question");
         removeQuizBtn.setOnAction(e -> {
@@ -704,7 +704,7 @@ public class Manual extends Application {
 
         HBox examButtonBox = new HBox(10);
         Button addExamBtn = new Button("Add Question");
-        addExamBtn.setOnAction(e -> showAddQuestionDialog("Exam"));
+        addExamBtn.setOnAction(e -> openQuestionInputWindow());
 
         Button removeExamBtn = new Button("Remove Question");
         removeExamBtn.setOnAction(e -> {
@@ -795,6 +795,20 @@ public class Manual extends Application {
             // Refresh the marks entry tabs to show new question columns
             refreshMarksEntryTab();
         });
+    }
+
+    private void openQuestionInputWindow() {
+        try {
+            Stage stage = new Stage();
+            QuestionInputWindow questionInputWindow = new QuestionInputWindow();
+            questionInputWindow.start(stage);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Failed to load Add Question");
+            alert.showAndWait();
+        }
     }
 
     private Tab createAssessmentEntryTab(String assessmentType) {

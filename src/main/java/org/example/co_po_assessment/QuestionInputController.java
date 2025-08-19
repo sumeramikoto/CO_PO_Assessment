@@ -14,6 +14,8 @@ public class QuestionInputController implements Initializable {
     @FXML
     ChoiceBox<String> examChoiceBox;
     @FXML
+    Label headLabel;
+    @FXML
     Label examLabel;
     @FXML
     Label questionNoLabel;

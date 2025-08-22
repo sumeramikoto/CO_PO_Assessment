@@ -10,9 +10,9 @@ import java.io.IOException;
 public class ManageCoursesView extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(ManageCoursesView.class.getResource("manageStudents-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ManageCoursesView.class.getResource("manageCourses-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 345, 380);
-        stage.setTitle("Input Student Info");
+        stage.setTitle("Manage Course Assignment");
         stage.setScene(scene);
         stage.show();
     }

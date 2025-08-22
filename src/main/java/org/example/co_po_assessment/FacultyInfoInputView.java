@@ -7,10 +7,10 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class QuestionInputWindow extends Application {
+public class FacultyInfoInputView extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(QuestionInputWindow.class.getResource("questionInput-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(FacultyInfoInputView.class.getResource("facultyInfoInput-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 345, 380);
         stage.setTitle("Input Question Info");
         stage.setScene(scene);

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<SplitPane dividerPositions="0.12060301507537688" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="400.0" prefWidth="732.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.AdminDashboardController">
+  <items>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+         <children>
+            <Label fx:id="headerLabel" layoutX="3.0" layoutY="1.0" prefHeight="45.0" prefWidth="508.0" text="Admin">
+               <font>
+                  <Font size="26.0" />
+               </font>
+            </Label>
+            <Button fx:id="logoutButton" layoutX="654.0" layoutY="11.0" mnemonicParsing="false" onAction="#onLogoutButton" text="Logout" />
+         </children></AnchorPane>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="347.0" prefWidth="728.0">
+         <children>
+            <Button fx:id="manageFacultiesButton" layoutX="14.0" layoutY="30.0" mnemonicParsing="false" onAction="#onManageFacultiesButton" prefHeight="59.0" prefWidth="138.0" text="Manage Faculties" />
+            <Button fx:id="manageStudentsButton" layoutX="180.0" layoutY="30.0" mnemonicParsing="false" onAction="#onManageStudentsButton" prefHeight="59.0" prefWidth="138.0" text="Manage Students" />
+            <Button fx:id="manageCoursesButton" layoutX="348.0" layoutY="30.0" mnemonicParsing="false" onAction="#onManageCoursesButton" prefHeight="59.0" prefWidth="138.0" text="Manage Courses" />
+            <Button fx:id="viewReportsButton" layoutX="526.0" layoutY="30.0" mnemonicParsing="false" onAction="#onViewReportsButton" prefHeight="59.0" prefWidth="138.0" text="View Reports" />
+         </children></AnchorPane>
+  </items>
+</SplitPane>

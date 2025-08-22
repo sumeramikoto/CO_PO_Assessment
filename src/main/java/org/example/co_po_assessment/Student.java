@@ -6,28 +6,65 @@ import javafx.beans.property.StringProperty;
 public class Student {
     private final StringProperty id;
     private final StringProperty name;
+    private final StringProperty batch;
+    private final StringProperty department;
+    private final StringProperty programme;
     private final StringProperty email;
-    private final StringProperty contact;
 
-    public Student(String id, String name, String email, String contact) {
+    public Student(String id, String name, String batch, String department, String programme, String email) {
         this.id = new SimpleStringProperty(id);
         this.name = new SimpleStringProperty(name);
+        this.batch = new SimpleStringProperty(batch);
+        this.department = new SimpleStringProperty(department);
+        this.programme = new SimpleStringProperty(programme);
         this.email = new SimpleStringProperty(email);
-        this.contact = new SimpleStringProperty(contact);
     }
 
-    public StringProperty idProperty() { return id; }
-    public StringProperty nameProperty() { return name; }
-    public StringProperty emailProperty() { return email; }
-    public StringProperty contactProperty() { return contact; }
+    public String getId() {
+        return id.get();
+    }
 
-    public String getId() { return id.get(); }
-    public String getName() { return name.get(); }
-    public String getEmail() { return email.get(); }
-    public String getContact() { return contact.get(); }
+    public StringProperty idProperty() {
+        return id;
+    }
 
-    public void setId(String id) { this.id.set(id); }
-    public void setName(String name) { this.name.set(name); }
-    public void setEmail(String email) { this.email.set(email); }
-    public void setContact(String contact) { this.contact.set(contact); }
+    public String getName() {
+        return name.get();
+    }
+
+    public StringProperty nameProperty() {
+        return name;
+    }
+
+    public String getBatch() {
+        return batch.get();
+    }
+
+    public StringProperty batchProperty() {
+        return batch;
+    }
+
+    public String getDepartment() {
+        return department.get();
+    }
+
+    public StringProperty departmentProperty() {
+        return department;
+    }
+
+    public String getProgramme() {
+        return programme.get();
+    }
+
+    public StringProperty programmeProperty() {
+        return programme;
+    }
+
+    public String getEmail() {
+        return email.get();
+    }
+
+    public StringProperty emailProperty() {
+        return email;
+    }
 }

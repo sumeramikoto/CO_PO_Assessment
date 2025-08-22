@@ -15,32 +15,31 @@ CREATE TABLE Faculty (
 );
 
 CREATE TABLE Course (
-                        id VARCHAR(20) PRIMARY KEY,  -- CSE 4341 etc
-                        course_code VARCHAR(20) NOT NULL UNIQUE,
+                        course_code VARCHAR(20) PRIMARY KEY,
                         course_name VARCHAR(100) NOT NULL,
-                        credits DECIMAL(3,1) NOT NULL,
-                        instructor_id INT NOT NULL,
-                        FOREIGN KEY (instructor_id) REFERENCES Faculty(id)
+                        credits DECIMAL(3,1) NOT NULL
 );
 
 CREATE TABLE CourseAssignment (
                                   faculty_id INT NOT NULL,
                                   course_id VARCHAR(20) NOT NULL,
+                                  academic_year VARCHAR(9) NOT NULL,
                                   FOREIGN KEY (faculty_id) REFERENCES Faculty(id),
                                   FOREIGN KEY (course_id) REFERENCES Course(id),
                                   UNIQUE (faculty_id, course_id)
 );
 
 CREATE TABLE Student (
-                         id INT PRIMARY KEY,  -- Manual ID assignment (e.g., student ID/roll number)
+                         id VARCHAR(9) PRIMARY KEY,  -- Manual ID assignment (e.g., student ID/roll number)
                          batch INT NOT NULL,
                          name VARCHAR(100) NOT NULL,
                          email VARCHAR(100) NOT NULL UNIQUE,
-                         year INT NOT NULL
+                         department VARCHAR(3),
+                         programme VARCHAR(3)
 );
 
 CREATE TABLE Enrollment (
-                            student_id INT NOT NULL,
+                            student_id VARCHAR(9) NOT NULL,
                             course_id VARCHAR(20) NOT NULL,
                             FOREIGN KEY (student_id) REFERENCES Student(id),
                             FOREIGN KEY (course_id) REFERENCES Course(id),
@@ -50,17 +49,12 @@ CREATE TABLE Enrollment (
 -- CO and PO master tables
 CREATE TABLE CO (
                     id INT AUTO_INCREMENT PRIMARY KEY,
-                    course_id VARCHAR(20) NOT NULL,
-                    co_number VARCHAR(10) NOT NULL, -- CO1, CO2, etc.
-                    description TEXT,
-                    FOREIGN KEY (course_id) REFERENCES Course(id),
-                    UNIQUE(course_id, co_number)
+                    co_number VARCHAR(10) NOT NULL -- CO1, CO2, etc.
 );
 
 CREATE TABLE PO (
                     id INT AUTO_INCREMENT PRIMARY KEY,
-                    po_number VARCHAR(10) NOT NULL UNIQUE, -- PO1, PO2, etc.
-                    description TEXT
+                    po_number VARCHAR(10) NOT NULL UNIQUE -- PO1, PO2, etc.
 );
 
 -- Assessment tables
@@ -68,7 +62,7 @@ CREATE TABLE Quiz (
                       id INT AUTO_INCREMENT PRIMARY KEY,
                       course_id VARCHAR(20) NOT NULL,
                       quiz_number INT NOT NULL,
-                      date DATE NOT NULL,
+                      academic_year VARCHAR(9) NOT NULL,
                       total_marks DECIMAL(5,2) DEFAULT 0,
                       FOREIGN KEY (course_id) REFERENCES Course(id),
                       UNIQUE(course_id, quiz_number),
@@ -78,7 +72,7 @@ CREATE TABLE Quiz (
 CREATE TABLE `Mid` (
                        id INT AUTO_INCREMENT PRIMARY KEY,
                        course_id VARCHAR(20) NOT NULL,
-                       date DATE NOT NULL,
+                       academic_year VARCHAR(9) NOT NULL,
                        total_marks DECIMAL(5,2) DEFAULT 0,
                        FOREIGN KEY (course_id) REFERENCES Course(id),
                        UNIQUE(course_id)
@@ -87,7 +81,7 @@ CREATE TABLE `Mid` (
 CREATE TABLE `Final` (
                          id INT AUTO_INCREMENT PRIMARY KEY,
                          course_id VARCHAR(20) NOT NULL,
-                         date DATE NOT NULL,
+                         academic_year VARCHAR(9) NOT NULL,
                          total_marks DECIMAL(5,2) DEFAULT 0,
                          FOREIGN KEY (course_id) REFERENCES Course(id),
                          UNIQUE(course_id)
@@ -136,7 +130,7 @@ CREATE TABLE FinalQuestion (
 -- Student marks tables
 CREATE TABLE StudentQuizMarks (
                                   id INT AUTO_INCREMENT PRIMARY KEY,
-                                  student_id INT NOT NULL,
+                                  student_id VARCHAR(9) NOT NULL,
                                   quiz_question_id INT NOT NULL,
                                   marks_obtained DECIMAL(5,2) NOT NULL DEFAULT 0,
                                   FOREIGN KEY (student_id) REFERENCES Student(id),
@@ -146,7 +140,7 @@ CREATE TABLE StudentQuizMarks (
 
 CREATE TABLE StudentMidMarks (
                                  id INT AUTO_INCREMENT PRIMARY KEY,
-                                 student_id INT NOT NULL,
+                                 student_id VARCHAR(9) NOT NULL,
                                  mid_question_id INT NOT NULL,
                                  marks_obtained DECIMAL(5,2) NOT NULL DEFAULT 0,
                                  FOREIGN KEY (student_id) REFERENCES Student(id),
@@ -156,7 +150,7 @@ CREATE TABLE StudentMidMarks (
 
 CREATE TABLE StudentFinalMarks (
                                    id INT AUTO_INCREMENT PRIMARY KEY,
-                                   student_id INT NOT NULL,
+                                   student_id VARCHAR(9) NOT NULL,
                                    final_question_id INT NOT NULL,
                                    marks_obtained DECIMAL(5,2) NOT NULL DEFAULT 0,
                                    FOREIGN KEY (student_id) REFERENCES Student(id),

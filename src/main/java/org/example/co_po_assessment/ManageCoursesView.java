@@ -1,4 +1,23 @@
 package org.example.co_po_assessment;
 
-public class AssignCoursesView {
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+
+public class ManageCoursesView extends Application {
+    @Override
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(ManageCoursesView.class.getResource("manageStudents-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 345, 380);
+        stage.setTitle("Input Student Info");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch();
+    }
 }

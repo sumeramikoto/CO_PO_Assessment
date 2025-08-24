@@ -408,7 +408,7 @@ public class Manual extends Application {
                         studentData.name,
                         String.valueOf(studentData.batch), // Convert int to String
                         "CSE",
-                        "SWE", 
+                        "SWE",
                         studentData.email
                 ));
             }
@@ -524,18 +524,23 @@ public class Manual extends Application {
 
         TableColumn<Student, String> idCol = new TableColumn<>("Student ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        idCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
         TableColumn<Student, String> nameCol = new TableColumn<>("Name");
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<Student, String> batchCol = new TableColumn<>("Batch");
+        batchCol.setCellValueFactory(new PropertyValueFactory<>("batch"));
+
+        TableColumn<Student, String> deptCol = new TableColumn<>("Department");
+        deptCol.setCellValueFactory(new PropertyValueFactory<>("department"));
+
+        TableColumn<Student, String> progCol = new TableColumn<>("Programme");
+        progCol.setCellValueFactory(new PropertyValueFactory<>("programme"));
 
         TableColumn<Student, String> emailCol = new TableColumn<>("Email");
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
-        emailCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        studentTable.getColumns().addAll(idCol, nameCol, emailCol);
-        studentTable.setItems(students);
+        studentTable.getColumns().addAll(idCol, nameCol, batchCol, deptCol, progCol, emailCol);
 
         HBox buttonBox = new HBox(10);
         Button addBtn = new Button("Add Student");

@@ -400,13 +400,16 @@ public class Manual extends Application {
             examQuestions.clear();
             
             // Load enrolled students
+            // Load enrolled students
             List<DatabaseService.StudentData> dbStudents = dbService.getEnrolledStudents(selectedCourseData.id);
             for (DatabaseService.StudentData studentData : dbStudents) {
                 students.add(new Student(
-                    String.valueOf(studentData.id),
-                    studentData.name,
-                    studentData.email,
-                    "" // Contact info not in database
+                        String.valueOf(studentData.id),
+                        studentData.name,
+                        String.valueOf(studentData.batch), // Convert int to String
+                        "CSE",
+                        "SWE", 
+                        studentData.email
                 ));
             }
             
@@ -604,7 +607,7 @@ public class Manual extends Application {
                         nameField.getText(),
                         "2022",
                         "CSE",
-                        "SWE",  
+                        "SWE",
                         emailField.getText()
                 );
             }

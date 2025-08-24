@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<SplitPane dividerPositions="0.10038610038610038" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="520.0" prefWidth="819.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.FacultyDashboardController">
+  <items>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+         <children>
+            <Button fx:id="logoutButton" layoutX="741.0" layoutY="12.0" mnemonicParsing="false" onAction="#onLogoutButton" text="Logout" />
+            <Label fx:id="facultyLabel" layoutX="14.0" layoutY="1.0" prefHeight="48.0" prefWidth="487.0" text="Faculty">
+               <font>
+                  <Font size="25.0" />
+               </font>
+            </Label>
+         </children></AnchorPane>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="447.0" prefWidth="745.0">
+         <children>
+            <TableView fx:id="assignedCoursesTableView" layoutX="-1.0" layoutY="39.0" prefHeight="293.0" prefWidth="819.0">
+              <columns>
+                <TableColumn fx:id="courseCodeColumn" prefWidth="110.0" text="Course Code" />
+                <TableColumn fx:id="courseNameColumn" prefWidth="233.0" text="Course Name" />
+                  <TableColumn fx:id="academicYearColumn" prefWidth="132.0" text="Academic Year" />
+                  <TableColumn fx:id="departmentColumn" prefWidth="122.0" text="Department" />
+                  <TableColumn fx:id="programmeColumn" prefWidth="158.0" text="Programme" />
+              </columns>
+            </TableView>
+            <Label fx:id="listLabel" alignment="CENTER" layoutY="-2.0" prefHeight="42.0" prefWidth="817.0" text="List of Assigned Courses" textAlignment="CENTER">
+               <font>
+                  <Font size="21.0" />
+               </font>
+            </Label>
+            <Button fx:id="questionsButton" layoutX="98.0" layoutY="362.0" mnemonicParsing="false" onAction="#onQuestionsButton" prefHeight="75.0" prefWidth="167.0" text="View Course Questions" />
+            <Button fx:id="marksButton" layoutX="325.0" layoutY="362.0" mnemonicParsing="false" onAction="#onMarksButton" prefHeight="75.0" prefWidth="167.0" text="View Student Marks" />
+            <Button fx:id="reportButton" layoutX="535.0" layoutY="362.0" mnemonicParsing="false" onAction="#onReportButton" prefHeight="75.0" prefWidth="268.0" text="Generate CO/PO Assessment Report" />
+         </children></AnchorPane>
+  </items>
+</SplitPane>

@@ -602,8 +602,10 @@ public class Manual extends Application {
                 return new Student(
                         idField.getText(),
                         nameField.getText(),
-                        emailField.getText(),
-                        contactField.getText()
+                        "2022",
+                        "CSE",
+                        "SWE",  
+                        emailField.getText()
                 );
             }
             return null;

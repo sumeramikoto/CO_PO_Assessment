@@ -117,9 +117,9 @@ public class Manual extends Application {
                 "2023-2024", 3.0, "SWE", "CSE");
 
         students.addAll(
-                new Student("220042101", "Navid Ibrahim", "navidibhrahimovic@iut-dhaka.edu", "01717655515"),
-                new Student("220042128", "Naybur Rahman Sinha", "sinhawiz@iut-dhaka.edu", "0144456416"),
-                new Student("220042134", "Tahir Zaman Umar", "tahirumar@iut-dhaka.edu", "01779770359")
+                new Student("220042101", "Navid Ibrahim", "2022", "CSE", "SWE", "navidibhrahimovic@iut-dhaka.edu"),
+                new Student("220042128", "Naybur Rahman Sinha", "2022", "CSE", "SWE", "sinhawiz@iut-dhaka.edu"),
+                new Student("220042134", "Tahir Zaman Umar", "2022", "CSE", "SWE", "tahirumar@iut-dhaka.edu")
         );
 
         quizQuestions.addAll(

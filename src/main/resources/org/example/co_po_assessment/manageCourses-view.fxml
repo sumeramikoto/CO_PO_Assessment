@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="CONTROLLER_NAME"
-            prefHeight="400.0" prefWidth="600.0">
 
+<AnchorPane prefHeight="540.0" prefWidth="772.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.ManageCoursesController">
+   <children>
+      <TableView fx:id="courseTableView" layoutX="-2.0" layoutY="82.0" prefHeight="383.0" prefWidth="778.0">
+        <columns>
+          <TableColumn fx:id="courseCodeColumn" prefWidth="193.0" text="Course Code" />
+          <TableColumn fx:id="courseNameColumn" prefWidth="440.0" text="Course Name" />
+            <TableColumn fx:id="creditsColumn" prefWidth="144.0" text="Credits" />
+        </columns>
+      </TableView>
+      <Button fx:id="removeCourseButton" layoutX="318.0" layoutY="490.0" mnemonicParsing="false" onAction="#onRemoveCourseButton" prefHeight="36.0" prefWidth="142.0" text="Remove Course" />
+      <Button fx:id="addCourseButton" layoutX="161.0" layoutY="490.0" mnemonicParsing="false" onAction="#onAddCourseButton" prefHeight="36.0" prefWidth="96.0" text="Add Course" />
+      <Button fx:id="backButton" layoutX="533.0" layoutY="490.0" mnemonicParsing="false" onAction="#onBackButton" prefHeight="36.0" prefWidth="96.0" text="Go Back" />
+   </children>
 </AnchorPane>

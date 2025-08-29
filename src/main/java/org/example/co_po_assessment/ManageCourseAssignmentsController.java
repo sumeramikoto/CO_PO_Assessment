@@ -1,16 +1,14 @@
 package org.example.co_po_assessment;
 
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 
-public class ManageCoursesController {
-
-    public void onAddCourseButton(ActionEvent actionEvent) {
-        // opens window to take course info input
+public class ManageCourseAssignmentsController {
+    public void onAssignCourseButton(ActionEvent actionEvent) {
+        // opens a new window which prompts admin to assign a course to a faculty
     }
 
     public void onRemoveCourseButton(ActionEvent actionEvent) {
-        // removes selected course
+        // removes selected course assignement
     }
 
     public void onBackButton(ActionEvent actionEvent) {

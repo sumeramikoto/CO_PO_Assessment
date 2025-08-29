@@ -11,15 +11,26 @@ public class FacultyDashboardController {
     @FXML
     Label facultyLabel;
 
+    // lots of other fxml elements haven't been put here yet,
+    // idk the best way to represent the object that will be displayed
+    // in the assigned courses table that you'll see in the faculty dashboard
+
     public void onLogoutButton(ActionEvent actionEvent) {
+        // takes you back to login page (AssessmentSystem)
     }
 
     public void onQuestionsButton(ActionEvent actionEvent) {
+        // opens a window that'll show the questions for the selected course and each respective exam
+        // the window will also let you add, modify or delete questions
     }
 
     public void onMarksButton(ActionEvent actionEvent) {
+        // opens a window that'll show the students marks for the selected course and each respective exam
+        // also grade marks etc.
     }
 
     public void onReportButton(ActionEvent actionEvent) {
+        // checks if all the students have been graded yet or not
+        // if graded then generates the co/po assessment report for the course
     }
 }

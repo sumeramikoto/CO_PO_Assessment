@@ -29,11 +29,14 @@ public class ManageStudentsController {
     Button backButton;
 
     public void onAddStudentButton(ActionEvent actionEvent) {
+        // opens new window to add student info
     }
 
     public void onRemoveStudentButton(ActionEvent actionEvent) {
+        // removes selected student
     }
 
     public void onBackButton(ActionEvent actionEvent) {
+        // takes back to admin dashboard
     }
 }

@@ -5,18 +5,18 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="458.0" prefWidth="822.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.ManageCoursesController">
-    <children>
-        <TableView fx:id="courseTableView" layoutX="-1.0" layoutY="70.0" prefHeight="318.0" prefWidth="822.0">
-            <columns>
-                <TableColumn fx:id="courseCodeColumn" prefWidth="117.0" text="Course Code" />
-                <TableColumn fx:id="courseNameColumn" prefWidth="268.0" text="Course Name" />
-                <TableColumn fx:id="facultyColumn" prefWidth="281.0" text="Faculty" />
-                <TableColumn fx:id="academicYearColumn" prefWidth="155.0" text="Academic Year" />
-            </columns>
-        </TableView>
-        <Button fx:id="assignCourseButton" layoutX="230.0" layoutY="411.0" mnemonicParsing="false" onAction="#onAssignCourseButton" text="Assign Course" />
-        <Button fx:id="removeCourseButton" layoutX="354.0" layoutY="411.0" mnemonicParsing="false" onAction="#onRemoveCourseButton" text="Remove Course" />
-        <Button fx:id="backButton" layoutX="489.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
-    </children>
+
+<AnchorPane prefHeight="540.0" prefWidth="772.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.ManageCoursesController">
+   <children>
+      <TableView fx:id="courseTableView" layoutX="-2.0" layoutY="82.0" prefHeight="383.0" prefWidth="778.0">
+        <columns>
+          <TableColumn fx:id="courseCodeColumn" prefWidth="193.0" text="Course Code" />
+          <TableColumn fx:id="courseNameColumn" prefWidth="440.0" text="Course Name" />
+            <TableColumn fx:id="creditsColumn" prefWidth="144.0" text="Credits" />
+        </columns>
+      </TableView>
+      <Button fx:id="removeCourseButton" layoutX="318.0" layoutY="490.0" mnemonicParsing="false" onAction="#onRemoveCourseButton" prefHeight="36.0" prefWidth="142.0" text="Remove Course" />
+      <Button fx:id="addCourseButton" layoutX="161.0" layoutY="490.0" mnemonicParsing="false" onAction="#onAddCourseButton" prefHeight="36.0" prefWidth="96.0" text="Add Course" />
+      <Button fx:id="backButton" layoutX="533.0" layoutY="490.0" mnemonicParsing="false" onAction="#onBackButton" prefHeight="36.0" prefWidth="96.0" text="Go Back" />
+   </children>
 </AnchorPane>

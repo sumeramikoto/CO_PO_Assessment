@@ -21,8 +21,9 @@
          <children>
             <Button fx:id="manageFacultiesButton" layoutX="14.0" layoutY="30.0" mnemonicParsing="false" onAction="#onManageFacultiesButton" prefHeight="59.0" prefWidth="138.0" text="Manage Faculties" />
             <Button fx:id="manageStudentsButton" layoutX="180.0" layoutY="30.0" mnemonicParsing="false" onAction="#onManageStudentsButton" prefHeight="59.0" prefWidth="138.0" text="Manage Students" />
-            <Button fx:id="manageCoursesButton" layoutX="348.0" layoutY="30.0" mnemonicParsing="false" onAction="#onManageCoursesButton" prefHeight="59.0" prefWidth="138.0" text="Manage Courses" />
-            <Button fx:id="viewReportsButton" layoutX="526.0" layoutY="30.0" mnemonicParsing="false" onAction="#onViewReportsButton" prefHeight="59.0" prefWidth="138.0" text="View Reports" />
+            <Button fx:id="manageCourseAssignmentsButton" layoutX="348.0" layoutY="30.0" mnemonicParsing="false" onAction="#onManageCourseAssignmentsButton" prefHeight="59.0" prefWidth="199.0" text="Manage Course Assignments" />
+            <Button fx:id="viewReportsButton" layoutX="578.0" layoutY="30.0" mnemonicParsing="false" onAction="#onViewReportsButton" prefHeight="59.0" prefWidth="138.0" text="View Reports" />
+            <Button fx:id="manageCoursesButton" layoutX="14.0" layoutY="115.0" mnemonicParsing="false" onAction="#onManageCoursesButton" prefHeight="59.0" prefWidth="138.0" text="Manage Courses" />
          </children></AnchorPane>
   </items>
 </SplitPane>

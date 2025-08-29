@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="fd93eeae-2466-4e81-996c-0941a40f5778" name="Changes" comment="added functionality for student info panel">
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/ManageStudentsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/ManageStudentsController.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;SinhaWiz&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/sumeramikoto/CO_PO_Assessment.git&quot;,
+    &quot;accountId&quot;: &quot;c093b2b0-cfa0-4d21-bdcb-2361f7a3d711&quot;
+  }
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="31Ly11PkJgy53Wj6uvshQ1hWmjD" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.AdminDashboardWindow.executor": "Run",
+    "Application.AdminsDashboard.executor": "Run",
+    "Application.AssessmentSystem.executor": "Run",
+    "Application.FacultyDashboard.executor": "Run",
+    "Application.FacultyDashboardView.executor": "Run",
+    "Application.ManageCoursesView.executor": "Run",
+    "Application.ManageStudentsView.executor": "Run",
+    "Application.Manual.executor": "Run",
+    "Application.ManualExcel (1).executor": "Run",
+    "Application.ManualExcel.executor": "Run",
+    "Application.QuestionInputWindow.executor": "Run",
+    "Application.org.example.co_po_assessment.AssessmentSystem.executor": "Run",
+    "Downloaded.Files.Path.Enabled": "false",
+    "Repository.Attach.Annotations": "false",
+    "Repository.Attach.JavaDocs": "false",
+    "Repository.Attach.Sources": "false",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "sinha",
+    "ignore.preview.features.used": "true",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
+  }
+}]]></component>
+  <component name="RunManager" selected="Application.AdminDashboardWindow">
+    <configuration name="AdminDashboardWindow" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.co_po_assessment.AdminDashboardWindow" />
+      <module name="CO_PO_Assessment" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.co_po_assessment.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AdminsDashboard" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="depricatedClasses.AdminsDashboard" />
+      <module name="CO_PO_Assessment" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="depricatedClasses.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AssessmentSystem" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="depricatedClasses.AssessmentSystem" />
+      <module name="CO_PO_Assessment" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="depricatedClasses.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="FacultyDashboard" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="depricatedClasses.FacultyDashboard" />
+      <module name="CO_PO_Assessment" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="depricatedClasses.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="FacultyDashboardView" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.co_po_assessment.FacultyDashboardView" />
+      <module name="CO_PO_Assessment" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.co_po_assessment.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.AdminDashboardWindow" />
+        <item itemvalue="Application.FacultyDashboardView" />
+        <item itemvalue="Application.FacultyDashboard" />
+        <item itemvalue="Application.AssessmentSystem" />
+        <item itemvalue="Application.AdminsDashboard" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26574.91" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26574.91" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fd93eeae-2466-4e81-996c-0941a40f5778" name="Changes" comment="" />
+      <created>1755317428300</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1755317428300</updated>
+      <workItem from="1755317429412" duration="1035000" />
+      <workItem from="1755318830333" duration="1893000" />
+      <workItem from="1755324446904" duration="35000" />
+      <workItem from="1755390211854" duration="4924000" />
+      <workItem from="1755413829745" duration="1399000" />
+      <workItem from="1755416811322" duration="1795000" />
+      <workItem from="1755422126072" duration="311000" />
+      <workItem from="1755430578861" duration="1597000" />
+      <workItem from="1755438509657" duration="283000" />
+      <workItem from="1755616701396" duration="143000" />
+      <workItem from="1756047265956" duration="120000" />
+      <workItem from="1756376355504" duration="430000" />
+      <workItem from="1756430329067" duration="1565000" />
+      <workItem from="1756467712263" duration="8617000" />
+    </task>
+    <task id="LOCAL-00001" summary="updated the schema">
+      <option name="closed" value="true" />
+      <created>1755320914431</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1755320914431</updated>
+    </task>
+    <task id="LOCAL-00002" summary="deleted duplicates">
+      <option name="closed" value="true" />
+      <created>1755390253462</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1755390253462</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Changed a question attribute from question  Number to question title(1a , 1b ,3a etc)">
+      <option name="closed" value="true" />
+      <created>1755390798972</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1755390798972</updated>
+    </task>
+    <task id="LOCAL-00004" summary="updated course_id data type">
+      <option name="closed" value="true" />
+      <created>1755390857523</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1755390857523</updated>
+    </task>
+    <task id="LOCAL-00005" summary="changed the usage of question number to question title everywhere">
+      <option name="closed" value="true" />
+      <created>1755391020995</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1755391020995</updated>
+    </task>
+    <task id="LOCAL-00006" summary="updated schema (Mid &amp; Final are MySQL defined keywords and was causing syntax error when creating table)">
+      <option name="closed" value="true" />
+      <created>1755394317943</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1755394317943</updated>
+    </task>
+    <task id="LOCAL-00007" summary="some input output formats changed">
+      <option name="closed" value="true" />
+      <created>1755396252981</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1755396252981</updated>
+    </task>
+    <task id="LOCAL-00008" summary="some input output formats changed">
+      <option name="closed" value="true" />
+      <created>1755414075084</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1755414075084</updated>
+    </task>
+    <task id="LOCAL-00009" summary="fixed some compilation errors">
+      <option name="closed" value="true" />
+      <created>1755420354292</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1755420354292</updated>
+    </task>
+    <task id="LOCAL-00010" summary="database connection class to main">
+      <option name="closed" value="true" />
+      <created>1755422213523</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1755422213523</updated>
+    </task>
+    <task id="LOCAL-00011" summary="database connection class to main">
+      <option name="closed" value="true" />
+      <created>1755422316570</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1755422316570</updated>
+    </task>
+    <task id="LOCAL-00012" summary="added a faculty info for testing">
+      <option name="closed" value="true" />
+      <created>1755431388062</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1755431388062</updated>
+    </task>
+    <task id="LOCAL-00013" summary="DBservice updated for retrieving data">
+      <option name="closed" value="true" />
+      <created>1755432070842</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1755432070842</updated>
+    </task>
+    <task id="LOCAL-00014" summary="fixed the schema for couse code">
+      <option name="closed" value="true" />
+      <created>1756431665102</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1756431665102</updated>
+    </task>
+    <task id="LOCAL-00015" summary="moving old classes">
+      <option name="closed" value="true" />
+      <created>1756468370823</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1756468370823</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Rewritten the DatabaseService.java to align with the updated sql files">
+      <option name="closed" value="true" />
+      <created>1756469716402</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1756469716402</updated>
+    </task>
+    <task id="LOCAL-00017" summary="implemented AdminDashboard main panel Buttons">
+      <option name="closed" value="true" />
+      <created>1756470088877</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1756470088877</updated>
+    </task>
+    <task id="LOCAL-00018" summary="implemented AdminDashboard main trying to fix faculty info">
+      <option name="closed" value="true" />
+      <created>1756471450913</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1756471450913</updated>
+    </task>
+    <task id="LOCAL-00019" summary="trying to fix faculty info">
+      <option name="closed" value="true" />
+      <created>1756473087778</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1756473087778</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Now I can successfully add and remove faculty (also gets stored in DB)">
+      <option name="closed" value="true" />
+      <created>1756473996024</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1756473996024</updated>
+    </task>
+    <task id="LOCAL-00021" summary="added functionality for student info panel">
+      <option name="closed" value="true" />
+      <created>1756475206566</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1756475206566</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="updated the schema" />
+    <MESSAGE value="deleted duplicates" />
+    <MESSAGE value="Changed a question attribute from question  Number to question title(1a , 1b ,3a etc)" />
+    <MESSAGE value="updated course_id data type" />
+    <MESSAGE value="changed the usage of question number to question title everywhere" />
+    <MESSAGE value="updated schema (Mid &amp; Final are MySQL defined keywords and was causing syntax error when creating table)" />
+    <MESSAGE value="some input output formats changed" />
+    <MESSAGE value="fixed some compilation errors" />
+    <MESSAGE value="database connection class to main" />
+    <MESSAGE value="added a faculty info for testing" />
+    <MESSAGE value="DBservice updated for retrieving data" />
+    <MESSAGE value="fixed the schema for couse code" />
+    <MESSAGE value="moving old classes" />
+    <MESSAGE value="Rewritten the DatabaseService.java to align with the updated sql files" />
+    <MESSAGE value="implemented AdminDashboard main panel Buttons" />
+    <MESSAGE value="implemented AdminDashboard main trying to fix faculty info" />
+    <MESSAGE value="trying to fix faculty info" />
+    <MESSAGE value="Now I can successfully add and remove faculty (also gets stored in DB)" />
+    <MESSAGE value="added functionality for student info panel" />
+    <option name="LAST_COMMIT_MESSAGE" value="added functionality for student info panel" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/excelTemplate/COPOThresholdGenerator.java</url>
+          <line>32</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/QuestionInputWindow.java</url>
+          <line>9</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/FacultyDashboardView.java</url>
+          <line>9</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

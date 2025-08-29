@@ -424,11 +424,11 @@ public class DatabaseService {
                    COALESCE(sfm.marks_obtained, 0) as marks_obtained
             FROM Student s
             JOIN Enrollment e ON s.id = e.student_id
-            JOIN Course c ON e.course_id = c.id
-            JOIN Final f ON c.id = f.course_id
+            JOIN Course c ON e.course_id = c.course_code
+            JOIN Final f ON c.course_code = f.course_id
             JOIN FinalQuestion fq ON f.id = fq.final_id
             LEFT JOIN StudentFinalMarks sfm ON s.id = sfm.student_id AND fq.id = sfm.final_question_id
-            WHERE c.id = ?
+            WHERE c.course_code = ?
             ORDER BY s.id, fq.title
             """;
 
@@ -462,13 +462,13 @@ public class DatabaseService {
                    co.co_number, po.po_number
             FROM Student s
             JOIN Enrollment e ON s.id = e.student_id
-            JOIN Course c ON e.course_id = c.id
-            JOIN Quiz q ON c.id = q.course_id
+            JOIN Course c ON e.course_id = c.course_code
+            JOIN Quiz q ON c.course_code = q.course_id
             JOIN QuizQuestion qq ON q.id = qq.quiz_id
             LEFT JOIN StudentQuizMarks sqm ON s.id = sqm.student_id AND qq.id = sqm.quiz_question_id
             JOIN CO co ON qq.co_id = co.id
             JOIN PO po ON qq.po_id = po.id
-            WHERE c.id = ?
+            WHERE c.course_code = ?
             
             UNION ALL
             
@@ -479,13 +479,13 @@ public class DatabaseService {
                    co.co_number, po.po_number
             FROM Student s
             JOIN Enrollment e ON s.id = e.student_id
-            JOIN Course c ON e.course_id = c.id
-            JOIN Mid m ON c.id = m.course_id
+            JOIN Course c ON e.course_id = c.course_code
+            JOIN Mid m ON c.course_code = m.course_id
             JOIN MidQuestion mq ON m.id = mq.mid_id
             LEFT JOIN StudentMidMarks smm ON s.id = smm.student_id AND mq.id = smm.mid_question_id
             JOIN CO co ON mq.co_id = co.id
             JOIN PO po ON mq.po_id = po.id
-            WHERE c.id = ?
+            WHERE c.course_code= ?
             
             UNION ALL
             

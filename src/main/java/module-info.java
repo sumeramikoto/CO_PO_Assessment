@@ -19,6 +19,8 @@ module org.example.co_po_assessment {
 
     opens org.example.co_po_assessment to javafx.fxml;
     exports org.example.co_po_assessment;
+    exports depricatedClasses;
+    opens depricatedClasses to javafx.fxml;
 }
 
 //    opens org.example.co_po_assessment to javafx.fxml;

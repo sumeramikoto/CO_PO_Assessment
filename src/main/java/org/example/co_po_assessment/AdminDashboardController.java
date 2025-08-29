@@ -36,33 +36,21 @@ public class AdminDashboardController implements Initializable {
         headerLabel.setText("Welcome, Administrator!");
     }
 
-/*
     public void onManageFacultiesButton(ActionEvent event) {
+        try {
+            // Load the Manage Faculties view
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("manageFaculties-view.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
 
-        // opens the ManageFacultiesView window
-    }
+            Stage stage = new Stage();
+            stage.setTitle("Manage Faculty Information");
+            stage.setScene(scene);
+            stage.show();
 
-    public void onManageStudentsButton(ActionEvent event) {
-        // opens the ManageStudentsView window
+        } catch (IOException e) {
+            showErrorAlert("Navigation Error", "Failed to open Manage Faculties window: " + e.getMessage());
+        }
     }
-
-    public void onManageCourseAssignmentsButton(ActionEvent event) {
-        // opens the ManageCourseAssignmentsView window
-    }
-
-    public void onViewReportsButton(ActionEvent event) {
-        // idk what to do for this one tbh, supposed to show all the reports
-        // that have been generated so far
-    }
-
-    public void onManageCoursesButton(ActionEvent event) {
-        // opens the ManageCoursesView window
-    }
-    
-    public void onLogoutButton(ActionEvent event) {
-        // takes you back to login page (AssessmentSystem)
-    }
-*/
 
     public void onManageStudentsButton(ActionEvent event) {
         try {
@@ -93,6 +81,22 @@ public class AdminDashboardController implements Initializable {
 
         } catch (IOException e) {
             showErrorAlert("Navigation Error", "Failed to open Manage Courses window: " + e.getMessage());
+        }
+    }
+
+    public void onManageCourseAssignmentsButton(ActionEvent event) {
+        try {
+            // Load the Manage Course Assignments view
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("manageCourseAssignments-view.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 345, 380);
+
+            Stage stage = new Stage();
+            stage.setTitle("Manage Course Assignments");
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (IOException e) {
+            showErrorAlert("Navigation Error", "Failed to open Manage Course Assignments window: " + e.getMessage());
         }
     }
 

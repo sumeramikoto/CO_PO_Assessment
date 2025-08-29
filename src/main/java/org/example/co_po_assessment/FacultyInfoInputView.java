@@ -11,8 +11,8 @@ public class FacultyInfoInputView extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(FacultyInfoInputView.class.getResource("facultyInfoInput-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 345, 380);
-        stage.setTitle("Input Question Info");
+        Scene scene = new Scene(fxmlLoader.load(), 345, 420);
+        stage.setTitle("Add Faculty Information");
         stage.setScene(scene);
         stage.show();
     }

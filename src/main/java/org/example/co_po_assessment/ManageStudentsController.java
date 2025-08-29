@@ -4,11 +4,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -60,8 +63,23 @@ public class ManageStudentsController implements Initializable {
     }
 
     public void onAddStudentButton(ActionEvent actionEvent) {
-        // TODO: Implement student addition when student input form is available
-        showInfoAlert("Add Student", "Student addition functionality will be implemented soon.");
+        try {
+            // Open the Student Info Input window
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("studentInfoInput-view.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 400, 450);
+
+            // Get the controller to handle data return
+            StudentInfoInputController controller = fxmlLoader.getController();
+            controller.setParentController(this);
+
+            Stage stage = new Stage();
+            stage.setTitle("Add Student Information");
+            stage.setScene(scene);
+            stage.showAndWait(); // Wait for the window to close before continuing
+
+        } catch (IOException e) {
+            showErrorAlert("Navigation Error", "Failed to open Add Student window: " + e.getMessage());
+        }
     }
 
     public void onRemoveStudentButton(ActionEvent actionEvent) {
@@ -158,5 +176,27 @@ public class ManageStudentsController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    /**
+     * Method to be called by StudentInfoInputController when new student is added
+     */
+    public void addNewStudent(String id, String name, String batch, String email, String department, String programme) {
+        try {
+            // Add to database
+            DatabaseService databaseService = DatabaseService.getInstance();
+            databaseService.insertStudent(id, Integer.parseInt(batch), name, email, department, programme);
+
+            // Add to table
+            Student newStudent = new Student(id, name, batch, department, programme, email);
+            studentList.add(newStudent);
+
+            showInfoAlert("Success", "Student added successfully.");
+
+        } catch (SQLException e) {
+            showErrorAlert("Database Error", "Failed to add student: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            showErrorAlert("Invalid Input", "Batch must be a valid number.");
+        }
     }
 }

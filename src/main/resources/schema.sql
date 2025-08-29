@@ -22,11 +22,11 @@ CREATE TABLE Course (
 
 CREATE TABLE CourseAssignment (
                                   faculty_id INT NOT NULL,
-                                  course_id VARCHAR(20) NOT NULL,
+                                  course_code VARCHAR(20) NOT NULL,
                                   academic_year VARCHAR(9) NOT NULL,
                                   FOREIGN KEY (faculty_id) REFERENCES Faculty(id),
-                                  FOREIGN KEY (course_id) REFERENCES Course(id),
-                                  UNIQUE (faculty_id, course_id)
+                                  FOREIGN KEY (course_code) REFERENCES Course(course_code),
+                                  UNIQUE (faculty_id, course_code)
 );
 
 CREATE TABLE Student (
@@ -42,7 +42,7 @@ CREATE TABLE Enrollment (
                             student_id VARCHAR(9) NOT NULL,
                             course_id VARCHAR(20) NOT NULL,
                             FOREIGN KEY (student_id) REFERENCES Student(id),
-                            FOREIGN KEY (course_id) REFERENCES Course(id),
+                            FOREIGN KEY (course_id) REFERENCES Course(course_code),
                             UNIQUE (student_id, course_id)
 );
 
@@ -64,7 +64,7 @@ CREATE TABLE Quiz (
                       quiz_number INT NOT NULL,
                       academic_year VARCHAR(9) NOT NULL,
                       total_marks DECIMAL(5,2) DEFAULT 0,
-                      FOREIGN KEY (course_id) REFERENCES Course(id),
+                      FOREIGN KEY (course_id) REFERENCES Course(course_code),
                       UNIQUE(course_id, quiz_number),
                       CHECK (quiz_number BETWEEN 1 AND 4)
 );
@@ -74,7 +74,7 @@ CREATE TABLE `Mid` (
                        course_id VARCHAR(20) NOT NULL,
                        academic_year VARCHAR(9) NOT NULL,
                        total_marks DECIMAL(5,2) DEFAULT 0,
-                       FOREIGN KEY (course_id) REFERENCES Course(id),
+                       FOREIGN KEY (course_id) REFERENCES Course(course_code),
                        UNIQUE(course_id)
 );
 
@@ -83,7 +83,7 @@ CREATE TABLE `Final` (
                          course_id VARCHAR(20) NOT NULL,
                          academic_year VARCHAR(9) NOT NULL,
                          total_marks DECIMAL(5,2) DEFAULT 0,
-                         FOREIGN KEY (course_id) REFERENCES Course(id),
+                         FOREIGN KEY (course_id) REFERENCES Course(course_code),
                          UNIQUE(course_id)
 );
 
@@ -163,7 +163,7 @@ CREATE VIEW StudentQuizPerformance AS
 SELECT
     s.id as student_id,
     s.name as student_name,
-    c.id as course_id,
+    c.course_code as course_id,
     c.course_name,
     q.quiz_number,
     qq.title as question_title,
@@ -173,8 +173,8 @@ SELECT
     po.po_number
 FROM Student s
          JOIN Enrollment e ON s.id = e.student_id
-         JOIN Course c ON e.course_id = c.id
-         JOIN Quiz q ON c.id = q.course_id
+         JOIN Course c ON e.course_id = c.course_code
+         JOIN Quiz q ON c.course_code = q.course_id
          JOIN QuizQuestion qq ON q.id = qq.quiz_id
          LEFT JOIN StudentQuizMarks sqm ON s.id = sqm.student_id AND qq.id = sqm.quiz_question_id
          JOIN CO co ON qq.co_id = co.id
@@ -184,7 +184,7 @@ CREATE VIEW StudentMidPerformance AS
 SELECT
     s.id as student_id,
     s.name as student_name,
-    c.id as course_id,
+    c.course_code as course_id,
     c.course_name,
     mq.title as question_title,
     mq.marks as max_marks,
@@ -193,8 +193,8 @@ SELECT
     po.po_number
 FROM Student s
          JOIN Enrollment e ON s.id = e.student_id
-         JOIN Course c ON e.course_id = c.id
-         JOIN `Mid` m ON c.id = m.course_id
+         JOIN Course c ON e.course_id = c.course_code
+         JOIN `Mid` m ON c.course_code = m.course_id
          JOIN MidQuestion mq ON m.id = mq.mid_id
          LEFT JOIN StudentMidMarks smm ON s.id = smm.student_id AND mq.id = smm.mid_question_id
          JOIN CO co ON mq.co_id = co.id
@@ -204,7 +204,7 @@ CREATE VIEW StudentFinalPerformance AS
 SELECT
     s.id as student_id,
     s.name as student_name,
-    c.id as course_id,
+    c.course_code as course_id,
     c.course_name,
     fq.title as question_title,
     fq.marks as max_marks,
@@ -213,22 +213,22 @@ SELECT
     po.po_number
 FROM Student s
          JOIN Enrollment e ON s.id = e.student_id
-         JOIN Course c ON e.course_id = c.id
-         JOIN `Final` f ON c.id = f.course_id
+         JOIN Course c ON e.course_id = c.course_code
+         JOIN `Final` f ON c.course_code = f.course_id
          JOIN FinalQuestion fq ON f.id = fq.final_id
          LEFT JOIN StudentFinalMarks sfm ON s.id = sfm.student_id AND fq.id = sfm.final_question_id
          JOIN CO co ON fq.co_id = co.id
          JOIN PO po ON fq.po_id = po.id;
 
 -- INSERT SAMPLE DATA
-
+/*
 -- Insert Faculty (asaduzzamanherok with shortname 'ah')
 INSERT INTO Faculty (id, shortname, full_name, email, password)
 VALUES (101, 'azh', 'Asaduzzaman Herok', 'asaduzzamanherok@example.com', 'password123');
 
 -- Insert Course CSE4403 with 3.0 credits
-INSERT INTO Course (id, course_code, course_name, credits, instructor_id)
-VALUES ('CSE4403', 'CSE4403', 'Algorithm', 3.0, 101);
+INSERT INTO Course ( course_code, course_name, credits)
+VALUES ('CSE4403', 'Algorithm', 3.0);
 
 -- Insert basic Program Outcomes (POs)
 INSERT INTO PO (po_number, description) VALUES
@@ -273,3 +273,4 @@ INSERT INTO `Mid` (course_id, date) VALUES
 
 INSERT INTO `Final` (course_id, date) VALUES
 ('CSE4403', '2024-06-15');
+*/

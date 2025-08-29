@@ -117,9 +117,9 @@ public class Manual extends Application {
                 "2023-2024", 3.0, "SWE", "CSE");
 
         students.addAll(
-                new Student("220042101", "Navid Ibrahim", "navidibhrahimovic@iut-dhaka.edu", "01717655515"),
-                new Student("220042128", "Naybur Rahman Sinha", "sinhawiz@iut-dhaka.edu", "0144456416"),
-                new Student("220042134", "Tahir Zaman Umar", "tahirumar@iut-dhaka.edu", "01779770359")
+                new Student("220042101", "Navid Ibrahim", "2022", "CSE", "SWE", "navidibhrahimovic@iut-dhaka.edu"),
+                new Student("220042128", "Naybur Rahman Sinha", "2022", "CSE", "SWE", "sinhawiz@iut-dhaka.edu"),
+                new Student("220042134", "Tahir Zaman Umar", "2022", "CSE", "SWE", "tahirumar@iut-dhaka.edu")
         );
 
         quizQuestions.addAll(
@@ -400,19 +400,22 @@ public class Manual extends Application {
             examQuestions.clear();
             
             // Load enrolled students
-            List<DatabaseService.StudentData> dbStudents = dbService.getEnrolledStudents(selectedCourseData.id);
+            // Load enrolled students
+            List<DatabaseService.StudentData> dbStudents = dbService.getEnrolledStudents(selectedCourseData.courseCode);
             for (DatabaseService.StudentData studentData : dbStudents) {
                 students.add(new Student(
-                    String.valueOf(studentData.id),
-                    studentData.name,
-                    studentData.email,
-                    "" // Contact info not in database
+                        String.valueOf(studentData.id),
+                        studentData.name,
+                        String.valueOf(studentData.batch), // Convert int to String
+                        "CSE",
+                        "SWE",
+                        studentData.email
                 ));
             }
             
             // Load quiz questions
             for (int quizNum = 1; quizNum <= 4; quizNum++) {
-                List<DatabaseService.QuestionData> quizQs = dbService.getQuizQuestions(selectedCourseData.id, quizNum);
+                List<DatabaseService.QuestionData> quizQs = dbService.getQuizQuestions(selectedCourseData.courseCode, quizNum);
                 for (DatabaseService.QuestionData questionData : quizQs) {
                     quizQuestions.add(new AssessmentQuestion(
                         questionData.title,
@@ -425,7 +428,7 @@ public class Manual extends Application {
             }
             
             // Load mid questions
-            List<DatabaseService.QuestionData> midQs = dbService.getMidQuestions(selectedCourseData.id);
+            List<DatabaseService.QuestionData> midQs = dbService.getMidQuestions(selectedCourseData.courseCode);
             for (DatabaseService.QuestionData questionData : midQs) {
                 examQuestions.add(new AssessmentQuestion(
                     questionData.title,
@@ -437,7 +440,7 @@ public class Manual extends Application {
             }
             
             // Load final questions
-            List<DatabaseService.QuestionData> finalQs = dbService.getFinalQuestions(selectedCourseData.id);
+            List<DatabaseService.QuestionData> finalQs = dbService.getFinalQuestions(selectedCourseData.courseCode);
             for (DatabaseService.QuestionData questionData : finalQs) {
                 examQuestions.add(new AssessmentQuestion(
                     questionData.title,
@@ -521,18 +524,23 @@ public class Manual extends Application {
 
         TableColumn<Student, String> idCol = new TableColumn<>("Student ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        idCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
         TableColumn<Student, String> nameCol = new TableColumn<>("Name");
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<Student, String> batchCol = new TableColumn<>("Batch");
+        batchCol.setCellValueFactory(new PropertyValueFactory<>("batch"));
+
+        TableColumn<Student, String> deptCol = new TableColumn<>("Department");
+        deptCol.setCellValueFactory(new PropertyValueFactory<>("department"));
+
+        TableColumn<Student, String> progCol = new TableColumn<>("Programme");
+        progCol.setCellValueFactory(new PropertyValueFactory<>("programme"));
 
         TableColumn<Student, String> emailCol = new TableColumn<>("Email");
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
-        emailCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        studentTable.getColumns().addAll(idCol, nameCol, emailCol);
-        studentTable.setItems(students);
+        studentTable.getColumns().addAll(idCol, nameCol, batchCol, deptCol, progCol, emailCol);
 
         HBox buttonBox = new HBox(10);
         Button addBtn = new Button("Add Student");
@@ -602,8 +610,10 @@ public class Manual extends Application {
                 return new Student(
                         idField.getText(),
                         nameField.getText(),
-                        emailField.getText(),
-                        contactField.getText()
+                        "2022",
+                        "CSE",
+                        "SWE",
+                        emailField.getText()
                 );
             }
             return null;

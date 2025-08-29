@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package depricatedClasses;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -11,6 +11,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import org.example.co_po_assessment.DashboardController;
 
 
 import static javafx.application.Application.launch;

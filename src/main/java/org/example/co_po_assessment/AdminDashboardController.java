@@ -64,22 +64,6 @@ public class AdminDashboardController implements Initializable {
     }
 */
 
-    public void onLogoutButton(ActionEvent event) {
-        try {
-            // Load the Manage Faculties view
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("manageFaculties-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load());
-
-            Stage stage = new Stage();
-            stage.setTitle("Manage Faculty Information");
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (IOException e) {
-            showErrorAlert("Navigation Error", "Failed to open Manage Faculties window: " + e.getMessage());
-        }
-    }
-
     public void onManageStudentsButton(ActionEvent event) {
         try {
             // Load the Manage Students view

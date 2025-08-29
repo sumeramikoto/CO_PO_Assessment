@@ -24,6 +24,8 @@ public class AdminDashboardController implements Initializable {
     @FXML
     Button manageStudentsButton;
     @FXML
+    Button manageCourseAssignmentsButton;
+    @FXML
     Button manageCoursesButton;
     @FXML
     Button viewReportsButton;
@@ -34,7 +36,35 @@ public class AdminDashboardController implements Initializable {
         headerLabel.setText("Welcome, Administrator!");
     }
 
+/*
     public void onManageFacultiesButton(ActionEvent event) {
+
+        // opens the ManageFacultiesView window
+    }
+
+    public void onManageStudentsButton(ActionEvent event) {
+        // opens the ManageStudentsView window
+    }
+
+    public void onManageCourseAssignmentsButton(ActionEvent event) {
+        // opens the ManageCourseAssignmentsView window
+    }
+
+    public void onViewReportsButton(ActionEvent event) {
+        // idk what to do for this one tbh, supposed to show all the reports
+        // that have been generated so far
+    }
+
+    public void onManageCoursesButton(ActionEvent event) {
+        // opens the ManageCoursesView window
+    }
+    
+    public void onLogoutButton(ActionEvent event) {
+        // takes you back to login page (AssessmentSystem)
+    }
+*/
+
+    public void onLogoutButton(ActionEvent event) {
         try {
             // Load the Manage Faculties view
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("manageFaculties-view.fxml"));

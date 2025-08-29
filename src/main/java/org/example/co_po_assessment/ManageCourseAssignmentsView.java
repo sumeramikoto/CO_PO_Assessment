@@ -7,12 +7,12 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class ManageCoursesView extends Application {
+public class ManageCourseAssignmentsView extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(ManageCoursesView.class.getResource("manageCourses-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ManageCourseAssignmentsView.class.getResource("manageCourseAssignments-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 345, 380);
-        stage.setTitle("Manage Courses");
+        stage.setTitle("Manage Course Assignment");
         stage.setScene(scene);
         stage.show();
     }

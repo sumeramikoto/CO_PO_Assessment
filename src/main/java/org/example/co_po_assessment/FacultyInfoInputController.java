@@ -30,10 +30,10 @@ public class FacultyInfoInputController {
     PasswordField passwordField;
 
     public void onConfirmButton(javafx.event.ActionEvent event) {
-
+        // adds faculty info
     }
 
     public void onBackButton(ActionEvent event) {
-
+        // takes back to ManageFacultiesView
     }
 }

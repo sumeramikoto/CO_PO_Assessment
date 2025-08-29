@@ -25,14 +25,14 @@ public class ManageFacultiesController {
     Button backButton;
 
     public void onAddFacultyButton(ActionEvent event) {
-
+        // opens FacultyInfoInputView from which faculty info is added
     }
 
     public void onRemoveFacultyButton(ActionEvent event) {
-
+        // removes the faculty from the system which is selected in the list
     }
 
     public void onBackButton(ActionEvent event) {
-        
+        // takes you back to admin dashboard
     }
 }

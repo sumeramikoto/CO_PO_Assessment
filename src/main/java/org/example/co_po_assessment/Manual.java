@@ -401,7 +401,7 @@ public class Manual extends Application {
             
             // Load enrolled students
             // Load enrolled students
-            List<DatabaseService.StudentData> dbStudents = dbService.getEnrolledStudents(selectedCourseData.id);
+            List<DatabaseService.StudentData> dbStudents = dbService.getEnrolledStudents(selectedCourseData.courseCode);
             for (DatabaseService.StudentData studentData : dbStudents) {
                 students.add(new Student(
                         String.valueOf(studentData.id),
@@ -415,7 +415,7 @@ public class Manual extends Application {
             
             // Load quiz questions
             for (int quizNum = 1; quizNum <= 4; quizNum++) {
-                List<DatabaseService.QuestionData> quizQs = dbService.getQuizQuestions(selectedCourseData.id, quizNum);
+                List<DatabaseService.QuestionData> quizQs = dbService.getQuizQuestions(selectedCourseData.courseCode, quizNum);
                 for (DatabaseService.QuestionData questionData : quizQs) {
                     quizQuestions.add(new AssessmentQuestion(
                         questionData.title,
@@ -428,7 +428,7 @@ public class Manual extends Application {
             }
             
             // Load mid questions
-            List<DatabaseService.QuestionData> midQs = dbService.getMidQuestions(selectedCourseData.id);
+            List<DatabaseService.QuestionData> midQs = dbService.getMidQuestions(selectedCourseData.courseCode);
             for (DatabaseService.QuestionData questionData : midQs) {
                 examQuestions.add(new AssessmentQuestion(
                     questionData.title,
@@ -440,7 +440,7 @@ public class Manual extends Application {
             }
             
             // Load final questions
-            List<DatabaseService.QuestionData> finalQs = dbService.getFinalQuestions(selectedCourseData.id);
+            List<DatabaseService.QuestionData> finalQs = dbService.getFinalQuestions(selectedCourseData.courseCode);
             for (DatabaseService.QuestionData questionData : finalQs) {
                 examQuestions.add(new AssessmentQuestion(
                     questionData.title,

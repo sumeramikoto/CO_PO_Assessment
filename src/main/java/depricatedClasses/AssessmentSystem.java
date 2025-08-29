@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package depricatedClasses;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;

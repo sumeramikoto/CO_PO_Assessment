@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package depricatedClasses;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import org.example.co_po_assessment.Course;
 
 public class AdminsDashboard extends Application {
     private List<Course> courses = new ArrayList<>();

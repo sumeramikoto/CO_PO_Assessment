@@ -7,16 +7,18 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="389.0" prefWidth="346.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.FacultyInfoInputController">
+<AnchorPane prefHeight="420.0" prefWidth="346.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.FacultyInfoInputController">
     <children>
+        <Label fx:id="idLabel" layoutX="25.0" layoutY="119.0" text="Faculty ID" />
+        <TextField fx:id="idTextField" layoutX="163.0" layoutY="115.0" />
         <TextField fx:id="nameTextField" layoutX="163.0" layoutY="145.0" />
         <Label fx:id="nameLabel" layoutX="25.0" layoutY="149.0" text="Name" />
         <Label fx:id="shortnameLabel" layoutX="25.0" layoutY="179.0" text="Shortname" />
         <Label fx:id="emailLabel" layoutX="25.0" layoutY="209.0" text="Email" />
         <Label fx:id="passwordLabel" layoutX="25.0" layoutY="239.0" text="Password" />
         <TextField fx:id="shortnameTextField" layoutX="163.0" layoutY="175.0" />
-        <Button fx:id="confirmButton" layoutX="95.0" layoutY="353.0" mnemonicParsing="false" onAction="#onConfirmButton" text="Confirm" />
-        <Button fx:id="backButton" layoutX="191.0" layoutY="353.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
+        <Button fx:id="confirmButton" layoutX="95.0" layoutY="380.0" mnemonicParsing="false" onAction="#onConfirmButton" text="Confirm" />
+        <Button fx:id="backButton" layoutX="191.0" layoutY="380.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
         <Label fx:id="headLabel" layoutX="32.0" layoutY="69.0" prefHeight="46.0" prefWidth="288.0" text="Enter Faculty Information" textAlignment="CENTER">
             <font>
                 <Font size="22.0" />

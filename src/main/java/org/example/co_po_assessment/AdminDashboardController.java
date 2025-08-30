@@ -75,7 +75,7 @@ public class AdminDashboardController implements Initializable {
             Scene scene = new Scene(fxmlLoader.load(), 345, 380);
 
             Stage stage = new Stage();
-            stage.setTitle("Manage Course Assignment");
+            stage.setTitle("New Course Manage");
             stage.setScene(scene);
             stage.show();
 

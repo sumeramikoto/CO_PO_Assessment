@@ -12,7 +12,7 @@ public class ManageCourseAssignmentsView extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(ManageCourseAssignmentsView.class.getResource("manageCourseAssignments-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 345, 380);
-        stage.setTitle("Manage Course Assignment");
+        stage.setTitle("New Course Manage");
         stage.setScene(scene);
         stage.show();
     }

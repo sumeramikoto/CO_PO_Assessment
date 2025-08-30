@@ -10,7 +10,13 @@ public class DatabaseService {
 
     private static DatabaseService instance;
 
-    private DatabaseService() {}
+    private DatabaseService() {
+        try {
+            upgradeLegacyPasswords();
+        } catch (Exception ignored) {
+            // Swallow to avoid startup failure; logging could be added
+        }
+    }
 
     public static DatabaseService getInstance() {
         if (instance == null) {
@@ -21,6 +27,43 @@ public class DatabaseService {
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+    }
+
+    private void upgradeLegacyPasswords() throws SQLException {
+        try (Connection conn = getConnection()) {
+            // Faculty
+            try (PreparedStatement ps = conn.prepareStatement("SELECT email, password FROM Faculty");
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String email = rs.getString(1);
+                    String pwd = rs.getString(2);
+                    if (pwd != null && !PasswordUtils.isHashed(pwd)) {
+                        String hashed = PasswordUtils.hash(pwd);
+                        try (PreparedStatement up = conn.prepareStatement("UPDATE Faculty SET password=? WHERE email=?")) {
+                            up.setString(1, hashed);
+                            up.setString(2, email);
+                            up.executeUpdate();
+                        }
+                    }
+                }
+            }
+            // Admin
+            try (PreparedStatement ps = conn.prepareStatement("SELECT email, password FROM Admin");
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String email = rs.getString(1);
+                    String pwd = rs.getString(2);
+                    if (pwd != null && !PasswordUtils.isHashed(pwd)) {
+                        String hashed = PasswordUtils.hash(pwd);
+                        try (PreparedStatement up = conn.prepareStatement("UPDATE Admin SET password=? WHERE email=?")) {
+                            up.setString(1, hashed);
+                            up.setString(2, email);
+                            up.executeUpdate();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // Question related operations
@@ -551,6 +594,10 @@ public class DatabaseService {
     public void insertFaculty(int id, String shortname, String fullName, String email, String password) throws SQLException {
         String sql = "INSERT INTO Faculty (id, shortname, full_name, email, password) VALUES (?, ?, ?, ?, ?)";
 
+        // Hash if not already hashed (BCrypt pattern)
+        if (!PasswordUtils.isHashed(password)) {
+            password = PasswordUtils.hash(password);
+        }
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -617,6 +664,61 @@ public class DatabaseService {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, poNumber);
             stmt.executeUpdate();
+        }
+    }
+
+    public void insertAdmin(String email, String password) throws SQLException {
+        String sql = "INSERT INTO Admin (email, password) VALUES (?, ?)";
+        if (!PasswordUtils.isHashed(password)) {
+            password = PasswordUtils.hash(password);
+        }
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            stmt.setString(2, password);
+            stmt.executeUpdate();
+        }
+    }
+
+    public boolean authenticateAdmin(String email, String rawPassword) throws SQLException {
+        String select = "SELECT id, password FROM Admin WHERE email = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(select)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return false;
+                String stored = rs.getString("password");
+                boolean match = PasswordUtils.matches(rawPassword, stored);
+                if (match && !PasswordUtils.isHashed(stored)) {
+                    // upgrade legacy plain text to hash
+                    String newHash = PasswordUtils.hash(rawPassword);
+                    try (PreparedStatement up = conn.prepareStatement("UPDATE Admin SET password=? WHERE email=?")) {
+                        up.setString(1, newHash);
+                        up.setString(2, email);
+                        up.executeUpdate();
+                    }
+                }
+                return match;
+            }
+        }
+    }
+
+    public boolean authenticateFaculty(String email, String rawPassword) throws SQLException {
+        String select = "SELECT id, password FROM Faculty WHERE email = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(select)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return false;
+                String stored = rs.getString("password");
+                boolean match = PasswordUtils.matches(rawPassword, stored);
+                if (match && !PasswordUtils.isHashed(stored)) {
+                    String newHash = PasswordUtils.hash(rawPassword);
+                    try (PreparedStatement up = conn.prepareStatement("UPDATE Faculty SET password=? WHERE email=?")) {
+                        up.setString(1, newHash);
+                        up.setString(2, email);
+                        up.executeUpdate();
+                    }
+                }
+                return match;
+            }
         }
     }
 

@@ -7,13 +7,13 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="org.example.co_po_assessment.ManageCourseQuestionsController">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="org.example.co_po_assessment.ManageCourseQuestionsController">
   <tabs>
     <Tab fx:id="quiz1Tab" text="Quiz 1">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <AnchorPane>
                <children>
-                  <TableView fx:id="quiz1TableView" prefHeight="500.0" prefWidth="800.0">
+                  <TableView fx:id="quiz1TableView">
                     <columns>
                       <TableColumn fx:id="q1QuesNoCol" prefWidth="242.0" text="Question No." />
                       <TableColumn fx:id="q1MarksCol" prefWidth="221.0" text="Marks" />
@@ -29,9 +29,9 @@
     </Tab>
     <Tab fx:id="quiz2Tab" text="Quiz 2">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <AnchorPane>
                <children>
-                  <TableView fx:id="quiz2TableView" prefHeight="500.0" prefWidth="800.0">
+                  <TableView fx:id="quiz2TableView">
                      <columns>
                         <TableColumn fx:id="q2QuesNoCol" prefWidth="242.0" text="Question No." />
                         <TableColumn fx:id="q2MarksCol" prefWidth="221.0" text="Marks" />
@@ -47,9 +47,9 @@
     </Tab>
       <Tab fx:id="quiz3Tab" text="Quiz 3">
         <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+          <AnchorPane>
                <children>
-                  <TableView fx:id="quiz3TableView" prefHeight="500.0" prefWidth="800.0">
+                  <TableView fx:id="quiz3TableView">
                      <columns>
                         <TableColumn fx:id="q3QuesNoCol" prefWidth="242.0" text="Question No." />
                         <TableColumn fx:id="q3MarksCol" prefWidth="221.0" text="Marks" />
@@ -66,9 +66,9 @@
       </Tab>
       <Tab fx:id="quiz4Tab" text="Quiz 4">
         <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+          <AnchorPane>
                <children>
-                  <TableView fx:id="quiz4TableView" prefHeight="500.0" prefWidth="800.0">
+                  <TableView fx:id="quiz4TableView">
                      <columns>
                         <TableColumn fx:id="q4QuesNoCol" prefWidth="242.0" text="Question No." />
                         <TableColumn fx:id="q4MarksCol" prefWidth="221.0" text="Marks" />
@@ -85,9 +85,9 @@
       </Tab>
       <Tab fx:id="midTab" text="Mid">
         <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+          <AnchorPane>
                <children>
-                  <TableView fx:id="midTableView" prefHeight="500.0" prefWidth="800.0">
+                  <TableView fx:id="midTableView">
                      <columns>
                         <TableColumn fx:id="midQuesNoCol" prefWidth="242.0" text="Question No." />
                         <TableColumn fx:id="midMarksCol" prefWidth="221.0" text="Marks" />
@@ -104,9 +104,9 @@
       </Tab>
       <Tab fx:id="finalTab" text="Final">
         <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+          <AnchorPane>
                <children>
-                  <TableView fx:id="finalTableView" prefHeight="500.0" prefWidth="800.0">
+                  <TableView fx:id="finalTableView">
                      <columns>
                         <TableColumn fx:id="finalQuesNoCol" prefWidth="242.0" text="Question No." />
                         <TableColumn fx:id="finalMarksCol" prefWidth="221.0" text="Marks" />

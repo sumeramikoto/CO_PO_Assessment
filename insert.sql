@@ -1,13 +1,17 @@
+-- NOTE: Passwords below are BCrypt hashed (cost 12) for the default value 'password123' and 'admin123'.
+-- Raw values should NOT be inserted directly in production.
+-- Faculty hashes correspond to plaintext 'password123'. Admin hash to 'admin123'.
+
 -- =============================================
 -- Core reference data (must exist before enrollments)
 -- =============================================
--- Insert sample faculty data
+-- Insert sample faculty data (hashed passwords)
 INSERT INTO Faculty (id, shortname, full_name, email, password) VALUES
-(1001, 'Dr. Rahman', 'Dr. Mohammad Rahman', 'rahman@iut-dhaka.edu', 'password123'),
-(1002, 'Dr. Ahmed', 'Dr. Fatima Ahmed', 'ahmed@iut-dhaka.edu', 'password123'),
-(1003, 'Dr. Hassan', 'Dr. Ali Hassan', 'hassan@iut-dhaka.edu', 'password123'),
-(1004, 'Dr. Khan', 'Dr. Shariar Khan', 'khan@iut-dhaka.edu', 'password123'),
-(1005, 'Dr. Islam', 'Dr. Nazmul Islam', 'islam@iut-dhaka.edu', 'password123');
+(1001, 'Dr. Rahman', 'Dr. Mohammad Rahman', 'rahman@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
+(1002, 'Dr. Ahmed', 'Dr. Fatima Ahmed', 'ahmed@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
+(1003, 'Dr. Hassan', 'Dr. Ali Hassan', 'hassan@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
+(1004, 'Dr. Khan', 'Dr. Shariar Khan', 'khan@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
+(1005, 'Dr. Islam', 'Dr. Nazmul Islam', 'islam@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK');
 
 -- Insert sample course data
 INSERT INTO Course (course_code, course_name, credits) VALUES
@@ -31,8 +35,8 @@ INSERT INTO CourseAssignment (faculty_id, course_code, academic_year) VALUES
 INSERT INTO CO (co_number) VALUES ('CO1'), ('CO2'), ('CO3'), ('CO4'), ('CO5'), ('CO6');
 INSERT INTO PO (po_number) VALUES ('PO1'), ('PO2'), ('PO3'), ('PO4'), ('PO5'), ('PO6'), ('PO7'), ('PO8'), ('PO9'), ('PO10'), ('PO11'), ('PO12');
 
--- Insert admin data
-INSERT INTO Admin (email, password) VALUES ('admin@iut-dhaka.edu', 'admin123');
+-- Insert admin data (hashed password for 'admin123')
+INSERT INTO Admin (email, password) VALUES ('admin@iut-dhaka.edu', '$2a$12$7QJ5hV/pY5Pja/qWhDMAYA9Yg3.aFyv1I3VzBkYOPxfN3E3xaQa36');
 
 -- =============================================
 -- Student master data (must exist before Enrollment)

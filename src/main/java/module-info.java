@@ -16,6 +16,7 @@ module org.example.co_po_assessment {
     requires javafx.graphics;
     requires java.sql;
     requires org.jfree.jfreechart;
+    requires jbcrypt; // added for password hashing
 
     opens org.example.co_po_assessment to javafx.fxml;
     exports org.example.co_po_assessment;

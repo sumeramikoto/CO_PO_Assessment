@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fd93eeae-2466-4e81-996c-0941a40f5778" name="Changes" comment="changed confusing course assignment panel name">
+    <list default="true" id="fd93eeae-2466-4e81-996c-0941a40f5778" name="Changes" comment="implementing new course adding">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/ManageCoursesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/ManageCoursesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/insert.sql" beforeDir="false" afterPath="$PROJECT_DIR$/insert.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,47 +49,48 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.AdminDashboardWindow.executor&quot;: &quot;Run&quot;,
-    &quot;Application.AdminsDashboard.executor&quot;: &quot;Run&quot;,
-    &quot;Application.AssessmentSystem.executor&quot;: &quot;Run&quot;,
-    &quot;Application.FacultyDashboard.executor&quot;: &quot;Run&quot;,
-    &quot;Application.FacultyDashboardView.executor&quot;: &quot;Run&quot;,
-    &quot;Application.ManageCoursesView.executor&quot;: &quot;Run&quot;,
-    &quot;Application.ManageStudentsView.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Manual.executor&quot;: &quot;Run&quot;,
-    &quot;Application.ManualExcel (1).executor&quot;: &quot;Run&quot;,
-    &quot;Application.ManualExcel.executor&quot;: &quot;Run&quot;,
-    &quot;Application.QuestionInputWindow.executor&quot;: &quot;Run&quot;,
-    &quot;Application.org.example.co_po_assessment.AssessmentSystem.executor&quot;: &quot;Run&quot;,
-    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
-    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
-    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
-    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;sinha&quot;,
-    &quot;ignore.preview.features.used&quot;: &quot;true&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.AdminDashboardWindow.executor": "Run",
+    "Application.AdminsDashboard.executor": "Run",
+    "Application.AssessmentSystem.executor": "Run",
+    "Application.FacultyDashboard.executor": "Run",
+    "Application.FacultyDashboardView.executor": "Run",
+    "Application.FacultyInfoInputView.executor": "Run",
+    "Application.ManageCoursesView.executor": "Run",
+    "Application.ManageStudentsView.executor": "Run",
+    "Application.Manual.executor": "Run",
+    "Application.ManualExcel (1).executor": "Run",
+    "Application.ManualExcel.executor": "Run",
+    "Application.QuestionInputWindow.executor": "Run",
+    "Application.org.example.co_po_assessment.AssessmentSystem.executor": "Run",
+    "Downloaded.Files.Path.Enabled": "false",
+    "Repository.Attach.Annotations": "false",
+    "Repository.Attach.JavaDocs": "false",
+    "Repository.Attach.Sources": "false",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "sinha",
+    "ignore.preview.features.used": "true",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
-  <component name="RunManager" selected="Application.AdminDashboardWindow">
+}]]></component>
+  <component name="RunManager" selected="Application.Manual">
     <configuration name="AdminDashboardWindow" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.example.co_po_assessment.AdminDashboardWindow" />
       <module name="CO_PO_Assessment" />
@@ -103,47 +104,47 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="AdminsDashboard" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="depricatedClasses.AdminsDashboard" />
-      <module name="CO_PO_Assessment" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="depricatedClasses.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="AssessmentSystem" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="depricatedClasses.AssessmentSystem" />
-      <module name="CO_PO_Assessment" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="depricatedClasses.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="FacultyDashboard" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="depricatedClasses.FacultyDashboard" />
-      <module name="CO_PO_Assessment" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="depricatedClasses.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="FacultyDashboardView" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.example.co_po_assessment.FacultyDashboardView" />
+      <module name="CO_PO_Assessment" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.co_po_assessment.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="FacultyInfoInputView" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.co_po_assessment.FacultyInfoInputView" />
+      <module name="CO_PO_Assessment" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.co_po_assessment.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Manual" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.co_po_assessment.Manual" />
+      <module name="CO_PO_Assessment" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.co_po_assessment.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="QuestionInputWindow" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.co_po_assessment.QuestionInputWindow" />
       <module name="CO_PO_Assessment" />
       <extension name="coverage">
         <pattern>
@@ -166,11 +167,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.AdminDashboardWindow" />
+        <item itemvalue="Application.Manual" />
+        <item itemvalue="Application.QuestionInputWindow" />
+        <item itemvalue="Application.FacultyInfoInputView" />
         <item itemvalue="Application.FacultyDashboardView" />
-        <item itemvalue="Application.FacultyDashboard" />
-        <item itemvalue="Application.AssessmentSystem" />
-        <item itemvalue="Application.AdminsDashboard" />
+        <item itemvalue="Application.AdminDashboardWindow" />
       </list>
     </recent_temporary>
   </component>
@@ -205,7 +206,8 @@
       <workItem from="1756430329067" duration="1565000" />
       <workItem from="1756467712263" duration="9095000" />
       <workItem from="1756512672457" duration="4000" />
-      <workItem from="1756529476628" duration="3361000" />
+      <workItem from="1756529476628" duration="4208000" />
+      <workItem from="1756534816691" duration="2816000" />
     </task>
     <task id="LOCAL-00001" summary="updated the schema">
       <option name="closed" value="true" />
@@ -399,7 +401,23 @@
       <option name="project" value="LOCAL" />
       <updated>1756531880135</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="implementing new course adding">
+      <option name="closed" value="true" />
+      <created>1756533915399</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1756533915399</updated>
+    </task>
+    <task id="LOCAL-00026" summary="implementing new course adding">
+      <option name="closed" value="true" />
+      <created>1756533927698</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1756533927698</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -438,7 +456,8 @@
     <MESSAGE value="added functionality for student info panel" />
     <MESSAGE value="course assignment functionalities implemented" />
     <MESSAGE value="changed confusing course assignment panel name" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed confusing course assignment panel name" />
+    <MESSAGE value="implementing new course adding" />
+    <option name="LAST_COMMIT_MESSAGE" value="implementing new course adding" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

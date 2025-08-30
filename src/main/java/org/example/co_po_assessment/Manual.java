@@ -677,7 +677,7 @@ public class Manual extends Application {
 
         HBox quizButtonBox = new HBox(10);
         Button addQuizBtn = new Button("Add Question");
-        addQuizBtn.setOnAction(e -> openQuestionInputWindow());
+        addQuizBtn.setOnAction(e -> showAddQuestionDialog("Quiz"));
 
         Button removeQuizBtn = new Button("Remove Question");
         removeQuizBtn.setOnAction(e -> {
@@ -726,7 +726,7 @@ public class Manual extends Application {
 
         HBox examButtonBox = new HBox(10);
         Button addExamBtn = new Button("Add Question");
-        addExamBtn.setOnAction(e -> openQuestionInputWindow());
+        addExamBtn.setOnAction(e -> showAddQuestionDialog("Exam"));
 
         Button removeExamBtn = new Button("Remove Question");
         removeExamBtn.setOnAction(e -> {
@@ -808,29 +808,45 @@ public class Manual extends Application {
         });
 
         dialog.showAndWait().ifPresent(question -> {
+            if (question == null) return;
+            if (question.getAssessmentType() == null) {
+                new Alert(Alert.AlertType.ERROR, "Select an assessment type").show();
+                return;
+            }
+            // Add to in-memory list
             if (type.equals("Quiz")) {
                 quizQuestions.add(question);
             } else {
                 examQuestions.add(question);
             }
-
-            // Refresh the marks entry tabs to show new question columns
+            // Persist to DB if a course is selected
+            if (selectedCourseData != null) {
+                try {
+                    // Ensure base assessment rows (Quiz, Mid, Final) exist
+                    if (selectedAcademicYear != null) {
+                        dbService.ensureAssessmentsExist(selectedCourseData.courseCode, selectedAcademicYear);
+                    }
+                    String at = question.getAssessmentType();
+                    if (at.startsWith("Quiz")) {
+                        int quizNum = Integer.parseInt(at.replaceAll("[^0-9]", ""));
+                        dbService.saveQuizQuestion(selectedCourseData.courseCode, quizNum, question.getNumber(), question.getMarks(), question.getCo(), question.getPo());
+                    } else if (at.equals("Mid")) {
+                        dbService.saveMidQuestion(selectedCourseData.courseCode, question.getNumber(), question.getMarks(), question.getCo(), question.getPo());
+                    } else if (at.equals("Final")) {
+                        dbService.saveFinalQuestion(selectedCourseData.courseCode, question.getNumber(), question.getMarks(), question.getCo(), question.getPo());
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    new Alert(Alert.AlertType.ERROR, "Failed to save question to database: " + ex.getMessage()).show();
+                }
+            } else {
+                new Alert(Alert.AlertType.WARNING, "Course not selected. Question only added in memory.").show();
+            }
+            // Refresh UI
             refreshMarksEntryTab();
+            if (quizTable != null) quizTable.refresh();
+            if (examTable != null) examTable.refresh();
         });
-    }
-
-    private void openQuestionInputWindow() {
-        try {
-            Stage stage = new Stage();
-            QuestionInputWindow questionInputWindow = new QuestionInputWindow();
-            questionInputWindow.start(stage);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Failed to load Add Question");
-            alert.showAndWait();
-        }
     }
 
     private Tab createAssessmentEntryTab(String assessmentType) {

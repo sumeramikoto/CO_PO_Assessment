@@ -9,52 +9,42 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class FacultyInfoInputController implements Initializable {
+public class StudentInfoInputController implements Initializable {
     @FXML
     Label headLabel;
-    @FXML
-    Label shortnameLabel;
-    @FXML
-    Label emailLabel;
-    @FXML
-    Label passwordLabel;
-    @FXML
-    Button confirmButton;
-    @FXML
-    Button backButton;
     @FXML
     TextField idTextField;
     @FXML
     TextField nameTextField;
     @FXML
-    TextField shortnameTextField;
+    TextField batchTextField;
     @FXML
     TextField emailTextField;
     @FXML
-    PasswordField passwordField;
+    TextField departmentTextField;
+    @FXML
+    TextField programmeTextField;
+    @FXML
+    Button confirmButton;
+    @FXML
+    Button backButton;
 
-    private ManageFacultiesController parentController;
+    private ManageStudentsController parentController;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Set up the form labels and initial state
-        headLabel.setText("Add Faculty Information");
+        headLabel.setText("Add Student Information");
     }
 
     /**
-     * Set the parent controller to enable communication back to the faculty management window
+     * Set the parent controller to enable communication back to the student management window
      */
-    public void setParentController(ManageFacultiesController parentController) {
+    public void setParentController(ManageStudentsController parentController) {
         this.parentController = parentController;
     }
 
     public void onConfirmButton(ActionEvent event) {
-        // Debug: Check if idTextField is null
-        if (idTextField == null) {
-            showErrorAlert("Debug", "idTextField is null - FXML file may not be updated properly. Please restart the application.");
-            return;
-        }
-
         // Validate input fields
         if (!validateInputs()) {
             return;
@@ -63,14 +53,15 @@ public class FacultyInfoInputController implements Initializable {
         // Get input values
         String id = idTextField.getText().trim();
         String name = nameTextField.getText().trim();
-        String shortname = shortnameTextField.getText().trim();
+        String batch = batchTextField.getText().trim();
         String email = emailTextField.getText().trim();
-        String password = passwordField.getText();
+        String department = departmentTextField.getText().trim();
+        String programme = programmeTextField.getText().trim();
 
         try {
-            // Call parent controller to add the faculty
+            // Call parent controller to add the student
             if (parentController != null) {
-                parentController.addNewFaculty(id, name, shortname, email, password);
+                parentController.addNewStudent(id, name, batch, email, department, programme);
             }
 
             // Close the current window
@@ -78,7 +69,7 @@ public class FacultyInfoInputController implements Initializable {
             currentStage.close();
 
         } catch (Exception e) {
-            showErrorAlert("Error", "Failed to add faculty member: " + e.getMessage());
+            showErrorAlert("Error", "Failed to add student: " + e.getMessage());
         }
     }
 
@@ -96,23 +87,27 @@ public class FacultyInfoInputController implements Initializable {
 
         // Validate ID
         if (idTextField.getText().trim().isEmpty()) {
-            errors.append("Faculty ID is required.\n");
-        } else {
-            try {
-                Integer.parseInt(idTextField.getText().trim());
-            } catch (NumberFormatException e) {
-                errors.append("Faculty ID must be a valid number.\n");
-            }
+            errors.append("Student ID is required.\n");
         }
 
         // Validate name
         if (nameTextField.getText().trim().isEmpty()) {
-            errors.append("Full name is required.\n");
+            errors.append("Student name is required.\n");
         }
 
-        // Validate shortname
-        if (shortnameTextField.getText().trim().isEmpty()) {
-            errors.append("Short name is required.\n");
+        // Validate batch
+        String batchText = batchTextField.getText().trim();
+        if (batchText.isEmpty()) {
+            errors.append("Batch is required.\n");
+        } else {
+            try {
+                int batch = Integer.parseInt(batchText);
+                if (batch < 0 || batch > 99) {
+                    errors.append("Batch must be a valid number between 0 and 99.\n");
+                }
+            } catch (NumberFormatException e) {
+                errors.append("Batch must be a valid number.\n");
+            }
         }
 
         // Validate email
@@ -123,11 +118,14 @@ public class FacultyInfoInputController implements Initializable {
             errors.append("Please enter a valid email address.\n");
         }
 
-        // Validate password
-        if (passwordField.getText().isEmpty()) {
-            errors.append("Password is required.\n");
-        } else if (passwordField.getText().length() < 6) {
-            errors.append("Password must be at least 6 characters long.\n");
+        // Validate department
+        if (departmentTextField.getText().trim().isEmpty()) {
+            errors.append("Department is required.\n");
+        }
+
+        // Validate programme
+        if (programmeTextField.getText().trim().isEmpty()) {
+            errors.append("Programme is required.\n");
         }
 
         if (errors.length() > 0) {

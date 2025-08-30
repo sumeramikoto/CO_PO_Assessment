@@ -401,6 +401,15 @@ public class Manual extends Application {
             
             // Load enrolled students
             List<DatabaseService.StudentData> dbStudents = dbService.getEnrolledStudents(selectedCourseData.courseCode);
+            System.out.println("[Manual] Loading enrolled students for course=" + selectedCourseData.courseCode + ", count=" + dbStudents.size());
+            if (dbStudents.isEmpty()) {
+                // Helpful hint for debugging empty table
+                Alert warn = new Alert(Alert.AlertType.WARNING);
+                warn.setTitle("No Enrollments Found");
+                warn.setHeaderText(null);
+                warn.setContentText("No enrolled students found for course " + selectedCourseData.courseCode + ".\nCheck that: \n1. insert.sql was executed in schema SPL2.\n2. Course code matches exactly (e.g. '4431').\n3. Enrollment rows exist (SELECT * FROM Enrollment WHERE course_id='" + selectedCourseData.courseCode + "').");
+                warn.show();
+            }
             for (DatabaseService.StudentData studentData : dbStudents) {
                 students.add(new Student(
                         studentData.id,  // id is already a String, no need for String.valueOf()
@@ -453,7 +462,8 @@ public class Manual extends Application {
             // Refresh marks data and UI
             initializeMarksData();
             refreshMarksEntryTab();
-            
+            if (studentTable != null) studentTable.refresh();
+
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Error loading course data: " + e.getMessage()).show();
         }
@@ -540,6 +550,9 @@ public class Manual extends Application {
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
 
         studentTable.getColumns().addAll(idCol, nameCol, batchCol, deptCol, progCol, emailCol);
+        // Bind data list so students show up instead of "No Content"
+        studentTable.setItems(students);
+        studentTable.setPlaceholder(new Label("No students loaded. Select a course to load enrollments."));
 
         HBox buttonBox = new HBox(10);
         Button addBtn = new Button("Add Student");

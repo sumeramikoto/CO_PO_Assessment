@@ -1,3 +1,42 @@
+-- =============================================
+-- Core reference data (must exist before enrollments)
+-- =============================================
+-- Insert sample faculty data
+INSERT INTO Faculty (id, shortname, full_name, email, password) VALUES
+(1001, 'Dr. Rahman', 'Dr. Mohammad Rahman', 'rahman@iut-dhaka.edu', 'password123'),
+(1002, 'Dr. Ahmed', 'Dr. Fatima Ahmed', 'ahmed@iut-dhaka.edu', 'password123'),
+(1003, 'Dr. Hassan', 'Dr. Ali Hassan', 'hassan@iut-dhaka.edu', 'password123'),
+(1004, 'Dr. Khan', 'Dr. Shariar Khan', 'khan@iut-dhaka.edu', 'password123'),
+(1005, 'Dr. Islam', 'Dr. Nazmul Islam', 'islam@iut-dhaka.edu', 'password123');
+
+-- Insert sample course data
+INSERT INTO Course (course_code, course_name, credits) VALUES
+('4431', 'Software Engineering', 3.0),
+('4432', 'Database Systems', 3.0),
+('4433', 'Computer Networks', 3.0),
+('4434', 'Operating Systems', 3.0),
+('4435', 'Data Structures and Algorithms', 3.0);
+
+-- Insert course assignments (linking faculty to courses)
+INSERT INTO CourseAssignment (faculty_id, course_code, academic_year) VALUES
+(1001, '4431', '2024-2025'),
+(1002, '4432', '2024-2025'),
+(1003, '4433', '2024-2025'),
+(1004, '4434', '2024-2025'),
+(1005, '4435', '2024-2025'),
+(1001, '4431', '2023-2024'),
+(1002, '4432', '2023-2024');
+
+-- Insert CO and PO data (idempotent suggestion: wrap with INSERT IGNORE if rerunning)
+INSERT INTO CO (co_number) VALUES ('CO1'), ('CO2'), ('CO3'), ('CO4'), ('CO5'), ('CO6');
+INSERT INTO PO (po_number) VALUES ('PO1'), ('PO2'), ('PO3'), ('PO4'), ('PO5'), ('PO6'), ('PO7'), ('PO8'), ('PO9'), ('PO10'), ('PO11'), ('PO12');
+
+-- Insert admin data
+INSERT INTO Admin (email, password) VALUES ('admin@iut-dhaka.edu', 'admin123');
+
+-- =============================================
+-- Student master data (must exist before Enrollment)
+-- =============================================
 INSERT INTO Student (id, batch, name, email, department, programme) VALUES
 ('220042101', 22, 'Aamir Rahman', 'aamir.rahman.220042101@iut-dhaka.edu', 'CSE', 'SWE'),
 ('220042102', 22, 'Fatima Khatun', 'fatima.khatun.220042102@iut-dhaka.edu', 'CSE', 'SWE'),
@@ -63,7 +102,9 @@ INSERT INTO Student (id, batch, name, email, department, programme) VALUES
 -- Verify the insertion
 SELECT COUNT(*) as total_students FROM Student WHERE batch = 22 AND department = 'CSE' AND programme = 'SWE';
 
--- Enroll all students in course 4431
+-- =============================================
+-- Enrollment AFTER Course & Student exist (previous earlier block removed)
+-- =============================================
 INSERT INTO Enrollment (student_id, course_id) VALUES
 ('220042101', '4431'),
 ('220042102', '4431'),
@@ -123,7 +164,8 @@ INSERT INTO Enrollment (student_id, course_id) VALUES
 ('220042156', '4431'),
 ('220042157', '4431'),
 ('220042158', '4431'),
-('220042159', '4431');
+('220042159', '4431'),
+('220042160', '4431');
 
 -- Verify the enrollment
 SELECT COUNT(*) as total_enrollments FROM Enrollment WHERE course_id = '4431';

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="org.example.co_po_assessment.ManageCourseQuestionsController">
+  <tabs>
+    <Tab fx:id="quiz1Tab" text="Quiz 1">
+      <content>
+        <AnchorPane>
+               <children>
+                  <TableView fx:id="quiz1TableView">
+                    <columns>
+                      <TableColumn fx:id="q1QuesNoCol" prefWidth="242.0" text="Question No." />
+                      <TableColumn fx:id="q1MarksCol" prefWidth="221.0" text="Marks" />
+                        <TableColumn fx:id="q1COCol" prefWidth="208.0" text="CO" />
+                        <TableColumn fx:id="q1POCol" minWidth="0.0" prefWidth="128.0" text="PO" />
+                    </columns>
+                  </TableView>
+                  <Button fx:id="quiz1AddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz1AddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
+                  <Button fx:id="quiz1RemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz1RemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
+                  <Button fx:id="q1BackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ1BackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+               </children></AnchorPane>
+      </content>
+    </Tab>
+    <Tab fx:id="quiz2Tab" text="Quiz 2">
+      <content>
+        <AnchorPane>
+               <children>
+                  <TableView fx:id="quiz2TableView">
+                     <columns>
+                        <TableColumn fx:id="q2QuesNoCol" prefWidth="242.0" text="Question No." />
+                        <TableColumn fx:id="q2MarksCol" prefWidth="221.0" text="Marks" />
+                        <TableColumn fx:id="q2COCol" prefWidth="208.0" text="CO" />
+                        <TableColumn fx:id="q2POCol" minWidth="0.0" prefWidth="128.0" text="PO" />
+                     </columns>
+                  </TableView>
+                  <Button fx:id="quiz2AddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz2AddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
+                  <Button fx:id="quiz2RemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz2RemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
+                  <Button fx:id="q2BackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ2BackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+               </children></AnchorPane>
+      </content>
+    </Tab>
+      <Tab fx:id="quiz3Tab" text="Quiz 3">
+        <content>
+          <AnchorPane>
+               <children>
+                  <TableView fx:id="quiz3TableView">
+                     <columns>
+                        <TableColumn fx:id="q3QuesNoCol" prefWidth="242.0" text="Question No." />
+                        <TableColumn fx:id="q3MarksCol" prefWidth="221.0" text="Marks" />
+                        <TableColumn fx:id="q3COCol" prefWidth="208.0" text="CO" />
+                        <TableColumn fx:id="q3POCol" minWidth="0.0" prefWidth="128.0" text="PO" />
+                     </columns>
+                  </TableView>
+                  <Button fx:id="quiz3AddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz3AddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
+                  <Button fx:id="quiz3RemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz3RemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
+                  <Button fx:id="q3BackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ3BackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+               </children>
+            </AnchorPane>
+        </content>
+      </Tab>
+      <Tab fx:id="quiz4Tab" text="Quiz 4">
+        <content>
+          <AnchorPane>
+               <children>
+                  <TableView fx:id="quiz4TableView">
+                     <columns>
+                        <TableColumn fx:id="q4QuesNoCol" prefWidth="242.0" text="Question No." />
+                        <TableColumn fx:id="q4MarksCol" prefWidth="221.0" text="Marks" />
+                        <TableColumn fx:id="q4COCol" prefWidth="208.0" text="CO" />
+                        <TableColumn fx:id="q4POCol" minWidth="0.0" prefWidth="128.0" text="PO" />
+                     </columns>
+                  </TableView>
+                  <Button fx:id="quiz4AddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz4AddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
+                  <Button fx:id="quiz4RemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz4RemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
+                  <Button fx:id="q4BackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ4BackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+               </children>
+            </AnchorPane>
+        </content>
+      </Tab>
+      <Tab fx:id="midTab" text="Mid">
+        <content>
+          <AnchorPane>
+               <children>
+                  <TableView fx:id="midTableView">
+                     <columns>
+                        <TableColumn fx:id="midQuesNoCol" prefWidth="242.0" text="Question No." />
+                        <TableColumn fx:id="midMarksCol" prefWidth="221.0" text="Marks" />
+                        <TableColumn fx:id="midCOCol" prefWidth="208.0" text="CO" />
+                        <TableColumn fx:id="midPOCol" minWidth="0.0" prefWidth="128.0" text="PO" />
+                     </columns>
+                  </TableView>
+                  <Button fx:id="midAddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onMidAddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
+                  <Button fx:id="midRemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onMidRemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
+                  <Button fx:id="midBackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onMidBackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+               </children>
+            </AnchorPane>
+        </content>
+      </Tab>
+      <Tab fx:id="finalTab" text="Final">
+        <content>
+          <AnchorPane>
+               <children>
+                  <TableView fx:id="finalTableView">
+                     <columns>
+                        <TableColumn fx:id="finalQuesNoCol" prefWidth="242.0" text="Question No." />
+                        <TableColumn fx:id="finalMarksCol" prefWidth="221.0" text="Marks" />
+                        <TableColumn fx:id="finalCOCol" prefWidth="208.0" text="CO" />
+                        <TableColumn fx:id="finalPOCol" minWidth="0.0" prefWidth="128.0" text="PO" />
+                     </columns>
+                  </TableView>
+                  <Button fx:id="finalAddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onFinalAddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
+                  <Button fx:id="finalRemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onFinalRemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
+                  <Button fx:id="finalBackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onFinalBackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+               </children>
+            </AnchorPane>
+        </content>
+      </Tab>
+  </tabs>
+</TabPane>

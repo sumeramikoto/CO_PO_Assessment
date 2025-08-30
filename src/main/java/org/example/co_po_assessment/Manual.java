@@ -400,15 +400,23 @@ public class Manual extends Application {
             examQuestions.clear();
             
             // Load enrolled students
-            // Load enrolled students
             List<DatabaseService.StudentData> dbStudents = dbService.getEnrolledStudents(selectedCourseData.courseCode);
+            System.out.println("[Manual] Loading enrolled students for course=" + selectedCourseData.courseCode + ", count=" + dbStudents.size());
+            if (dbStudents.isEmpty()) {
+                // Helpful hint for debugging empty table
+                Alert warn = new Alert(Alert.AlertType.WARNING);
+                warn.setTitle("No Enrollments Found");
+                warn.setHeaderText(null);
+                warn.setContentText("No enrolled students found for course " + selectedCourseData.courseCode + ".\nCheck that: \n1. insert.sql was executed in schema SPL2.\n2. Course code matches exactly (e.g. '4431').\n3. Enrollment rows exist (SELECT * FROM Enrollment WHERE course_id='" + selectedCourseData.courseCode + "').");
+                warn.show();
+            }
             for (DatabaseService.StudentData studentData : dbStudents) {
                 students.add(new Student(
-                        String.valueOf(studentData.id),
+                        studentData.id,  // id is already a String, no need for String.valueOf()
                         studentData.name,
                         String.valueOf(studentData.batch), // Convert int to String
-                        "CSE",
-                        "SWE",
+                        studentData.department,  // Use actual department from database
+                        studentData.programme,   // Use actual programme from database
                         studentData.email
                 ));
             }
@@ -454,7 +462,8 @@ public class Manual extends Application {
             // Refresh marks data and UI
             initializeMarksData();
             refreshMarksEntryTab();
-            
+            if (studentTable != null) studentTable.refresh();
+
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Error loading course data: " + e.getMessage()).show();
         }
@@ -541,6 +550,9 @@ public class Manual extends Application {
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
 
         studentTable.getColumns().addAll(idCol, nameCol, batchCol, deptCol, progCol, emailCol);
+        // Bind data list so students show up instead of "No Content"
+        studentTable.setItems(students);
+        studentTable.setPlaceholder(new Label("No students loaded. Select a course to load enrollments."));
 
         HBox buttonBox = new HBox(10);
         Button addBtn = new Button("Add Student");
@@ -665,7 +677,7 @@ public class Manual extends Application {
 
         HBox quizButtonBox = new HBox(10);
         Button addQuizBtn = new Button("Add Question");
-        addQuizBtn.setOnAction(e -> openQuestionInputWindow());
+        addQuizBtn.setOnAction(e -> showAddQuestionDialog("Quiz"));
 
         Button removeQuizBtn = new Button("Remove Question");
         removeQuizBtn.setOnAction(e -> {
@@ -714,7 +726,7 @@ public class Manual extends Application {
 
         HBox examButtonBox = new HBox(10);
         Button addExamBtn = new Button("Add Question");
-        addExamBtn.setOnAction(e -> openQuestionInputWindow());
+        addExamBtn.setOnAction(e -> showAddQuestionDialog("Exam"));
 
         Button removeExamBtn = new Button("Remove Question");
         removeExamBtn.setOnAction(e -> {
@@ -796,29 +808,45 @@ public class Manual extends Application {
         });
 
         dialog.showAndWait().ifPresent(question -> {
+            if (question == null) return;
+            if (question.getAssessmentType() == null) {
+                new Alert(Alert.AlertType.ERROR, "Select an assessment type").show();
+                return;
+            }
+            // Add to in-memory list
             if (type.equals("Quiz")) {
                 quizQuestions.add(question);
             } else {
                 examQuestions.add(question);
             }
-
-            // Refresh the marks entry tabs to show new question columns
+            // Persist to DB if a course is selected
+            if (selectedCourseData != null) {
+                try {
+                    // Ensure base assessment rows (Quiz, Mid, Final) exist
+                    if (selectedAcademicYear != null) {
+                        dbService.ensureAssessmentsExist(selectedCourseData.courseCode, selectedAcademicYear);
+                    }
+                    String at = question.getAssessmentType();
+                    if (at.startsWith("Quiz")) {
+                        int quizNum = Integer.parseInt(at.replaceAll("[^0-9]", ""));
+                        dbService.saveQuizQuestion(selectedCourseData.courseCode, quizNum, question.getNumber(), question.getMarks(), question.getCo(), question.getPo());
+                    } else if (at.equals("Mid")) {
+                        dbService.saveMidQuestion(selectedCourseData.courseCode, question.getNumber(), question.getMarks(), question.getCo(), question.getPo());
+                    } else if (at.equals("Final")) {
+                        dbService.saveFinalQuestion(selectedCourseData.courseCode, question.getNumber(), question.getMarks(), question.getCo(), question.getPo());
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    new Alert(Alert.AlertType.ERROR, "Failed to save question to database: " + ex.getMessage()).show();
+                }
+            } else {
+                new Alert(Alert.AlertType.WARNING, "Course not selected. Question only added in memory.").show();
+            }
+            // Refresh UI
             refreshMarksEntryTab();
+            if (quizTable != null) quizTable.refresh();
+            if (examTable != null) examTable.refresh();
         });
-    }
-
-    private void openQuestionInputWindow() {
-        try {
-            Stage stage = new Stage();
-            QuestionInputWindow questionInputWindow = new QuestionInputWindow();
-            questionInputWindow.start(stage);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Failed to load Add Question");
-            alert.showAndWait();
-        }
     }
 
     private Tab createAssessmentEntryTab(String assessmentType) {

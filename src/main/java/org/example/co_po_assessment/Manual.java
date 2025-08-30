@@ -400,15 +400,14 @@ public class Manual extends Application {
             examQuestions.clear();
             
             // Load enrolled students
-            // Load enrolled students
             List<DatabaseService.StudentData> dbStudents = dbService.getEnrolledStudents(selectedCourseData.courseCode);
             for (DatabaseService.StudentData studentData : dbStudents) {
                 students.add(new Student(
-                        String.valueOf(studentData.id),
+                        studentData.id,  // id is already a String, no need for String.valueOf()
                         studentData.name,
                         String.valueOf(studentData.batch), // Convert int to String
-                        "CSE",
-                        "SWE",
+                        studentData.department,  // Use actual department from database
+                        studentData.programme,   // Use actual programme from database
                         studentData.email
                 ));
             }

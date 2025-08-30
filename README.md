@@ -8,6 +8,7 @@ A JavaFX + MySQL desktop application for managing university course outcome (CO)
 - Persistence via MySQL (schema + seed data provided).
 - Dynamic question definition with CO/PO tagging.
 - Export/report groundwork (PDF / Excel libs present for future use).
+- authentication uses bcrypt
 
 ## Technology Stack
 | Layer | Tech |

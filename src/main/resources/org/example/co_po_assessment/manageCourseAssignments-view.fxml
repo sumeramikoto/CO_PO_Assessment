@@ -7,7 +7,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.ManageCourseAssignmentsController">
     <children>
-        <TableView fx:id="courseTableView" layoutX="-1.0" layoutY="70.0" prefHeight="400.0" prefWidth="1008.0">
+        <TableView fx:id="courseTableView" layoutX="-1.0" layoutY="70.0">
             <columns>
                 <TableColumn fx:id="courseCodeColumn" prefWidth="117.0" text="Course Code" />
                 <TableColumn fx:id="courseNameColumn" prefWidth="329.0" text="Course Name" />
@@ -17,8 +17,8 @@
             <TableColumn fx:id="programmeColumn" prefWidth="174.0" text="Programme" />
             </columns>
         </TableView>
-        <Button fx:id="removeCourseButton" layoutX="450.0" layoutY="411.0" mnemonicParsing="false" onAction="#onRemoveCourseButton" text="Remove Course" />
-        <Button fx:id="assignCourseButton" layoutX="230.0" layoutY="411.0" mnemonicParsing="false" onAction="#onAssignCourseButton" text="Assign Course" />
-        <Button fx:id="backButton" layoutX="675.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
+        <Button fx:id="removeCourseButton" layoutX="447.0" layoutY="480.0" mnemonicParsing="false" onAction="#onRemoveCourseButton" text="Remove Course" />
+        <Button fx:id="assignCourseButton" layoutX="223.0" layoutY="480.0" mnemonicParsing="false" onAction="#onAssignCourseButton" text="Assign Course" />
+        <Button fx:id="backButton" layoutX="676.0" layoutY="480.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
     </children>
 </AnchorPane>

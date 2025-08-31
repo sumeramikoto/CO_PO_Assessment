@@ -29,6 +29,10 @@ public class ManageCourseAssignmentsController implements Initializable {
     @FXML
     TableColumn<CourseAssignment, String> academicYearColumn;
     @FXML
+    TableColumn<CourseAssignment, String> departmentColumn;
+    @FXML
+    TableColumn<CourseAssignment, String> programmeColumn;
+    @FXML
     Button assignCourseButton;
     @FXML
     Button removeCourseButton;
@@ -47,6 +51,12 @@ public class ManageCourseAssignmentsController implements Initializable {
         courseNameColumn.setCellValueFactory(new PropertyValueFactory<>("courseName"));
         facultyColumn.setCellValueFactory(new PropertyValueFactory<>("facultyName"));
         academicYearColumn.setCellValueFactory(new PropertyValueFactory<>("academicYear"));
+        if (departmentColumn != null) {
+            departmentColumn.setCellValueFactory(new PropertyValueFactory<>("department"));
+        }
+        if (programmeColumn != null) {
+            programmeColumn.setCellValueFactory(new PropertyValueFactory<>("programme"));
+        }
 
         // Initialize course assignment list
         courseAssignmentList = FXCollections.observableArrayList();
@@ -91,7 +101,9 @@ public class ManageCourseAssignmentsController implements Initializable {
         confirmAlert.setContentText("Are you sure you want to remove the assignment:\n" +
                 "Course: " + selectedAssignment.getCourseCode() + " - " + selectedAssignment.getCourseName() + "\n" +
                 "Faculty: " + selectedAssignment.getFacultyName() + "\n" +
-                "Academic Year: " + selectedAssignment.getAcademicYear());
+                "Academic Year: " + selectedAssignment.getAcademicYear() + "\n" +
+                "Department: " + selectedAssignment.getDepartment() + "\n" +
+                "Programme: " + selectedAssignment.getProgramme());
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
 
@@ -136,7 +148,7 @@ public class ManageCourseAssignmentsController implements Initializable {
 
         } catch (SQLException e) {
             if (e.getMessage().contains("Duplicate entry")) {
-                showErrorAlert("Assignment Error", "This course is already assigned to the selected faculty for the specified academic year.");
+                showErrorAlert("Assignment Error", "This course is already assigned to the selected faculty for that academic year.");
             } else {
                 showErrorAlert("Database Error", "Failed to assign course: " + e.getMessage());
             }
@@ -157,7 +169,9 @@ public class ManageCourseAssignmentsController implements Initializable {
                     assignment.getCourseCode(),
                     assignment.getCourseName(),
                     assignment.getFacultyName(),
-                    assignment.getAcademicYear()
+                    assignment.getAcademicYear(),
+                    assignment.getDepartment(),
+                    assignment.getProgramme()
                 ));
             }
 

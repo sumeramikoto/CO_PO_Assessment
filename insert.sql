@@ -1,3 +1,38 @@
+INSERT INTO Faculty (id, shortname, full_name, email, password) VALUES
+(1001, 'Dr. Rahman', 'Dr. Mohammad Rahman', 'rahman@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
+(1002, 'Dr. Ahmed', 'Dr. Fatima Ahmed', 'ahmed@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
+(1003, 'Dr. Hassan', 'Dr. Ali Hassan', 'hassan@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
+(1004, 'Dr. Khan', 'Dr. Shariar Khan', 'khan@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
+(1005, 'Dr. Islam', 'Dr. Nazmul Islam', 'islam@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK');
+
+-- Insert sample course data
+-- Updated to include department and programme columns
+INSERT INTO Course (course_code, course_name, credits, department, programme) VALUES
+('4431', 'Software Engineering', 3.0, 'CSE', 'SWE'),
+('4432', 'Database Systems', 3.0, 'CSE', 'SWE'),
+('4433', 'Computer Networks', 3.0, 'CSE', 'SWE'),
+('4434', 'Operating Systems', 3.0, 'CSE', 'SWE'),
+('4435', 'Data Structures and Algorithms', 3.0, 'CSE', 'SWE');
+
+-- Insert course assignments (linking faculty to courses)
+-- Updated to include department and programme columns
+INSERT INTO CourseAssignment (faculty_id, course_code, academic_year, department, programme) VALUES
+(1001, '4431', '2024-2025', 'CSE', 'SWE'),
+(1002, '4432', '2024-2025', 'CSE', 'SWE'),
+(1003, '4433', '2024-2025', 'CSE', 'SWE'),
+(1004, '4434', '2024-2025', 'CSE', 'SWE'),
+(1005, '4435', '2024-2025', 'CSE', 'SWE');
+
+-- Insert CO and PO data (idempotent suggestion: wrap with INSERT IGNORE if rerunning)
+INSERT INTO CO (co_number) VALUES ('CO1'), ('CO2'), ('CO3'), ('CO4'), ('CO5'), ('CO6');
+INSERT INTO PO (po_number) VALUES ('PO1'), ('PO2'), ('PO3'), ('PO4'), ('PO5'), ('PO6'), ('PO7'), ('PO8'), ('PO9'), ('PO10'), ('PO11'), ('PO12');
+
+-- Insert admin data (hashed password for 'admin123')
+INSERT INTO Admin (email, password) VALUES ('admin@iut-dhaka.edu', '$2a$12$7QJ5hV/pY5Pja/qWhDMAYA9Yg3.aFyv1I3VzBkYOPxfN3E3xaQa36');
+
+-- =============================================
+-- Student master data (must exist before Enrollment)
+-- =============================================
 INSERT INTO Student (id, batch, name, email, department, programme) VALUES
 ('220042101', 22, 'Aamir Rahman', 'aamir.rahman.220042101@iut-dhaka.edu', 'CSE', 'SWE'),
 ('220042102', 22, 'Fatima Khatun', 'fatima.khatun.220042102@iut-dhaka.edu', 'CSE', 'SWE'),
@@ -62,3 +97,71 @@ INSERT INTO Student (id, batch, name, email, department, programme) VALUES
 
 -- Verify the insertion
 SELECT COUNT(*) as total_students FROM Student WHERE batch = 22 AND department = 'CSE' AND programme = 'SWE';
+
+-- =============================================
+-- Enrollment AFTER Course & Student exist (previous earlier block removed)
+-- =============================================
+INSERT INTO Enrollment (student_id, course_id) VALUES
+('220042101', '4431'),
+('220042102', '4431'),
+('220042103', '4431'),
+('220042104', '4431'),
+('220042105', '4431'),
+('220042106', '4431'),
+('220042107', '4431'),
+('220042108', '4431'),
+('220042109', '4431'),
+('220042110', '4431'),
+('220042111', '4431'),
+('220042112', '4431'),
+('220042113', '4431'),
+('220042114', '4431'),
+('220042115', '4431'),
+('220042116', '4431'),
+('220042117', '4431'),
+('220042118', '4431'),
+('220042119', '4431'),
+('220042120', '4431'),
+('220042121', '4431'),
+('220042122', '4431'),
+('220042123', '4431'),
+('220042124', '4431'),
+('220042125', '4431'),
+('220042126', '4431'),
+('220042127', '4431'),
+('220042128', '4431'),
+('220042129', '4431'),
+('220042130', '4431'),
+('220042131', '4431'),
+('220042132', '4431'),
+('220042133', '4431'),
+('220042134', '4431'),
+('220042135', '4431'),
+('220042136', '4431'),
+('220042137', '4431'),
+('220042138', '4431'),
+('220042139', '4431'),
+('220042140', '4431'),
+('220042141', '4431'),
+('220042142', '4431'),
+('220042143', '4431'),
+('220042144', '4431'),
+('220042145', '4431'),
+('220042146', '4431'),
+('220042147', '4431'),
+('220042148', '4431'),
+('220042149', '4431'),
+('220042150', '4431'),
+('220042151', '4431'),
+('220042152', '4431'),
+('220042153', '4431'),
+('220042154', '4431'),
+('220042155', '4431'),
+('220042156', '4431'),
+('220042157', '4431'),
+('220042158', '4431'),
+('220042159', '4431'),
+('220042160', '4431');
+
+-- Verify the enrollment
+SELECT COUNT(*) as total_enrollments FROM Enrollment WHERE course_id = '4431';

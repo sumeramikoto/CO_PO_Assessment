@@ -10,12 +10,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import org.example.co_po_assessment.DatabaseService;
 
 public class AssessmentSystem extends Application {
 
     private Stage primaryStage;
     private TextField emailField;
     private PasswordField passwordField;
+    private DatabaseService dbService = DatabaseService.getInstance();
 
     @Override
     public void start(Stage primaryStage) {
@@ -142,11 +144,11 @@ public class AssessmentSystem extends Application {
     }
 
     private boolean authenticateUser(String email, String password, boolean isAdmin) {
-        // Demo authentication
-        if (isAdmin) {
-            return email.equalsIgnoreCase("admin@school.edu") && password.equals("admin123");
-        } else {
-            return email.equalsIgnoreCase("faculty@school.edu") && password.equals("faculty123");
+        try {
+            return isAdmin ? dbService.authenticateAdmin(email, password)
+                           : dbService.authenticateFaculty(email, password);
+        } catch (Exception e) {
+            return false; // swallow for legacy screen; could log
         }
     }
 

@@ -13,9 +13,9 @@ public class CoursesDatabaseHelper {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 
-    // Get all courses
+    // Get all courses (now including department & programme)
     public List<CourseData> getAllCourses() throws SQLException {
-        String sql = "SELECT course_code, course_name, credits FROM Course ORDER BY course_code";
+        String sql = "SELECT course_code, course_name, credits, department, programme FROM Course ORDER BY course_code";
         List<CourseData> courses = new ArrayList<>();
 
         try (Connection conn = getConnection();
@@ -26,22 +26,26 @@ public class CoursesDatabaseHelper {
                 courses.add(new CourseData(
                     rs.getString("course_code"),
                     rs.getString("course_name"),
-                    rs.getDouble("credits")
+                    rs.getDouble("credits"),
+                    rs.getString("department"),
+                    rs.getString("programme")
                 ));
             }
         }
         return courses;
     }
 
-    // Add a new course
-    public void addCourse(String courseCode, String courseName, double credits) throws SQLException {
-        String sql = "INSERT INTO Course (course_code, course_name, credits) VALUES (?, ?, ?)";
+    // Add a new course (with department & programme)
+    public void addCourse(String courseCode, String courseName, double credits, String department, String programme) throws SQLException {
+        String sql = "INSERT INTO Course (course_code, course_name, credits, department, programme) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, courseCode);
             stmt.setString(2, courseName);
             stmt.setDouble(3, credits);
+            stmt.setString(4, department);
+            stmt.setString(5, programme);
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
@@ -110,15 +114,21 @@ public class CoursesDatabaseHelper {
         public final String courseCode;
         public final String courseName;
         public final double credits;
+        public final String department;
+        public final String programme;
 
-        public CourseData(String courseCode, String courseName, double credits) {
+        public CourseData(String courseCode, String courseName, double credits, String department, String programme) {
             this.courseCode = courseCode;
             this.courseName = courseName;
             this.credits = credits;
+            this.department = department;
+            this.programme = programme;
         }
 
         public String getCourseCode() { return courseCode; }
         public String getCourseName() { return courseName; }
         public double getCredits() { return credits; }
+        public String getDepartment() { return department; }
+        public String getProgramme() { return programme; }
     }
 }

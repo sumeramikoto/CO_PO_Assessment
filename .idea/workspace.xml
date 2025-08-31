@@ -48,47 +48,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.AdminDashboardWindow.executor": "Run",
-    "Application.AdminsDashboard.executor": "Run",
-    "Application.AssessmentSystem.executor": "Run",
-    "Application.FacultyDashboard.executor": "Run",
-    "Application.FacultyDashboardView.executor": "Run",
-    "Application.FacultyInfoInputView.executor": "Run",
-    "Application.ManageCoursesView.executor": "Run",
-    "Application.ManageStudentsView.executor": "Run",
-    "Application.Manual.executor": "Run",
-    "Application.ManualExcel (1).executor": "Run",
-    "Application.ManualExcel.executor": "Run",
-    "Application.QuestionInputWindow.executor": "Run",
-    "Application.org.example.co_po_assessment.AssessmentSystem.executor": "Run",
-    "Downloaded.Files.Path.Enabled": "false",
-    "Repository.Attach.Annotations": "false",
-    "Repository.Attach.JavaDocs": "false",
-    "Repository.Attach.Sources": "false",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "sinha",
-    "ignore.preview.features.used": "true",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.2",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.AdminDashboardWindow.executor&quot;: &quot;Run&quot;,
+    &quot;Application.AdminsDashboard.executor&quot;: &quot;Run&quot;,
+    &quot;Application.AssessmentSystem.executor&quot;: &quot;Run&quot;,
+    &quot;Application.FacultyDashboard.executor&quot;: &quot;Run&quot;,
+    &quot;Application.FacultyDashboardView.executor&quot;: &quot;Run&quot;,
+    &quot;Application.FacultyInfoInputView.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ManageCoursesView.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ManageStudentsView.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Manual.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ManualExcel (1).executor&quot;: &quot;Run&quot;,
+    &quot;Application.ManualExcel.executor&quot;: &quot;Run&quot;,
+    &quot;Application.QuestionInputWindow.executor&quot;: &quot;Run&quot;,
+    &quot;Application.org.example.co_po_assessment.AssessmentSystem.executor&quot;: &quot;Run&quot;,
+    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;sinha&quot;,
+    &quot;ignore.preview.features.used&quot;: &quot;true&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Application.Manual">
     <configuration name="AdminDashboardWindow" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.example.co_po_assessment.AdminDashboardWindow" />
@@ -154,15 +154,6 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <option name="filePath" />
-      <method v="2" />
     </configuration>
     <recent_temporary>
       <list>

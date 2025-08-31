@@ -17,18 +17,18 @@ public class DatabaseService {
             // Swallow to avoid startup failure; logging could be added
         }
     }
-
-    public static DatabaseService getInstance() {
-        if (instance == null) {
-            instance = new DatabaseService();
-        }
-        return instance;
     }
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 
+    // Question related operations
+    public void saveQuizQuestion(String courseId, int quizNumber, String title, double marks, String co, String po) throws SQLException {
+        String sql = """
+            INSERT INTO QuizQuestion (quiz_id, title, marks, co_id, po_id)
+            SELECT q.id, ?, ?, co.id, po.id
+            FROM Quiz q, CO co, PO po
     private void upgradeLegacyPasswords() throws SQLException {
         try (Connection conn = getConnection()) {
             // Faculty
@@ -66,49 +66,6 @@ public class DatabaseService {
         }
     }
 
-    // Question related operations
-    public void saveQuizQuestion(String courseId, int quizNumber, String title, double marks, String co, String po) throws SQLException {
-        String sql = """
-            INSERT INTO QuizQuestion (quiz_id, title, marks, co_id, po_id)
-            SELECT q.id, ?, ?, co.id, po.id
-            FROM Quiz q, CO co, PO po
-            WHERE q.course_id = ? AND q.quiz_number = ?
-            AND co.co_number = ?
-            AND po.po_number = ?
-            """;
-
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, title);
-            stmt.setDouble(2, marks);
-            stmt.setString(3, courseId);
-            stmt.setInt(4, quizNumber);
-            stmt.setString(5, co);
-            stmt.setString(6, po);
-            stmt.executeUpdate();
-        }
-    }
-
-    public void saveMidQuestion(String courseId, String title, double marks, String co, String po) throws SQLException {
-        String sql = """
-            INSERT INTO MidQuestion (mid_id, title, marks, co_id, po_id)
-            SELECT m.id, ?, ?, co.id, po.id
-            FROM Mid m, CO co, PO po
-            WHERE m.course_id = ?
-            AND co.co_number = ?
-            AND po.po_number = ?
-            """;
-
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, title);
-            stmt.setDouble(2, marks);
-            stmt.setString(3, courseId);
-            stmt.setString(4, co);
-            stmt.setString(5, po);
-            stmt.executeUpdate();
-        }
-    }
 
     public void saveFinalQuestion(String courseId, String title, double marks, String co, String po) throws SQLException {
         String sql = """

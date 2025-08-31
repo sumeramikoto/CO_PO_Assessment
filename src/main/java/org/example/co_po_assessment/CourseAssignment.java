@@ -8,12 +8,17 @@ public class CourseAssignment {
     private final StringProperty courseName;
     private final StringProperty facultyName;
     private final StringProperty academicYear;
+    private final StringProperty department;
+    private final StringProperty programme;
 
-    public CourseAssignment(String courseCode, String courseName, String facultyName, String academicYear) {
+    public CourseAssignment(String courseCode, String courseName, String facultyName, String academicYear,
+                            String department, String programme) {
         this.courseCode = new SimpleStringProperty(courseCode);
         this.courseName = new SimpleStringProperty(courseName);
         this.facultyName = new SimpleStringProperty(facultyName);
         this.academicYear = new SimpleStringProperty(academicYear);
+        this.department = new SimpleStringProperty(department);
+        this.programme = new SimpleStringProperty(programme);
     }
 
     public String getCourseCode() {
@@ -46,5 +51,21 @@ public class CourseAssignment {
 
     public StringProperty academicYearProperty() {
         return academicYear;
+    }
+
+    public String getDepartment() {
+        return department.get();
+    }
+
+    public StringProperty departmentProperty() {
+        return department;
+    }
+
+    public String getProgramme() {
+        return programme.get();
+    }
+
+    public StringProperty programmeProperty() {
+        return programme;
     }
 }

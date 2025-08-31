@@ -1,11 +1,3 @@
--- NOTE: Passwords below are BCrypt hashed (cost 12) for the default value 'password123' and 'admin123'.
--- Raw values should NOT be inserted directly in production.
--- Faculty hashes correspond to plaintext 'password123'. Admin hash to 'admin123'.
-
--- =============================================
--- Core reference data (must exist before enrollments)
--- =============================================
--- Insert sample faculty data (hashed passwords)
 INSERT INTO Faculty (id, shortname, full_name, email, password) VALUES
 (1001, 'Dr. Rahman', 'Dr. Mohammad Rahman', 'rahman@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
 (1002, 'Dr. Ahmed', 'Dr. Fatima Ahmed', 'ahmed@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
@@ -14,22 +6,22 @@ INSERT INTO Faculty (id, shortname, full_name, email, password) VALUES
 (1005, 'Dr. Islam', 'Dr. Nazmul Islam', 'islam@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK');
 
 -- Insert sample course data
-INSERT INTO Course (course_code, course_name, credits) VALUES
-('4431', 'Software Engineering', 3.0),
-('4432', 'Database Systems', 3.0),
-('4433', 'Computer Networks', 3.0),
-('4434', 'Operating Systems', 3.0),
-('4435', 'Data Structures and Algorithms', 3.0);
+-- Updated to include department and programme columns
+INSERT INTO Course (course_code, course_name, credits, department, programme) VALUES
+('4431', 'Software Engineering', 3.0, 'CSE', 'SWE'),
+('4432', 'Database Systems', 3.0, 'CSE', 'SWE'),
+('4433', 'Computer Networks', 3.0, 'CSE', 'SWE'),
+('4434', 'Operating Systems', 3.0, 'CSE', 'SWE'),
+('4435', 'Data Structures and Algorithms', 3.0, 'CSE', 'SWE');
 
 -- Insert course assignments (linking faculty to courses)
-INSERT INTO CourseAssignment (faculty_id, course_code, academic_year) VALUES
-(1001, '4431', '2024-2025'),
-(1002, '4432', '2024-2025'),
-(1003, '4433', '2024-2025'),
-(1004, '4434', '2024-2025'),
-(1005, '4435', '2024-2025'),
-(1001, '4431', '2023-2024'),
-(1002, '4432', '2023-2024');
+-- Updated to include department and programme columns
+INSERT INTO CourseAssignment (faculty_id, course_code, academic_year, department, programme) VALUES
+(1001, '4431', '2024-2025', 'CSE', 'SWE'),
+(1002, '4432', '2024-2025', 'CSE', 'SWE'),
+(1003, '4433', '2024-2025', 'CSE', 'SWE'),
+(1004, '4434', '2024-2025', 'CSE', 'SWE'),
+(1005, '4435', '2024-2025', 'CSE', 'SWE');
 
 -- Insert CO and PO data (idempotent suggestion: wrap with INSERT IGNORE if rerunning)
 INSERT INTO CO (co_number) VALUES ('CO1'), ('CO2'), ('CO3'), ('CO4'), ('CO5'), ('CO6');

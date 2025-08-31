@@ -17,18 +17,18 @@ public class DatabaseService {
             // Swallow to avoid startup failure; logging could be added
         }
     }
+
+    public static DatabaseService getInstance() {
+        if (instance == null) {
+            instance = new DatabaseService();
+        }
+        return instance;
     }
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 
-    // Question related operations
-    public void saveQuizQuestion(String courseId, int quizNumber, String title, double marks, String co, String po) throws SQLException {
-        String sql = """
-            INSERT INTO QuizQuestion (quiz_id, title, marks, co_id, po_id)
-            SELECT q.id, ?, ?, co.id, po.id
-            FROM Quiz q, CO co, PO po
     private void upgradeLegacyPasswords() throws SQLException {
         try (Connection conn = getConnection()) {
             // Faculty
@@ -66,6 +66,49 @@ public class DatabaseService {
         }
     }
 
+    // Question related operations
+    public void saveQuizQuestion(String courseId, int quizNumber, String title, double marks, String co, String po) throws SQLException {
+        String sql = """
+            INSERT INTO QuizQuestion (quiz_id, title, marks, co_id, po_id)
+            SELECT q.id, ?, ?, co.id, po.id
+            FROM Quiz q, CO co, PO po
+            WHERE q.course_id = ? AND q.quiz_number = ?
+            AND co.co_number = ?
+            AND po.po_number = ?
+            """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, title);
+            stmt.setDouble(2, marks);
+            stmt.setString(3, courseId);
+            stmt.setInt(4, quizNumber);
+            stmt.setString(5, co);
+            stmt.setString(6, po);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void saveMidQuestion(String courseId, String title, double marks, String co, String po) throws SQLException {
+        String sql = """
+            INSERT INTO MidQuestion (mid_id, title, marks, co_id, po_id)
+            SELECT m.id, ?, ?, co.id, po.id
+            FROM Mid m, CO co, PO po
+            WHERE m.course_id = ?
+            AND co.co_number = ?
+            AND po.po_number = ?
+            """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, title);
+            stmt.setDouble(2, marks);
+            stmt.setString(3, courseId);
+            stmt.setString(4, co);
+            stmt.setString(5, po);
+            stmt.executeUpdate();
+        }
+    }
 
     public void saveFinalQuestion(String courseId, String title, double marks, String co, String po) throws SQLException {
         String sql = """
@@ -109,10 +152,10 @@ public class DatabaseService {
 
             while (rs.next()) {
                 questions.add(new QuestionData(
-                    rs.getString("title"),
-                    rs.getDouble("marks"),
-                    rs.getString("co_number"),
-                    rs.getString("po_number")
+                        rs.getString("title"),
+                        rs.getDouble("marks"),
+                        rs.getString("co_number"),
+                        rs.getString("po_number")
                 ));
             }
         }
@@ -138,10 +181,10 @@ public class DatabaseService {
 
             while (rs.next()) {
                 questions.add(new QuestionData(
-                    rs.getString("title"),
-                    rs.getDouble("marks"),
-                    rs.getString("co_number"),
-                    rs.getString("po_number")
+                        rs.getString("title"),
+                        rs.getDouble("marks"),
+                        rs.getString("co_number"),
+                        rs.getString("po_number")
                 ));
             }
         }
@@ -167,10 +210,10 @@ public class DatabaseService {
 
             while (rs.next()) {
                 questions.add(new QuestionData(
-                    rs.getString("title"),
-                    rs.getDouble("marks"),
-                    rs.getString("co_number"),
-                    rs.getString("po_number")
+                        rs.getString("title"),
+                        rs.getDouble("marks"),
+                        rs.getString("co_number"),
+                        rs.getString("po_number")
                 ));
             }
         }
@@ -195,12 +238,12 @@ public class DatabaseService {
 
             while (rs.next()) {
                 students.add(new StudentData(
-                    rs.getString("id"),
-                    rs.getString("name"),
-                    rs.getString("email"),
-                    rs.getInt("batch"),
-                    rs.getString("programme"),
-                    rs.getString("department")
+                        rs.getString("id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getInt("batch"),
+                        rs.getString("programme"),
+                        rs.getString("department")
                 ));
             }
         }
@@ -210,7 +253,7 @@ public class DatabaseService {
     // Course operations
     public CourseData getCourseInfo(String courseCode) throws SQLException {
         String sql = """
-            SELECT c.course_code, c.course_name, c.credits, f.full_name as instructor_name
+            SELECT c.course_code, c.course_name, c.credits, c.department, c.programme, f.full_name as instructor_name
             FROM Course c
             JOIN CourseAssignment ca ON c.course_code = ca.course_code
             JOIN Faculty f ON ca.faculty_id = f.id
@@ -224,10 +267,12 @@ public class DatabaseService {
 
             if (rs.next()) {
                 return new CourseData(
-                    rs.getString("course_code"),
-                    rs.getString("course_name"),
-                    rs.getDouble("credits"),
-                    rs.getString("instructor_name")
+                        rs.getString("course_code"),
+                        rs.getString("course_name"),
+                        rs.getDouble("credits"),
+                        rs.getString("department"),
+                        rs.getString("programme"),
+                        rs.getString("instructor_name")
                 );
             }
         }
@@ -235,16 +280,27 @@ public class DatabaseService {
     }
 
     // Update course information
-    public void updateCourseInfo(String courseCode, String courseName, double credits) throws SQLException {
-        String sql = "UPDATE Course SET course_name = ?, credits = ? WHERE course_code = ?";
+    public void updateCourseInfo(String courseCode, String courseName, double credits, String department, String programme) throws SQLException {
+        String sql = "UPDATE Course SET course_name = ?, credits = ?, department = ?, programme = ? WHERE course_code = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, courseName);
             stmt.setDouble(2, credits);
-            stmt.setString(3, courseCode);
+            stmt.setString(3, department);
+            stmt.setString(4, programme);
+            stmt.setString(5, courseCode);
             stmt.executeUpdate();
         }
+    }
+
+    // legacy method signature retained for backward compatibility
+    public void updateCourseInfo(String courseCode, String courseName, double credits) throws SQLException {
+        // Fetch existing dept & programme to avoid losing them
+        CourseData existing = getCourseInfo(courseCode);
+        String dept = existing != null ? existing.department : ""; // fail-safe
+        String prog = existing != null ? existing.programme : "";
+        updateCourseInfo(courseCode, courseName, credits, dept, prog);
     }
 
     // Update instructor for a course
@@ -374,12 +430,12 @@ public class DatabaseService {
 
             while (rs.next()) {
                 marks.add(new StudentMarksData(
-                    rs.getString("student_id"),
-                    rs.getString("name"),
-                    rs.getInt("question_id"),
-                    rs.getString("title"),
-                    rs.getDouble("max_marks"),
-                    rs.getDouble("marks_obtained")
+                        rs.getString("student_id"),
+                        rs.getString("name"),
+                        rs.getInt("question_id"),
+                        rs.getString("title"),
+                        rs.getDouble("max_marks"),
+                        rs.getDouble("marks_obtained")
                 ));
             }
         }
@@ -408,12 +464,12 @@ public class DatabaseService {
 
             while (rs.next()) {
                 marks.add(new StudentMarksData(
-                    rs.getString("student_id"),
-                    rs.getString("name"),
-                    rs.getInt("question_id"),
-                    rs.getString("title"),
-                    rs.getDouble("max_marks"),
-                    rs.getDouble("marks_obtained")
+                        rs.getString("student_id"),
+                        rs.getString("name"),
+                        rs.getInt("question_id"),
+                        rs.getString("title"),
+                        rs.getDouble("max_marks"),
+                        rs.getDouble("marks_obtained")
                 ));
             }
         }
@@ -442,12 +498,12 @@ public class DatabaseService {
 
             while (rs.next()) {
                 marks.add(new StudentMarksData(
-                    rs.getString("student_id"),
-                    rs.getString("name"),
-                    rs.getInt("question_id"),
-                    rs.getString("title"),
-                    rs.getDouble("max_marks"),
-                    rs.getDouble("marks_obtained")
+                        rs.getString("student_id"),
+                        rs.getString("name"),
+                        rs.getInt("question_id"),
+                        rs.getString("title"),
+                        rs.getDouble("max_marks"),
+                        rs.getDouble("marks_obtained")
                 ));
             }
         }
@@ -519,16 +575,16 @@ public class DatabaseService {
 
             while (rs.next()) {
                 performance.add(new StudentPerformanceData(
-                    rs.getString("id"),
-                    rs.getString("name"),
-                    rs.getInt("batch"),
-                    rs.getString("assessment_type"),
-                    rs.getInt("assessment_number"),
-                    rs.getString("question_title"),
-                    rs.getDouble("max_marks"),
-                    rs.getDouble("marks_obtained"),
-                    rs.getString("co_number"),
-                    rs.getString("po_number")
+                        rs.getString("id"),
+                        rs.getString("name"),
+                        rs.getInt("batch"),
+                        rs.getString("assessment_type"),
+                        rs.getInt("assessment_number"),
+                        rs.getString("question_title"),
+                        rs.getDouble("max_marks"),
+                        rs.getDouble("marks_obtained"),
+                        rs.getString("co_number"),
+                        rs.getString("po_number")
                 ));
             }
         }
@@ -536,16 +592,24 @@ public class DatabaseService {
     }
 
     // Insert methods for initial data setup
-    public void insertCourse(String courseCode, String courseName, double credits) throws SQLException {
-        String sql = "INSERT INTO Course (course_code, course_name, credits) VALUES (?, ?, ?)";
+    public void insertCourse(String courseCode, String courseName, double credits, String department, String programme) throws SQLException {
+        String sql = "INSERT INTO Course (course_code, course_name, credits, department, programme) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, courseCode);
             stmt.setString(2, courseName);
             stmt.setDouble(3, credits);
+            stmt.setString(4, department);
+            stmt.setString(5, programme);
             stmt.executeUpdate();
         }
+    }
+
+    // Backward compatibility (will throw since required columns now) - attempt to infer? Use placeholders
+    public void insertCourse(String courseCode, String courseName, double credits) throws SQLException {
+        // Default placeholders if old code path is used
+        insertCourse(courseCode, courseName, credits, "CSE", "BSc");
     }
 
     public void insertFaculty(int id, String shortname, String fullName, String email, String password) throws SQLException {
@@ -566,23 +630,10 @@ public class DatabaseService {
         }
     }
 
-    public void assignCourseToFaculty(int facultyId, String courseCode, String academicYear) throws SQLException {
-        String sql = "INSERT INTO CourseAssignment (faculty_id, course_code, academic_year) VALUES (?, ?, ?)";
-
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, facultyId);
-            stmt.setString(2, courseCode);
-            stmt.setString(3, academicYear);
-            stmt.executeUpdate();
-        }
-    }
-
+    // Added: insertStudent to support ManageStudentsController.addNewStudent()
     public void insertStudent(String id, int batch, String name, String email, String department, String programme) throws SQLException {
         String sql = "INSERT INTO Student (id, batch, name, email, department, programme) VALUES (?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, id);
             stmt.setInt(2, batch);
             stmt.setString(3, name);
@@ -593,37 +644,47 @@ public class DatabaseService {
         }
     }
 
-    public void enrollStudent(String studentId, String courseCode) throws SQLException {
-        String sql = "INSERT INTO Enrollment (student_id, course_id) VALUES (?, ?)";
+    public void assignCourseToFaculty(int facultyId, String courseCode, String academicYear) throws SQLException {
+        // Retrieve department & programme from Course table (since schema now requires them in CourseAssignment)
+        String fetch = "SELECT department, programme FROM Course WHERE course_code = ?";
+        String sql = "INSERT INTO CourseAssignment (faculty_id, course_code, academic_year, department, programme) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement get = conn.prepareStatement(fetch)) {
+            get.setString(1, courseCode);
+            try (ResultSet rs = get.executeQuery()) {
+                if (!rs.next()) {
+                    throw new SQLException("Course not found for code: " + courseCode);
+                }
+                String dept = rs.getString(1);
+                String prog = rs.getString(2);
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setInt(1, facultyId);
+                    stmt.setString(2, courseCode);
+                    stmt.setString(3, academicYear);
+                    stmt.setString(4, dept);
+                    stmt.setString(5, prog);
+                    stmt.executeUpdate();
+                }
+            }
+        }
+    }
 
+    // Overload allowing explicit department/programme if needed
+    public void assignCourseToFaculty(int facultyId, String courseCode, String academicYear, String department, String programme) throws SQLException {
+        String sql = "INSERT INTO CourseAssignment (faculty_id, course_code, academic_year, department, programme) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, studentId);
+            stmt.setInt(1, facultyId);
             stmt.setString(2, courseCode);
+            stmt.setString(3, academicYear);
+            stmt.setString(4, department);
+            stmt.setString(5, programme);
             stmt.executeUpdate();
         }
     }
 
-    public void insertCO(String coNumber) throws SQLException {
-        String sql = "INSERT INTO CO (co_number) VALUES (?)";
 
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, coNumber);
-            stmt.executeUpdate();
-        }
-    }
-
-    public void insertPO(String poNumber) throws SQLException {
-        String sql = "INSERT INTO PO (po_number) VALUES (?) ON DUPLICATE KEY UPDATE po_number = VALUES(po_number)";
-
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, poNumber);
-            stmt.executeUpdate();
-        }
-    }
-
+    // Admin operations
     public void insertAdmin(String email, String password) throws SQLException {
         String sql = "INSERT INTO Admin (email, password) VALUES (?, ?)";
         if (!PasswordUtils.isHashed(password)) {
@@ -744,7 +805,7 @@ public class DatabaseService {
 
     public CourseData getCourseByCodeAndInstructor(String courseCode, String instructorName) throws SQLException {
         String sql = """
-            SELECT c.course_code, c.course_name, c.credits, f.full_name as instructor_name
+            SELECT c.course_code, c.course_name, c.credits, c.department, c.programme, f.full_name as instructor_name
             FROM Course c
             JOIN CourseAssignment ca ON c.course_code = ca.course_code
             JOIN Faculty f ON ca.faculty_id = f.id
@@ -759,10 +820,12 @@ public class DatabaseService {
 
             if (rs.next()) {
                 return new CourseData(
-                    rs.getString("course_code"),
-                    rs.getString("course_name"),
-                    rs.getDouble("credits"),
-                    rs.getString("instructor_name")
+                        rs.getString("course_code"),
+                        rs.getString("course_name"),
+                        rs.getDouble("credits"),
+                        rs.getString("department"),
+                        rs.getString("programme"),
+                        rs.getString("instructor_name")
                 );
             }
         }
@@ -806,12 +869,16 @@ public class DatabaseService {
         public final String courseCode;
         public final String courseName;
         public final double credits;
+        public final String department;
+        public final String programme;
         public final String instructorName;
 
-        public CourseData(String courseCode, String courseName, double credits, String instructorName) {
+        public CourseData(String courseCode, String courseName, double credits, String department, String programme, String instructorName) {
             this.courseCode = courseCode;
             this.courseName = courseName;
             this.credits = credits;
+            this.department = department;
+            this.programme = programme;
             this.instructorName = instructorName;
         }
     }
@@ -860,3 +927,4 @@ public class DatabaseService {
         }
     }
 }
+

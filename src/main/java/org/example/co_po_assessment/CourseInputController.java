@@ -19,6 +19,10 @@ public class CourseInputController implements Initializable {
     @FXML
     TextField creditsTextField;
     @FXML
+    TextField departmentTextField;
+    @FXML
+    TextField programmeTextField;
+    @FXML
     Button confirmButton;
     @FXML
     Button backButton;
@@ -48,11 +52,13 @@ public class CourseInputController implements Initializable {
         String courseCode = courseCodeTextField.getText().trim().toUpperCase();
         String courseName = courseNameTextField.getText().trim();
         double credits = Double.parseDouble(creditsTextField.getText().trim());
+        String department = departmentTextField.getText().trim().toUpperCase();
+        String programme = programmeTextField.getText().trim().toUpperCase();
 
         try {
             // Call parent controller to add the course
             if (parentController != null) {
-                parentController.addNewCourse(courseCode, courseName, credits);
+                parentController.addNewCourse(courseCode, courseName, credits, department, programme);
             }
 
             // Close the current window
@@ -81,7 +87,7 @@ public class CourseInputController implements Initializable {
         if (courseCode.isEmpty()) {
             errors.append("Course code is required.\n");
         } else if (!isValidCourseCode(courseCode)) {
-            errors.append("Course code must be alphanumeric (e.g., CSE101, MAT201).\n");
+            errors.append("Course code must be alphanumeric (3-8 chars).\n");
         }
 
         // Validate course name
@@ -105,6 +111,22 @@ public class CourseInputController implements Initializable {
             } catch (NumberFormatException e) {
                 errors.append("Credits must be a valid number.\n");
             }
+        }
+
+        // Validate department
+        String department = departmentTextField.getText().trim();
+        if (department.isEmpty()) {
+            errors.append("Department is required.\n");
+        } else if (!department.matches("[A-Za-z]{2,3}")) {
+            errors.append("Department must be 2-3 letters.\n");
+        }
+
+        // Validate programme
+        String programme = programmeTextField.getText().trim();
+        if (programme.isEmpty()) {
+            errors.append("Programme is required.\n");
+        } else if (programme.length() > 11) {
+            errors.append("Programme max length is 11.\n");
         }
 
         // Check if course code already exists

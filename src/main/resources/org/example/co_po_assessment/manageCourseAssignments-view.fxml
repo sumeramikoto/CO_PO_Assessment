@@ -4,21 +4,37 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.ManageCourseAssignmentsController">
-    <children>
-        <TableView fx:id="courseTableView" layoutX="-1.0" layoutY="70.0">
-            <columns>
-                <TableColumn fx:id="courseCodeColumn" prefWidth="117.0" text="Course Code" />
-                <TableColumn fx:id="courseNameColumn" prefWidth="329.0" text="Course Name" />
-                <TableColumn fx:id="facultyColumn" prefWidth="168.0" text="Faculty" />
-                <TableColumn fx:id="academicYearColumn" prefWidth="120.0" text="Academic Year" />
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.co_po_assessment.ManageCourseAssignmentsController">
+
+    <TableView fx:id="courseTableView" AnchorPane.topAnchor="70.0" AnchorPane.leftAnchor="0.0"
+               AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="60.0">
+        <columns>
+            <TableColumn fx:id="courseCodeColumn" prefWidth="117.0" text="Course Code" />
+            <TableColumn fx:id="courseNameColumn" prefWidth="329.0" text="Course Name" />
+            <TableColumn fx:id="facultyColumn" prefWidth="168.0" text="Faculty" />
+            <TableColumn fx:id="academicYearColumn" prefWidth="120.0" text="Academic Year" />
             <TableColumn fx:id="departmentColumn" prefWidth="99.0" text="Department" />
             <TableColumn fx:id="programmeColumn" prefWidth="174.0" text="Programme" />
-            </columns>
-        </TableView>
-        <Button fx:id="removeCourseButton" layoutX="447.0" layoutY="480.0" mnemonicParsing="false" onAction="#onRemoveCourseButton" text="Remove Course" />
-        <Button fx:id="assignCourseButton" layoutX="223.0" layoutY="480.0" mnemonicParsing="false" onAction="#onAssignCourseButton" text="Assign Course" />
-        <Button fx:id="backButton" layoutX="676.0" layoutY="480.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
-    </children>
+        </columns>
+    </TableView>
+
+    <HBox spacing="20.0" alignment="CENTER" AnchorPane.bottomAnchor="10.0"
+          AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+        <padding>
+            <Insets top="10.0" bottom="10.0"/>
+        </padding>
+        <Button fx:id="assignCourseButton" mnemonicParsing="false"
+                onAction="#onAssignCourseButton" text="Assign Course"
+                prefWidth="120.0" />
+        <Button fx:id="removeCourseButton" mnemonicParsing="false"
+                onAction="#onRemoveCourseButton" text="Remove Course"
+                prefWidth="120.0" />
+        <Button fx:id="backButton" mnemonicParsing="false"
+                onAction="#onBackButton" text="Go Back"
+                prefWidth="120.0" />
+    </HBox>
 </AnchorPane>

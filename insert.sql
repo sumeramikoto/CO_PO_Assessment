@@ -1,9 +1,9 @@
 INSERT INTO Faculty (id, shortname, full_name, email, password) VALUES
-(1001, 'Dr. Rahman', 'Dr. Mohammad Rahman', 'rahman@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
-(1002, 'Dr. Ahmed', 'Dr. Fatima Ahmed', 'ahmed@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
-(1003, 'Dr. Hassan', 'Dr. Ali Hassan', 'hassan@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
-(1004, 'Dr. Khan', 'Dr. Shariar Khan', 'khan@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK'),
-(1005, 'Dr. Islam', 'Dr. Nazmul Islam', 'islam@iut-dhaka.edu', '$2a$12$KIXIDZBSuQ/ZFhQJ0sSVOOEHnbc1Uhbne6rY4ZC/9BV5G7S5sY.yK');
+(1001, 'Dr. Rahman', 'Dr. Mohammad Rahman', 'rahman@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
+(1002, 'Dr. Ahmed', 'Dr. Fatima Ahmed', 'ahmed@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
+(1003, 'Dr. Hassan', 'Dr. Ali Hassan', 'hassan@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
+(1004, 'Dr. Khan', 'Dr. Shariar Khan', 'khan@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
+(1005, 'Dr. Islam', 'Dr. Nazmul Islam', 'islam@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=');
 
 -- Insert sample course data
 -- Updated to include department and programme columns
@@ -28,7 +28,7 @@ INSERT INTO CO (co_number) VALUES ('CO1'), ('CO2'), ('CO3'), ('CO4'), ('CO5'), (
 INSERT INTO PO (po_number) VALUES ('PO1'), ('PO2'), ('PO3'), ('PO4'), ('PO5'), ('PO6'), ('PO7'), ('PO8'), ('PO9'), ('PO10'), ('PO11'), ('PO12');
 
 -- Insert admin data (hashed password for 'admin123')
-INSERT INTO Admin (email, password) VALUES ('admin@iut-dhaka.edu', '$2a$12$7QJ5hV/pY5Pja/qWhDMAYA9Yg3.aFyv1I3VzBkYOPxfN3E3xaQa36');
+INSERT INTO Admin (email, password) VALUES ('admin@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=');
 
 -- =============================================
 -- Student master data (must exist before Enrollment)

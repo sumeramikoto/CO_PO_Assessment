@@ -126,12 +126,16 @@ public class AssessmentSystem extends Application {
             if (authenticated) {
                 messageLabel.setText("Login successful!");
                 messageLabel.setTextFill(Color.GREEN);
-                
-                // Launch appropriate dashboard based on user type
+
                 if (isAdmin) {
                     launchAdminDashboard();
                 } else {
-                    // Launch faculty dashboard
+                    try {
+                        DatabaseService.FacultyInfo info = dbService.getFacultyInfo(email);
+                        UserSession.setCurrentFaculty(info); // may be null if not found
+                    } catch (Exception ex) {
+                        // swallow; continue
+                    }
                     launchFacultyDashboard();
                 }
             } else {

@@ -1,4 +1,5 @@
 package org.example.co_po_assessment;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -134,7 +135,7 @@ public class DatabaseService {
     // Retrieve questions
     public List<QuestionData> getQuizQuestions(String courseId, int quizNumber) throws SQLException {
         String sql = """
-            SELECT qq.title, qq.marks, c.co_number, p.po_number 
+            SELECT qq.id, qq.title, qq.marks, c.co_number, p.po_number 
             FROM QuizQuestion qq
             JOIN Quiz q ON qq.quiz_id = q.id
             JOIN CO c ON qq.co_id = c.id
@@ -152,6 +153,7 @@ public class DatabaseService {
 
             while (rs.next()) {
                 questions.add(new QuestionData(
+                        rs.getInt("id"),
                         rs.getString("title"),
                         rs.getDouble("marks"),
                         rs.getString("co_number"),
@@ -164,7 +166,7 @@ public class DatabaseService {
 
     public List<QuestionData> getMidQuestions(String courseId) throws SQLException {
         String sql = """
-            SELECT mq.title, mq.marks, c.co_number, p.po_number 
+            SELECT mq.id, mq.title, mq.marks, c.co_number, p.po_number 
             FROM MidQuestion mq
             JOIN Mid m ON mq.mid_id = m.id
             JOIN CO c ON mq.co_id = c.id
@@ -181,6 +183,7 @@ public class DatabaseService {
 
             while (rs.next()) {
                 questions.add(new QuestionData(
+                        rs.getInt("id"),
                         rs.getString("title"),
                         rs.getDouble("marks"),
                         rs.getString("co_number"),
@@ -193,7 +196,7 @@ public class DatabaseService {
 
     public List<QuestionData> getFinalQuestions(String courseId) throws SQLException {
         String sql = """
-            SELECT fq.title, fq.marks, c.co_number, p.po_number 
+            SELECT fq.id, fq.title, fq.marks, c.co_number, p.po_number 
             FROM FinalQuestion fq
             JOIN Final f ON fq.final_id = f.id
             JOIN CO c ON fq.co_id = c.id
@@ -210,6 +213,7 @@ public class DatabaseService {
 
             while (rs.next()) {
                 questions.add(new QuestionData(
+                        rs.getInt("id"),
                         rs.getString("title"),
                         rs.getDouble("marks"),
                         rs.getString("co_number"),
@@ -832,14 +836,66 @@ public class DatabaseService {
         return null;
     }
 
+    // Helper methods to fetch question IDs after insertion (when adding through UI)
+    public Integer getQuizQuestionId(String courseId, int quizNumber, String title) throws SQLException {
+        String sql = """
+            SELECT qq.id FROM QuizQuestion qq
+            JOIN Quiz q ON qq.quiz_id = q.id
+            WHERE q.course_id = ? AND q.quiz_number = ? AND qq.title = ?
+            """;
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseId);
+            stmt.setInt(2, quizNumber);
+            stmt.setString(3, title);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        }
+        return null;
+    }
+
+    public Integer getMidQuestionId(String courseId, String title) throws SQLException {
+        String sql = """
+            SELECT mq.id FROM MidQuestion mq
+            JOIN Mid m ON mq.mid_id = m.id
+            WHERE m.course_id = ? AND mq.title = ?
+            """;
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseId);
+            stmt.setString(2, title);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        }
+        return null;
+    }
+
+    public Integer getFinalQuestionId(String courseId, String title) throws SQLException {
+        String sql = """
+            SELECT fq.id FROM FinalQuestion fq
+            JOIN Final f ON fq.final_id = f.id
+            WHERE f.course_id = ? AND fq.title = ?
+            """;
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseId);
+            stmt.setString(2, title);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        }
+        return null;
+    }
+
     // Data classes
     public static class QuestionData {
+        public final int id;
         public final String title;
         public final double marks;
         public final String co;
         public final String po;
 
-        public QuestionData(String title, double marks, String co, String po) {
+        public QuestionData(int id, String title, double marks, String co, String po) {
+            this.id = id;
             this.title = title;
             this.marks = marks;
             this.co = co;
@@ -926,5 +982,70 @@ public class DatabaseService {
             this.poNumber = poNumber;
         }
     }
-}
 
+    public static class FacultyInfo {
+        public final int id;
+        public final String shortname;
+        public final String fullName;
+        public final String email;
+        FacultyInfo(int id, String shortname, String fullName, String email) {
+            this.id = id;
+            this.shortname = shortname;
+            this.fullName = fullName;
+            this.email = email;
+        }
+        public int getId(){return id;} public String getShortname(){return shortname;} public String getFullName(){return fullName;} public String getEmail(){return email;}
+    }
+    public static class FacultyCourseAssignment {
+        public final String courseCode;
+        public final String courseName;
+        public final String academicYear;
+        public final String department;
+        public final String programme;
+        FacultyCourseAssignment(String courseCode, String courseName, String academicYear, String department, String programme) {
+            this.courseCode = courseCode;
+            this.courseName = courseName;
+            this.academicYear = academicYear;
+            this.department = department;
+            this.programme = programme;
+        }
+        public String getCourseCode(){return courseCode;} public String getCourseName(){return courseName;} public String getAcademicYear(){return academicYear;} public String getDepartment(){return department;} public String getProgramme(){return programme;}
+    }
+    public FacultyInfo getFacultyInfo(String email) throws SQLException {
+        String sql = "SELECT id, shortname, full_name, email FROM Faculty WHERE email = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new FacultyInfo(rs.getInt("id"), rs.getString("shortname"), rs.getString("full_name"), rs.getString("email"));
+                }
+            }
+        }
+        return null;
+    }
+    public List<FacultyCourseAssignment> getAssignmentsForFaculty(int facultyId) throws SQLException {
+        String sql = """
+            SELECT ca.course_code, c.course_name, ca.academic_year, ca.department, ca.programme
+            FROM CourseAssignment ca
+            JOIN Course c ON ca.course_code = c.course_code
+            WHERE ca.faculty_id = ?
+            ORDER BY ca.academic_year DESC, ca.course_code
+            """;
+        List<FacultyCourseAssignment> list = new ArrayList<>();
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, facultyId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new FacultyCourseAssignment(
+                        rs.getString("course_code"),
+                        rs.getString("course_name"),
+                        rs.getString("academic_year"),
+                        rs.getString("department"),
+                        rs.getString("programme")
+                    ));
+                }
+            }
+        }
+        return list;
+    }
+}

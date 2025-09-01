@@ -224,9 +224,48 @@ public class Manual extends Application {
     }
 
     private void saveData() {
-        // Implement data saving logic
-        // Could save to file or database
-        System.out.println("Data saved (implementation needed)");
+        if (selectedCourseData == null) {
+            new Alert(Alert.AlertType.WARNING, "Select a course before saving marks.").show();
+            return;
+        }
+        // Build lookup of (assessmentType, questionNumber) -> questionId
+        Map<String, Integer> questionIdMap = new HashMap<>();
+        for (AssessmentQuestion q : quizQuestions) {
+            if (q.getId() != null) {
+                questionIdMap.put(q.getAssessmentType() + "::" + q.getNumber(), q.getId());
+            }
+        }
+        for (AssessmentQuestion q : examQuestions) {
+            if (q.getId() != null) {
+                questionIdMap.put(q.getAssessmentType() + "::" + q.getNumber(), q.getId());
+            }
+        }
+        int saved = 0;
+        try {
+            for (Map.Entry<String, ObservableList<StudentMark>> entry : marksData.entrySet()) {
+                String assessmentType = entry.getKey();
+                for (StudentMark sm : entry.getValue()) {
+                    for (Map.Entry<String, Double> qm : sm.getQuestionMarks().entrySet()) {
+                        String key = assessmentType + "::" + qm.getKey();
+                        Integer qid = questionIdMap.get(key);
+                        if (qid == null) continue; // question not persisted yet
+                        double val = qm.getValue();
+                        if (assessmentType.startsWith("Quiz")) {
+                            dbService.saveStudentQuizMarks(sm.getStudentId(), qid, val);
+                        } else if (assessmentType.equals("Mid")) {
+                            dbService.saveStudentMidMarks(sm.getStudentId(), qid, val);
+                        } else if (assessmentType.equals("Final")) {
+                            dbService.saveStudentFinalMarks(sm.getStudentId(), qid, val);
+                        }
+                        saved++;
+                    }
+                }
+            }
+            new Alert(Alert.AlertType.INFORMATION, "Marks saved (" + saved + " entries)").show();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed saving marks: " + ex.getMessage()).show();
+        }
     }
 
     private void showCourseEditDialog() {
@@ -421,11 +460,12 @@ public class Manual extends Application {
                 ));
             }
             
-            // Load quiz questions
+            // Load quiz questions (now including DB id)
             for (int quizNum = 1; quizNum <= 4; quizNum++) {
                 List<DatabaseService.QuestionData> quizQs = dbService.getQuizQuestions(selectedCourseData.courseCode, quizNum);
                 for (DatabaseService.QuestionData questionData : quizQs) {
                     quizQuestions.add(new AssessmentQuestion(
+                        questionData.id,
                         questionData.title,
                         questionData.marks,
                         questionData.co,
@@ -439,6 +479,7 @@ public class Manual extends Application {
             List<DatabaseService.QuestionData> midQs = dbService.getMidQuestions(selectedCourseData.courseCode);
             for (DatabaseService.QuestionData questionData : midQs) {
                 examQuestions.add(new AssessmentQuestion(
+                    questionData.id,
                     questionData.title,
                     questionData.marks,
                     questionData.co,
@@ -451,6 +492,7 @@ public class Manual extends Application {
             List<DatabaseService.QuestionData> finalQs = dbService.getFinalQuestions(selectedCourseData.courseCode);
             for (DatabaseService.QuestionData questionData : finalQs) {
                 examQuestions.add(new AssessmentQuestion(
+                    questionData.id,
                     questionData.title,
                     questionData.marks,
                     questionData.co,
@@ -461,11 +503,59 @@ public class Manual extends Application {
             
             // Refresh marks data and UI
             initializeMarksData();
+            populateExistingMarks();
             refreshMarksEntryTab();
             if (studentTable != null) studentTable.refresh();
 
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Error loading course data: " + e.getMessage()).show();
+        }
+    }
+
+    private void populateExistingMarks() {
+        if (selectedCourseData == null) return;
+        try {
+            // Quizzes 1-4
+            for (int quizNum = 1; quizNum <= 4; quizNum++) {
+                String assessmentKey = "Quiz" + quizNum;
+                if (!marksData.containsKey(assessmentKey)) continue;
+                List<DatabaseService.StudentMarksData> marks = dbService.getStudentQuizMarks(selectedCourseData.courseCode, quizNum);
+                for (DatabaseService.StudentMarksData md : marks) {
+                    StudentMark sm = marksData.get(assessmentKey).stream()
+                            .filter(s -> s.getStudentId().equals(md.studentId))
+                            .findFirst().orElse(null);
+                    if (sm != null && md.marksObtained > 0) {
+                        sm.addQuestionMark(md.questionTitle, md.marksObtained);
+                    }
+                }
+            }
+            // Mid
+            if (marksData.containsKey("Mid")) {
+                List<DatabaseService.StudentMarksData> midMarks = dbService.getStudentMidMarks(selectedCourseData.courseCode);
+                for (DatabaseService.StudentMarksData md : midMarks) {
+                    StudentMark sm = marksData.get("Mid").stream()
+                            .filter(s -> s.getStudentId().equals(md.studentId))
+                            .findFirst().orElse(null);
+                    if (sm != null && md.marksObtained > 0) {
+                        sm.addQuestionMark(md.questionTitle, md.marksObtained);
+                    }
+                }
+            }
+            // Final
+            if (marksData.containsKey("Final")) {
+                List<DatabaseService.StudentMarksData> finalMarks = dbService.getStudentFinalMarks(selectedCourseData.courseCode);
+                for (DatabaseService.StudentMarksData md : finalMarks) {
+                    StudentMark sm = marksData.get("Final").stream()
+                            .filter(s -> s.getStudentId().equals(md.studentId))
+                            .findFirst().orElse(null);
+                    if (sm != null && md.marksObtained > 0) {
+                        sm.addQuestionMark(md.questionTitle, md.marksObtained);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed loading existing marks: " + ex.getMessage()).show();
         }
     }
 
@@ -830,10 +920,16 @@ public class Manual extends Application {
                     if (at.startsWith("Quiz")) {
                         int quizNum = Integer.parseInt(at.replaceAll("[^0-9]", ""));
                         dbService.saveQuizQuestion(selectedCourseData.courseCode, quizNum, question.getNumber(), question.getMarks(), question.getCo(), question.getPo());
+                        Integer qid = dbService.getQuizQuestionId(selectedCourseData.courseCode, quizNum, question.getNumber());
+                        question.setId(qid);
                     } else if (at.equals("Mid")) {
                         dbService.saveMidQuestion(selectedCourseData.courseCode, question.getNumber(), question.getMarks(), question.getCo(), question.getPo());
+                        Integer qid = dbService.getMidQuestionId(selectedCourseData.courseCode, question.getNumber());
+                        question.setId(qid);
                     } else if (at.equals("Final")) {
                         dbService.saveFinalQuestion(selectedCourseData.courseCode, question.getNumber(), question.getMarks(), question.getCo(), question.getPo());
+                        Integer qid = dbService.getFinalQuestionId(selectedCourseData.courseCode, question.getNumber());
+                        question.setId(qid);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -891,6 +987,22 @@ public class Manual extends Application {
                 Double newValue = event.getNewValue();
                 if (newValue != null) {
                     studentMark.addQuestionMark(question.getNumber(), newValue);
+                    // Persist immediately if possible
+                    if (selectedCourseData != null && question.getId() != null) {
+                        try {
+                            String atype = question.getAssessmentType();
+                            if (atype.startsWith("Quiz")) {
+                                dbService.saveStudentQuizMarks(studentMark.getStudentId(), question.getId(), newValue);
+                            } else if (atype.equals("Mid")) {
+                                dbService.saveStudentMidMarks(studentMark.getStudentId(), question.getId(), newValue);
+                            } else if (atype.equals("Final")) {
+                                dbService.saveStudentFinalMarks(studentMark.getStudentId(), question.getId(), newValue);
+                            }
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                            new Alert(Alert.AlertType.ERROR, "Failed to save mark: " + ex.getMessage()).show();
+                        }
+                    }
                 }
             });
 

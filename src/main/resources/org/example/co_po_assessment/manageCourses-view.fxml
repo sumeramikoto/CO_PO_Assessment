@@ -4,19 +4,34 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
 
+<AnchorPane prefHeight="540.0" prefWidth="772.0" xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.ManageCoursesController">
 
-<AnchorPane prefHeight="540.0" prefWidth="772.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.ManageCoursesController">
-   <children>
-      <TableView fx:id="courseTableView" layoutX="-2.0" layoutY="82.0" prefHeight="383.0" prefWidth="778.0">
+    <TableView fx:id="courseTableView" AnchorPane.topAnchor="82.0" AnchorPane.leftAnchor="0.0"
+               AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="60.0">
         <columns>
-          <TableColumn fx:id="courseCodeColumn" prefWidth="193.0" text="Course Code" />
-          <TableColumn fx:id="courseNameColumn" prefWidth="440.0" text="Course Name" />
+            <TableColumn fx:id="courseCodeColumn" prefWidth="193.0" text="Course Code" />
+            <TableColumn fx:id="courseNameColumn" prefWidth="440.0" text="Course Name" />
             <TableColumn fx:id="creditsColumn" prefWidth="144.0" text="Credits" />
         </columns>
-      </TableView>
-      <Button fx:id="removeCourseButton" layoutX="318.0" layoutY="490.0" mnemonicParsing="false" onAction="#onRemoveCourseButton" prefHeight="36.0" prefWidth="142.0" text="Remove Course" />
-      <Button fx:id="addCourseButton" layoutX="161.0" layoutY="490.0" mnemonicParsing="false" onAction="#onAddCourseButton" prefHeight="36.0" prefWidth="96.0" text="Add Course" />
-      <Button fx:id="backButton" layoutX="533.0" layoutY="490.0" mnemonicParsing="false" onAction="#onBackButton" prefHeight="36.0" prefWidth="96.0" text="Go Back" />
-   </children>
+    </TableView>
+
+    <HBox spacing="20.0" alignment="CENTER" AnchorPane.bottomAnchor="10.0"
+          AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+        <padding>
+            <Insets top="10.0" bottom="10.0"/>
+        </padding>
+        <Button fx:id="addCourseButton" mnemonicParsing="false"
+                onAction="#onAddCourseButton" text="Add Course"
+                prefWidth="120.0" prefHeight="36.0" />
+        <Button fx:id="removeCourseButton" mnemonicParsing="false"
+                onAction="#onRemoveCourseButton" text="Remove Course"
+                prefWidth="120.0" prefHeight="36.0" />
+        <Button fx:id="backButton" mnemonicParsing="false"
+                onAction="#onBackButton" text="Go Back"
+                prefWidth="120.0" prefHeight="36.0" />
+    </HBox>
 </AnchorPane>

@@ -9,6 +9,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import javafx.application.Platform; // added
 
 import java.io.IOException;
 import java.net.URL;
@@ -106,18 +107,21 @@ public class AdminDashboardController implements Initializable {
     }
 
     public void onLogoutButton(ActionEvent event) {
+        // Close current dashboard and relaunch the AssessmentSystem (login) window
         try {
-            // Navigate back to login/main screen
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-
-            // Get current stage and replace scene
             Stage currentStage = (Stage) logoutButton.getScene().getWindow();
-            currentStage.setTitle("CO/PO Assessment System");
-            currentStage.setScene(scene);
+            currentStage.close();
 
-        } catch (IOException e) {
-            showErrorAlert("Logout Error", "Failed to return to login screen: " + e.getMessage());
+            // Launch login screen on FX thread
+            Platform.runLater(() -> {
+                try {
+                    new AssessmentSystem().start(new Stage());
+                } catch (Exception ex) {
+                    showErrorAlert("Logout Error", "Failed to return to login screen: " + ex.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            showErrorAlert("Logout Error", "Unexpected error during logout: " + e.getMessage());
         }
     }
 

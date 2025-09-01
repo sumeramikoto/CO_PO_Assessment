@@ -134,7 +134,7 @@ public class DatabaseService {
     // Retrieve questions
     public List<QuestionData> getQuizQuestions(String courseId, int quizNumber) throws SQLException {
         String sql = """
-            SELECT qq.title, qq.marks, c.co_number, p.po_number 
+            SELECT qq.id, qq.title, qq.marks, c.co_number, p.po_number 
             FROM QuizQuestion qq
             JOIN Quiz q ON qq.quiz_id = q.id
             JOIN CO c ON qq.co_id = c.id
@@ -152,6 +152,7 @@ public class DatabaseService {
 
             while (rs.next()) {
                 questions.add(new QuestionData(
+                        rs.getInt("id"),
                         rs.getString("title"),
                         rs.getDouble("marks"),
                         rs.getString("co_number"),
@@ -164,7 +165,7 @@ public class DatabaseService {
 
     public List<QuestionData> getMidQuestions(String courseId) throws SQLException {
         String sql = """
-            SELECT mq.title, mq.marks, c.co_number, p.po_number 
+            SELECT mq.id, mq.title, mq.marks, c.co_number, p.po_number 
             FROM MidQuestion mq
             JOIN Mid m ON mq.mid_id = m.id
             JOIN CO c ON mq.co_id = c.id
@@ -181,6 +182,7 @@ public class DatabaseService {
 
             while (rs.next()) {
                 questions.add(new QuestionData(
+                        rs.getInt("id"),
                         rs.getString("title"),
                         rs.getDouble("marks"),
                         rs.getString("co_number"),
@@ -193,7 +195,7 @@ public class DatabaseService {
 
     public List<QuestionData> getFinalQuestions(String courseId) throws SQLException {
         String sql = """
-            SELECT fq.title, fq.marks, c.co_number, p.po_number 
+            SELECT fq.id, fq.title, fq.marks, c.co_number, p.po_number 
             FROM FinalQuestion fq
             JOIN Final f ON fq.final_id = f.id
             JOIN CO c ON fq.co_id = c.id
@@ -210,6 +212,7 @@ public class DatabaseService {
 
             while (rs.next()) {
                 questions.add(new QuestionData(
+                        rs.getInt("id"),
                         rs.getString("title"),
                         rs.getDouble("marks"),
                         rs.getString("co_number"),
@@ -832,14 +835,66 @@ public class DatabaseService {
         return null;
     }
 
+    // Helper methods to fetch question IDs after insertion (when adding through UI)
+    public Integer getQuizQuestionId(String courseId, int quizNumber, String title) throws SQLException {
+        String sql = """
+            SELECT qq.id FROM QuizQuestion qq
+            JOIN Quiz q ON qq.quiz_id = q.id
+            WHERE q.course_id = ? AND q.quiz_number = ? AND qq.title = ?
+            """;
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseId);
+            stmt.setInt(2, quizNumber);
+            stmt.setString(3, title);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        }
+        return null;
+    }
+
+    public Integer getMidQuestionId(String courseId, String title) throws SQLException {
+        String sql = """
+            SELECT mq.id FROM MidQuestion mq
+            JOIN Mid m ON mq.mid_id = m.id
+            WHERE m.course_id = ? AND mq.title = ?
+            """;
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseId);
+            stmt.setString(2, title);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        }
+        return null;
+    }
+
+    public Integer getFinalQuestionId(String courseId, String title) throws SQLException {
+        String sql = """
+            SELECT fq.id FROM FinalQuestion fq
+            JOIN Final f ON fq.final_id = f.id
+            WHERE f.course_id = ? AND fq.title = ?
+            """;
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseId);
+            stmt.setString(2, title);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        }
+        return null;
+    }
+
     // Data classes
     public static class QuestionData {
+        public final int id;
         public final String title;
         public final double marks;
         public final String co;
         public final String po;
 
-        public QuestionData(String title, double marks, String co, String po) {
+        public QuestionData(int id, String title, double marks, String co, String po) {
+            this.id = id;
             this.title = title;
             this.marks = marks;
             this.co = co;

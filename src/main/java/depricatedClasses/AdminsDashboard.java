@@ -19,7 +19,7 @@ import org.example.co_po_assessment.Course;
 public class AdminsDashboard extends Application {
     private List<Course> courses = new ArrayList<>();
     private VBox centerContent;
-    
+    //sinha is a bad guy
     @Override
     public void start(Stage primaryStage) {
         BorderPane root = new BorderPane();

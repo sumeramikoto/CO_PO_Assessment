@@ -6,8 +6,8 @@ import java.util.List;
 
 public class DatabaseService {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "sinhawiz123";
+    private static final String DB_USER = "okimi";
+    private static final String DB_PASSWORD = "ged_DAN[007]";
 
     private static DatabaseService instance;
 
@@ -1047,5 +1047,128 @@ public class DatabaseService {
             }
         }
         return list;
+    }
+
+    public List<StudentMarks> getQuizMarks(String courseId, int quizNumber) throws SQLException {
+        List<StudentMarks> marks = new ArrayList<>();
+        String sql = """
+            SELECT s.id, COALESCE(SUM(sqm.marks_obtained), 0) as total_marks
+            FROM Student s
+            JOIN Enrollment e ON s.id = e.student_id
+            JOIN Course c ON e.course_id = c.course_code
+            JOIN Quiz q ON c.course_code = q.course_id
+            JOIN QuizQuestion qq ON q.id = qq.quiz_id
+            LEFT JOIN StudentQuizMarks sqm ON s.id = sqm.student_id AND qq.id = sqm.quiz_question_id
+            WHERE c.course_code = ? AND q.quiz_number = ?
+            GROUP BY s.id
+            """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseId);
+            stmt.setInt(2, quizNumber);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    marks.add(new StudentMarks(rs.getString("id"), rs.getDouble("total_marks")));
+                }
+            }
+        }
+        return marks;
+    }
+
+    public List<StudentMarks> getMidMarks(String courseId) throws SQLException {
+        List<StudentMarks> marks = new ArrayList<>();
+        String sql = """
+            SELECT s.id, COALESCE(SUM(smm.marks_obtained), 0) as total_marks
+            FROM Student s
+            JOIN Enrollment e ON s.id = e.student_id
+            JOIN Course c ON e.course_id = c.course_code
+            JOIN Mid m ON c.course_code = m.course_id
+            JOIN MidQuestion mq ON m.id = mq.mid_id
+            LEFT JOIN StudentMidMarks smm ON s.id = smm.student_id AND mq.id = smm.mid_question_id
+            WHERE c.course_code = ?
+            GROUP BY s.id
+            """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    marks.add(new StudentMarks(rs.getString("id"), rs.getDouble("total_marks")));
+                }
+            }
+        }
+        return marks;
+    }
+
+    public List<StudentMarks> getFinalMarks(String courseId) throws SQLException {
+        List<StudentMarks> marks = new ArrayList<>();
+        String sql = """
+            SELECT s.id, COALESCE(SUM(sfm.marks_obtained), 0) as total_marks
+            FROM Student s
+            JOIN Enrollment e ON s.id = e.student_id
+            JOIN Course c ON e.course_id = c.course_code
+            JOIN Final f ON c.course_code = f.course_id
+            JOIN FinalQuestion fq ON f.id = fq.final_id
+            LEFT JOIN StudentFinalMarks sfm ON s.id = sfm.student_id AND fq.id = sfm.final_question_id
+            WHERE c.course_code = ?
+            GROUP BY s.id
+            """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, courseId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    marks.add(new StudentMarks(rs.getString("id"), rs.getDouble("total_marks")));
+                }
+            }
+        }
+        return marks;
+    }
+
+    public void updateStudentMarks(String studentId, String courseId, String examType, int examNumber, double marks) throws SQLException {
+        String sql = switch (examType.toLowerCase()) {
+            case "quiz" -> """
+                UPDATE StudentQuizMarks
+                SET marks_obtained = ?
+                WHERE student_id = ? AND quiz_question_id IN (
+                    SELECT qq.id
+                    FROM QuizQuestion qq
+                    JOIN Quiz q ON qq.quiz_id = q.id
+                    WHERE q.course_id = ? AND q.quiz_number = ?
+                )""";
+            case "mid" -> """
+                UPDATE StudentMidMarks
+                SET marks_obtained = ?
+                WHERE student_id = ? AND mid_question_id IN (
+                    SELECT mq.id
+                    FROM MidQuestion mq
+                    JOIN Mid m ON mq.mid_id = m.id
+                    WHERE m.course_id = ?
+                )""";
+            case "final" -> """
+                UPDATE StudentFinalMarks
+                SET marks_obtained = ?
+                WHERE student_id = ? AND final_question_id IN (
+                    SELECT fq.id
+                    FROM FinalQuestion fq
+                    JOIN Final f ON fq.final_id = f.id
+                    WHERE f.course_id = ?
+                )""";
+            default -> throw new IllegalArgumentException("Invalid exam type: " + examType);
+        };
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setDouble(1, marks);
+            stmt.setString(2, studentId);
+            stmt.setString(3, courseId);
+            if (examType.equalsIgnoreCase("quiz")) {
+                stmt.setInt(4, examNumber);
+            }
+            stmt.executeUpdate();
+        }
     }
 }

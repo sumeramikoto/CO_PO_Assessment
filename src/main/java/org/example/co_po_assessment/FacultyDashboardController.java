@@ -101,8 +101,30 @@ public class FacultyDashboardController {
     }
 
     public void onMarksButton(ActionEvent actionEvent) {
-        // opens a window that'll show the students marks for the selected course and each respective exam
-        // also grade marks etc.
+        DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("detailedMarks-view.fxml"));
+            Parent root = loader.load();
+            DetailedMarksController controller = loader.getController();
+            controller.setCourseId(selected.getCourseCode());
+
+            Stage stage = new Stage();
+            stage.setTitle("Student Marks - " + selected.getCourseCode());
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open Marks window: " + e.getMessage(), ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
+        }
     }
 
     public void onReportButton(ActionEvent actionEvent) {

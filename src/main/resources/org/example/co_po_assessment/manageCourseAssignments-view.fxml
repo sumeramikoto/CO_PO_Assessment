@@ -37,4 +37,5 @@
                 onAction="#onBackButton" text="Go Back"
                 prefWidth="120.0" />
     </HBox>
+
 </AnchorPane>

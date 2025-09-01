@@ -4,6 +4,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
+import javafx.application.Platform;
 
 public class FacultyDashboardController {
     @FXML
@@ -16,7 +18,20 @@ public class FacultyDashboardController {
     // in the assigned courses table that you'll see in the faculty dashboard
 
     public void onLogoutButton(ActionEvent actionEvent) {
-        // takes you back to login page (AssessmentSystem)
+        try {
+            Stage currentStage = (Stage) logoutButton.getScene().getWindow();
+            currentStage.close();
+            Platform.runLater(() -> {
+                try {
+                    new AssessmentSystem().start(new Stage());
+                } catch (Exception e) {
+                    // simple fallback: print stack trace until alert system added here
+                    e.printStackTrace();
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void onQuestionsButton(ActionEvent actionEvent) {

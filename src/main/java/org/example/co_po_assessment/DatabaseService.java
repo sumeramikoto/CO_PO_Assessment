@@ -1,4 +1,5 @@
 package org.example.co_po_assessment;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -981,5 +982,70 @@ public class DatabaseService {
             this.poNumber = poNumber;
         }
     }
-}
 
+    public static class FacultyInfo {
+        public final int id;
+        public final String shortname;
+        public final String fullName;
+        public final String email;
+        FacultyInfo(int id, String shortname, String fullName, String email) {
+            this.id = id;
+            this.shortname = shortname;
+            this.fullName = fullName;
+            this.email = email;
+        }
+        public int getId(){return id;} public String getShortname(){return shortname;} public String getFullName(){return fullName;} public String getEmail(){return email;}
+    }
+    public static class FacultyCourseAssignment {
+        public final String courseCode;
+        public final String courseName;
+        public final String academicYear;
+        public final String department;
+        public final String programme;
+        FacultyCourseAssignment(String courseCode, String courseName, String academicYear, String department, String programme) {
+            this.courseCode = courseCode;
+            this.courseName = courseName;
+            this.academicYear = academicYear;
+            this.department = department;
+            this.programme = programme;
+        }
+        public String getCourseCode(){return courseCode;} public String getCourseName(){return courseName;} public String getAcademicYear(){return academicYear;} public String getDepartment(){return department;} public String getProgramme(){return programme;}
+    }
+    public FacultyInfo getFacultyInfo(String email) throws SQLException {
+        String sql = "SELECT id, shortname, full_name, email FROM Faculty WHERE email = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new FacultyInfo(rs.getInt("id"), rs.getString("shortname"), rs.getString("full_name"), rs.getString("email"));
+                }
+            }
+        }
+        return null;
+    }
+    public List<FacultyCourseAssignment> getAssignmentsForFaculty(int facultyId) throws SQLException {
+        String sql = """
+            SELECT ca.course_code, c.course_name, ca.academic_year, ca.department, ca.programme
+            FROM CourseAssignment ca
+            JOIN Course c ON ca.course_code = c.course_code
+            WHERE ca.faculty_id = ?
+            ORDER BY ca.academic_year DESC, ca.course_code
+            """;
+        List<FacultyCourseAssignment> list = new ArrayList<>();
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, facultyId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new FacultyCourseAssignment(
+                        rs.getString("course_code"),
+                        rs.getString("course_name"),
+                        rs.getString("academic_year"),
+                        rs.getString("department"),
+                        rs.getString("programme")
+                    ));
+                }
+            }
+        }
+        return list;
+    }
+}

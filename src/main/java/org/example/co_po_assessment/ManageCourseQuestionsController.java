@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.List;
 
 public class ManageCourseQuestionsController implements Initializable {
     // Quiz 1
@@ -64,10 +65,20 @@ public class ManageCourseQuestionsController implements Initializable {
     private ObservableList<AssessmentQuestion> midQuestions = FXCollections.observableArrayList();
     private ObservableList<AssessmentQuestion> finalQuestions = FXCollections.observableArrayList();
 
+    // Context passed from FacultyDashboard
+    private DatabaseService.FacultyCourseAssignment courseAssignment;
+    private final DatabaseService db = DatabaseService.getInstance();
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setupColumns();
         bindTables();
+    }
+
+    // Called by FacultyDashboard after FXML load
+    public void setCourseAssignment(DatabaseService.FacultyCourseAssignment assignment) {
+        this.courseAssignment = assignment;
+        loadExistingQuestions();
     }
 
     private void setupColumns() {
@@ -109,6 +120,33 @@ public class ManageCourseQuestionsController implements Initializable {
         if (quiz4TableView != null) quiz4TableView.setItems(quiz4Questions);
         if (midTableView != null) midTableView.setItems(midQuestions);
         if (finalTableView != null) finalTableView.setItems(finalQuestions);
+    }
+
+    private void loadExistingQuestions() {
+        if (courseAssignment == null) return;
+        // Ensure assessment shells exist
+        try { db.ensureAssessmentsExist(courseAssignment.courseCode, courseAssignment.academicYear); } catch (Exception ignored) {}
+
+        quiz1Questions.clear(); quiz2Questions.clear(); quiz3Questions.clear(); quiz4Questions.clear(); midQuestions.clear(); finalQuestions.clear();
+        try {
+            for (int i = 1; i <= 4; i++) {
+                List<DatabaseService.QuestionData> qd = db.getQuizQuestions(courseAssignment.courseCode, i);
+                ObservableList<AssessmentQuestion> target = switch (i) { case 1 -> quiz1Questions; case 2 -> quiz2Questions; case 3 -> quiz3Questions; default -> quiz4Questions; };
+                for (DatabaseService.QuestionData d : qd) {
+                    target.add(new AssessmentQuestion(d.id, d.title, d.marks, d.co, d.po, "Quiz" + i));
+                }
+            }
+            for (DatabaseService.QuestionData d : db.getMidQuestions(courseAssignment.courseCode)) {
+                midQuestions.add(new AssessmentQuestion(d.id, d.title, d.marks, d.co, d.po, "Mid"));
+            }
+            for (DatabaseService.QuestionData d : db.getFinalQuestions(courseAssignment.courseCode)) {
+                finalQuestions.add(new AssessmentQuestion(d.id, d.title, d.marks, d.co, d.po, "Final"));
+            }
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed loading questions: " + e.getMessage(), ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
+        }
     }
 
     // Add Question Handlers
@@ -167,7 +205,10 @@ public class ManageCourseQuestionsController implements Initializable {
                     String co = coChoice.getValue();
                     String po = poChoice.getValue();
                     if (no.isEmpty() || co == null || po == null || marks <= 0) return null;
-                    return new AssessmentQuestion(no, marks, co, po, assessmentType);
+                    AssessmentQuestion q = new AssessmentQuestion(no, marks, co, po, assessmentType);
+                    // Persist immediately if we have context
+                    persistQuestion(q);
+                    return q;
                 } catch (NumberFormatException e) {
                     return null;
                 }
@@ -187,6 +228,25 @@ public class ManageCourseQuestionsController implements Initializable {
         });
     }
 
+    private void persistQuestion(AssessmentQuestion q) {
+        if (courseAssignment == null || q == null) return;
+        try {
+            String code = courseAssignment.courseCode;
+            switch (q.getAssessmentType()) {
+                case "Quiz1" -> db.saveQuizQuestion(code,1,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
+                case "Quiz2" -> db.saveQuizQuestion(code,2,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
+                case "Quiz3" -> db.saveQuizQuestion(code,3,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
+                case "Quiz4" -> db.saveQuizQuestion(code,4,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
+                case "Mid" -> db.saveMidQuestion(code,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
+                case "Final" -> db.saveFinalQuestion(code,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
+            }
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to save question: " + e.getMessage(), ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
+        }
+    }
+
     private void removeSelected(TableView<AssessmentQuestion> table, ObservableList<AssessmentQuestion> list) {
         if (table == null) return;
         AssessmentQuestion selected = table.getSelectionModel().getSelectedItem();
@@ -197,6 +257,7 @@ public class ManageCourseQuestionsController implements Initializable {
             return;
         }
         list.remove(selected);
+        // NOTE: Not deleting from DB yet (needs delete methods) - future enhancement.
     }
 
     private void closeWindow(ActionEvent event) {

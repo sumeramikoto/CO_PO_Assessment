@@ -4,21 +4,37 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane prefHeight="458.0" prefWidth="822.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.ManageStudentsController">
-    <children>
-        <TableView fx:id="studentTableView" layoutX="-1.0" layoutY="70.0" prefHeight="318.0" prefWidth="822.0">
-            <columns>
-                <TableColumn fx:id="idColumn" prefWidth="90.0" text="ID" />
-                <TableColumn fx:id="nameColumn" prefWidth="209.0" text="Name" />
-                <TableColumn fx:id="batchColumn" prefWidth="79.0" text="Batch" />
-                <TableColumn fx:id="departmentColumn" prefWidth="132.0" text="Department" />
+<AnchorPane prefHeight="458.0" prefWidth="822.0" xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.ManageStudentsController">
+
+    <TableView fx:id="studentTableView" AnchorPane.topAnchor="70.0" AnchorPane.leftAnchor="0.0"
+               AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="60.0">
+        <columns>
+            <TableColumn fx:id="idColumn" prefWidth="90.0" text="ID" />
+            <TableColumn fx:id="nameColumn" prefWidth="209.0" text="Name" />
+            <TableColumn fx:id="batchColumn" prefWidth="79.0" text="Batch" />
+            <TableColumn fx:id="departmentColumn" prefWidth="132.0" text="Department" />
             <TableColumn fx:id="programmeColumn" prefWidth="94.0" text="Programme" />
             <TableColumn fx:id="emailColumn" prefWidth="230.0" text="Email" />
-            </columns>
-        </TableView>
-        <Button fx:id="addStudentButton" layoutX="230.0" layoutY="411.0" mnemonicParsing="false" onAction="#onAddStudentButton" text="Add Student" />
-        <Button fx:id="removeStudentButton" layoutX="351.0" layoutY="411.0" mnemonicParsing="false" onAction="#onRemoveStudentButton" text="Remove Student" />
-        <Button fx:id="backButton" layoutX="498.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
-    </children>
+        </columns>
+    </TableView>
+
+    <HBox spacing="20.0" alignment="CENTER" AnchorPane.bottomAnchor="10.0"
+          AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+        <padding>
+            <Insets top="10.0" bottom="10.0"/>
+        </padding>
+        <Button fx:id="addStudentButton" mnemonicParsing="false"
+                onAction="#onAddStudentButton" text="Add Student"
+                prefWidth="120.0" />
+        <Button fx:id="removeStudentButton" mnemonicParsing="false"
+                onAction="#onRemoveStudentButton" text="Remove Student"
+                prefWidth="120.0" />
+        <Button fx:id="backButton" mnemonicParsing="false"
+                onAction="#onBackButton" text="Go Back"
+                prefWidth="120.0" />
+    </HBox>
 </AnchorPane>

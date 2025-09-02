@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.co_po_assessment.DetailedMarksController"
+      spacing="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <TabPane fx:id="examTabPane" VBox.vgrow="ALWAYS">
+        <Tab text="Quiz 1" closable="false">
+            <VBox spacing="10">
+                <TableView fx:id="quiz1TableView" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+        <Tab text="Quiz 2" closable="false">
+            <VBox spacing="10">
+                <TableView fx:id="quiz2TableView" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+        <Tab text="Quiz 3" closable="false">
+            <VBox spacing="10">
+                <TableView fx:id="quiz3TableView" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+        <Tab text="Quiz 4" closable="false">
+            <VBox spacing="10">
+                <TableView fx:id="quiz4TableView" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+        <Tab text="Mid" closable="false">
+            <VBox spacing="10">
+                <TableView fx:id="midTableView" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+        <Tab text="Final" closable="false">
+            <VBox spacing="10">
+                <TableView fx:id="finalTableView" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+
+    <HBox spacing="10" alignment="CENTER">
+        <padding>
+            <Insets top="10"/>
+        </padding>
+        <Button text="Save Changes" onAction="#onSaveButton" prefWidth="120"/>
+        <Button text="Close" onAction="#onCloseButton" prefWidth="120"/>
+    </HBox>
+</VBox>

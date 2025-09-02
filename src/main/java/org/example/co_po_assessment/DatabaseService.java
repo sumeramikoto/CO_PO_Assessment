@@ -374,6 +374,34 @@ public class DatabaseService {
     public Integer getFinalQuestionId(String cId, String title) throws SQLException { return getFinalQuestionId(cId, title, latestAcademicYear()); }
 
     // ------------------------------------------------------------------
+    // Delete questions (academic-year aware)
+    // ------------------------------------------------------------------
+    public boolean deleteQuizQuestion(String courseId, int quizNumber, String title, String ay) throws SQLException {
+        String sql = "DELETE qq FROM QuizQuestion qq JOIN Quiz q ON qq.quiz_id=q.id WHERE q.course_id=? AND q.quiz_number=? AND q.academic_year=? AND qq.title=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, courseId); ps.setInt(2, quizNumber); ps.setString(3, ay); ps.setString(4, title);
+            return ps.executeUpdate() > 0;
+        }
+    }
+    public boolean deleteMidQuestion(String courseId, String title, String ay) throws SQLException {
+        String sql = "DELETE mq FROM MidQuestion mq JOIN Mid m ON mq.mid_id=m.id WHERE m.course_id=? AND m.academic_year=? AND mq.title=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, courseId); ps.setString(2, ay); ps.setString(3, title);
+            return ps.executeUpdate() > 0;
+        }
+    }
+    public boolean deleteFinalQuestion(String courseId, String title, String ay) throws SQLException {
+        String sql = "DELETE fq FROM FinalQuestion fq JOIN Final f ON fq.final_id=f.id WHERE f.course_id=? AND f.academic_year=? AND fq.title=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, courseId); ps.setString(2, ay); ps.setString(3, title);
+            return ps.executeUpdate() > 0;
+        }
+    }
+    public boolean deleteQuizQuestion(String c, int n, String t) throws SQLException { return deleteQuizQuestion(c,n,t,latestAcademicYear()); }
+    public boolean deleteMidQuestion(String c, String t) throws SQLException { return deleteMidQuestion(c,t,latestAcademicYear()); }
+    public boolean deleteFinalQuestion(String c, String t) throws SQLException { return deleteFinalQuestion(c,t,latestAcademicYear()); }
+
+    // ------------------------------------------------------------------
     // Data classes
     // ------------------------------------------------------------------
     public static class QuestionData { public final int id; public final String title; public final double marks; public final String co; public final String po; public QuestionData(int id,String title,double marks,String co,String po){this.id=id;this.title=title;this.marks=marks;this.co=co;this.po=po;} }

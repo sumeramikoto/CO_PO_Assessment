@@ -233,8 +233,11 @@ public class ManageCourseQuestionsController implements Initializable {
                         return null;
                     }
                     AssessmentQuestion q = new AssessmentQuestion(no, marks, co, po, assessmentType);
-                    persistQuestion(q);
-                    return q;
+                    if (persistQuestion(q)) {
+                        return q; // only return if saved
+                    } else {
+                        return null; // failed to persist
+                    }
                 } catch (NumberFormatException e) {
                     return null;
                 }
@@ -243,6 +246,7 @@ public class ManageCourseQuestionsController implements Initializable {
         });
 
         dialog.showAndWait().ifPresent(q -> {
+            // Add only if persistence succeeded earlier (persistQuestion now returns boolean)
             switch (assessmentType) {
                 case "Quiz1" -> quiz1Questions.add(q);
                 case "Quiz2" -> quiz2Questions.add(q);
@@ -276,8 +280,8 @@ public class ManageCourseQuestionsController implements Initializable {
         return false;
     }
 
-    private void persistQuestion(AssessmentQuestion q) {
-        if (courseAssignment == null || q == null) return;
+    private boolean persistQuestion(AssessmentQuestion q) {
+        if (courseAssignment == null || q == null) return false;
         try {
             String code = courseAssignment.courseCode;
             String year = courseAssignment.academicYear;
@@ -289,10 +293,12 @@ public class ManageCourseQuestionsController implements Initializable {
                 case "Mid" -> db.saveMidQuestion(code,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
                 case "Final" -> db.saveFinalQuestion(code,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
             }
+            return true;
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to save question: " + e.getMessage(), ButtonType.OK);
             alert.setHeaderText(null);
             alert.showAndWait();
+            return false;
         }
     }
 
@@ -305,8 +311,33 @@ public class ManageCourseQuestionsController implements Initializable {
             warn.showAndWait();
             return;
         }
+        // Attempt DB deletion first so UI stays consistent
+        if (courseAssignment != null) {
+            String code = courseAssignment.courseCode;
+            String year = courseAssignment.academicYear;
+            boolean deleted = false;
+            try {
+                switch (selected.getAssessmentType()) {
+                    case "Quiz1" -> deleted = db.deleteQuizQuestion(code,1,selected.getNumber(), year);
+                    case "Quiz2" -> deleted = db.deleteQuizQuestion(code,2,selected.getNumber(), year);
+                    case "Quiz3" -> deleted = db.deleteQuizQuestion(code,3,selected.getNumber(), year);
+                    case "Quiz4" -> deleted = db.deleteQuizQuestion(code,4,selected.getNumber(), year);
+                    case "Mid" -> deleted = db.deleteMidQuestion(code,selected.getNumber(), year);
+                    case "Final" -> deleted = db.deleteFinalQuestion(code,selected.getNumber(), year);
+                }
+            } catch (Exception ex) {
+                Alert err = new Alert(Alert.AlertType.ERROR, "Failed to delete question: " + ex.getMessage(), ButtonType.OK);
+                err.setHeaderText(null);
+                err.showAndWait();
+                return; // abort removal
+            }
+            if (!deleted) {
+                Alert info = new Alert(Alert.AlertType.INFORMATION, "Question not found in database (it may have already been removed).", ButtonType.OK);
+                info.setHeaderText(null);
+                info.showAndWait();
+            }
+        }
         list.remove(selected);
-        // NOTE: Not deleting from DB yet (needs delete methods) - future enhancement.
     }
 
     private void closeWindow(ActionEvent event) {

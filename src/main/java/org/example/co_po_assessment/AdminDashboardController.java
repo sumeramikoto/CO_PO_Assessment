@@ -9,138 +9,55 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-import javafx.application.Platform; // added
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class AdminDashboardController implements Initializable {
-    @FXML
-    Label headerLabel;
-    @FXML
-    Button logoutButton;
-    @FXML
-    Button manageFacultiesButton;
-    @FXML
-    Button manageStudentsButton;
-    @FXML
-    Button manageCourseAssignmentsButton;
-    @FXML
-    Button manageCoursesButton;
-    @FXML
-    Button viewReportsButton;
+    @FXML Label headerLabel;
+    @FXML Button logoutButton;
+    @FXML Button manageFacultiesButton;
+    @FXML Button manageStudentsButton;
+    @FXML Button manageCourseAssignmentsButton;
+    @FXML Button manageCoursesButton;
+    @FXML Button viewReportsButton;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Set welcome message for admin
         headerLabel.setText("Welcome, Administrator!");
     }
 
-    public void onManageFacultiesButton(ActionEvent event) {
-        try {
-            // Load the Manage Faculties view
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("manageFaculties-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load());
+    public void onManageFacultiesButton(ActionEvent event) { openWindow("manageFaculties-view.fxml", "Manage Faculty Information", -1, -1); }
+    public void onManageStudentsButton(ActionEvent event) { openWindow("manageStudents-view.fxml", "Manage Student Info", 345, 380); }
+    public void onManageCoursesButton(ActionEvent event) { openWindow("manageCourses-view.fxml", "New Course Manage", 345, 380); }
+    public void onManageCourseAssignmentsButton(ActionEvent event) { openWindow("manageCourseAssignments-view.fxml", "Manage Course Assignments", 345, 380); }
+    public void onManageEnrollmentsButton(ActionEvent event) { openWindow("manageEnrollments-view.fxml", "Manage Enrollments", 840, 520); }
+    public void onViewReportsButton(ActionEvent event) { openWindow("reports-view.fxml", "CO / PO Reports", 500, 400); }
 
+    private void openWindow(String fxml, String title, int w, int h) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            Scene scene = (w > 0 && h > 0) ? new Scene(loader.load(), w, h) : new Scene(loader.load());
             Stage stage = new Stage();
-            stage.setTitle("Manage Faculty Information");
+            stage.setTitle(title);
             stage.setScene(scene);
             stage.show();
-
-        } catch (IOException e) {
-            showErrorAlert("Navigation Error", "Failed to open Manage Faculties window: " + e.getMessage());
-        }
-    }
-
-    public void onManageStudentsButton(ActionEvent event) {
-        try {
-            // Load the Manage Students view
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("manageStudents-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 345, 380);
-
-            Stage stage = new Stage();
-            stage.setTitle("Manage Student Info");
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (IOException e) {
-            showErrorAlert("Navigation Error", "Failed to open Manage Students window: " + e.getMessage());
-        }
-    }
-
-    public void onManageCoursesButton(ActionEvent event) {
-        try {
-            // Load the Manage Courses view
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("manageCourses-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 345, 380);
-
-            Stage stage = new Stage();
-            stage.setTitle("New Course Manage");
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (IOException e) {
-            showErrorAlert("Navigation Error", "Failed to open Manage Courses window: " + e.getMessage());
-        }
-    }
-
-    public void onManageCourseAssignmentsButton(ActionEvent event) {
-        try {
-            // Load the Manage Course Assignments view
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("manageCourseAssignments-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 345, 380);
-
-            Stage stage = new Stage();
-            stage.setTitle("Manage Course Assignments");
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (IOException e) {
-            showErrorAlert("Navigation Error", "Failed to open Manage Course Assignments window: " + e.getMessage());
-        }
-    }
-
-    public void onViewReportsButton(ActionEvent event) {
-        // TODO: Implement reports functionality when reports view is available
-        showInfoAlert("Reports", "Reports functionality will be implemented soon.");
-    }
-
-    public void onManageEnrollmentsButton(ActionEvent actionEvent) {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("manageEnrollments-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 840, 520);
-            Stage stage = new Stage();
-            stage.setTitle("Manage Enrollments");
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            showErrorAlert("Navigation Error", "Failed to open Manage Enrollments window: " + e.getMessage());
-        }
+        } catch (IOException e) { showErrorAlert("Navigation Error", "Failed to open " + title + ": " + e.getMessage()); }
     }
 
     public void onLogoutButton(ActionEvent event) {
-        // Close current dashboard and relaunch the AssessmentSystem (login) window
         try {
             Stage currentStage = (Stage) logoutButton.getScene().getWindow();
             currentStage.close();
-
-            // Launch login screen on FX thread
             Platform.runLater(() -> {
-                try {
-                    new AssessmentSystem().start(new Stage());
-                } catch (Exception ex) {
-                    showErrorAlert("Logout Error", "Failed to return to login screen: " + ex.getMessage());
-                }
+                try { new AssessmentSystem().start(new Stage()); }
+                catch (Exception ex) { showErrorAlert("Logout Error", "Failed to return to login screen: " + ex.getMessage()); }
             });
-        } catch (Exception e) {
-            showErrorAlert("Logout Error", "Unexpected error during logout: " + e.getMessage());
-        }
+        } catch (Exception e) { showErrorAlert("Logout Error", "Unexpected error during logout: " + e.getMessage()); }
     }
 
-    /**
-     * Helper method to show error alerts
-     */
     private void showErrorAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -149,9 +66,6 @@ public class AdminDashboardController implements Initializable {
         alert.showAndWait();
     }
 
-    /**
-     * Helper method to show information alerts
-     */
     private void showInfoAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);

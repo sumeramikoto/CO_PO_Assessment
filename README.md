@@ -13,11 +13,9 @@ A JavaFX + MySQL desktop application for managing university course outcome (CO)
 ## Technology Stack
 | Layer | Tech |
 |-------|------|
-| UI | JavaFX 17 (FXML, ControlsFX, TilesFX) |
-| Charts/Reports | JFreeChart, Apache POI, iText Core (PDF) |
+| UI | JavaFX |
+| Charts/Reports | JFreeChart, iText Core (PDF) |
 | Database | MySQL 8 (JDBC) |
-| Build | Maven, Java 24 (preview enabled) |
-| Misc | Ikonli (icons), ValidatorFX (input validation) |
 
 ## Module & Packaging
 Java module: `org.example.co_po_assessment` (see `module-info.java`). Preview features enabled (source/target 24). Ensure you run with a matching JDK (>=24) and add `--enable-preview`.

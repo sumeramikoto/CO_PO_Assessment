@@ -32,6 +32,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.chart.plot.CategoryPlot; // added
+import org.jfree.chart.axis.NumberAxis; // added
 
 public class FacultyDashboardController {
     @FXML Button logoutButton;
@@ -164,15 +166,40 @@ public class FacultyDashboardController {
         String courseCode = selected.getCourseCode();
         String academicYear = selected.getAcademicYear();
         try {
-            // Fetch questions separately to avoid ID collision across tables
-            List<DatabaseService.QuestionData> quizQuestionsAll = new ArrayList<>();
-            for (int q=1;q<=4;q++) quizQuestionsAll.addAll(db.getQuizQuestions(courseCode,q,academicYear));
+            // Fetch questions per assessment individually to validate completeness
+            List<DatabaseService.QuestionData> quiz1 = db.getQuizQuestions(courseCode,1,academicYear);
+            List<DatabaseService.QuestionData> quiz2 = db.getQuizQuestions(courseCode,2,academicYear);
+            List<DatabaseService.QuestionData> quiz3 = db.getQuizQuestions(courseCode,3,academicYear);
+            List<DatabaseService.QuestionData> quiz4 = db.getQuizQuestions(courseCode,4,academicYear);
             List<DatabaseService.QuestionData> midQuestions = db.getMidQuestions(courseCode, academicYear);
             List<DatabaseService.QuestionData> finalQuestions = db.getFinalQuestions(courseCode, academicYear);
-            if (quizQuestionsAll.isEmpty() && midQuestions.isEmpty() && finalQuestions.isEmpty()) {
-                Alert a = new Alert(Alert.AlertType.INFORMATION, "No questions have been added for this course ("+courseCode+") in "+academicYear+".", ButtonType.OK);
-                a.setHeaderText(null); a.showAndWait(); return; }
-            // Build CO denominators (total achievable marks per CO)
+
+            List<String> missingAssessments = new ArrayList<>();
+            List<String> noCOAssessments = new ArrayList<>();
+            java.util.function.BiConsumer<String,List<DatabaseService.QuestionData>> classify = (label,list)-> {
+                if (list.isEmpty()) missingAssessments.add(label);
+                else if (list.stream().noneMatch(q-> q.co!=null && !q.co.trim().isEmpty())) noCOAssessments.add(label);
+            };
+            classify.accept("Quiz 1", quiz1);
+            classify.accept("Quiz 2", quiz2);
+            classify.accept("Quiz 3", quiz3);
+            classify.accept("Quiz 4", quiz4);
+            classify.accept("Mid", midQuestions);
+            classify.accept("Final", finalQuestions);
+
+            if (!missingAssessments.isEmpty() || !noCOAssessments.isEmpty()) {
+                StringBuilder msg = new StringBuilder();
+                if (!missingAssessments.isEmpty()) msg.append("These assessments have no questions defined: ").append(String.join(", ", missingAssessments)).append(".\n");
+                if (!noCOAssessments.isEmpty()) msg.append("These assessments have questions but none mapped to COs: ").append(String.join(", ", noCOAssessments)).append(".\n");
+                msg.append("Add & map all assessments before generating the CO report.");
+                Alert a = new Alert(Alert.AlertType.WARNING, msg.toString(), ButtonType.OK); a.setHeaderText("Incomplete Assessment Setup"); a.showAndWait();
+                return;
+            }
+
+            // Combine all quiz questions for existing downstream logic
+            List<DatabaseService.QuestionData> quizQuestionsAll = new ArrayList<>();
+            quizQuestionsAll.addAll(quiz1); quizQuestionsAll.addAll(quiz2); quizQuestionsAll.addAll(quiz3); quizQuestionsAll.addAll(quiz4);
+            // Build CO totals
             Map<String,Double> coTotal = new HashMap<>();
             java.util.function.BiConsumer<List<DatabaseService.QuestionData>,String> addQuestions = (list,label)-> {
                 for (DatabaseService.QuestionData qd : list) { if (qd.co==null) continue; String co = qd.co.trim().toUpperCase(); if (co.isEmpty()) continue; coTotal.merge(co, qd.marks, Double::sum);} };
@@ -180,58 +207,49 @@ public class FacultyDashboardController {
             addQuestions.accept(midQuestions, "Mid");
             addQuestions.accept(finalQuestions, "Final");
             if (coTotal.isEmpty()) { Alert a = new Alert(Alert.AlertType.INFORMATION, "Questions exist but none have CO mappings.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
-            // Student list
             List<DatabaseService.StudentData> students = db.getEnrolledStudents(courseCode, academicYear);
             if (students.isEmpty()) { Alert a = new Alert(Alert.AlertType.INFORMATION, "No students enrolled for this course in the selected academic year.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
-            // Build fast lookup maps per assessment type (ID -> CO)
-            Map<Integer,String> quizIdToCO = new HashMap<>();
-            for (DatabaseService.QuestionData qd : quizQuestionsAll) if (qd.co!=null) quizIdToCO.put(qd.id, qd.co.trim().toUpperCase());
-            Map<Integer,String> midIdToCO = new HashMap<>();
-            for (DatabaseService.QuestionData qd : midQuestions) if (qd.co!=null) midIdToCO.put(qd.id, qd.co.trim().toUpperCase());
-            Map<Integer,String> finalIdToCO = new HashMap<>();
-            for (DatabaseService.QuestionData qd : finalQuestions) if (qd.co!=null) finalIdToCO.put(qd.id, qd.co.trim().toUpperCase());
-            // Similarly max marks maps (optional if we trust question objects)
-            Map<Integer,Double> quizIdToMax = new HashMap<>(); for (DatabaseService.QuestionData qd:quizQuestionsAll) quizIdToMax.put(qd.id, qd.marks);
-            Map<Integer,Double> midIdToMax = new HashMap<>(); for (DatabaseService.QuestionData qd:midQuestions) midIdToMax.put(qd.id, qd.marks);
-            Map<Integer,Double> finalIdToMax = new HashMap<>(); for (DatabaseService.QuestionData qd:finalQuestions) finalIdToMax.put(qd.id, qd.marks);
-            // Per-student per-CO obtained marks accumulator
+            Map<Integer,String> quizIdToCO = new HashMap<>(); for (DatabaseService.QuestionData qd : quizQuestionsAll) if (qd.co!=null) quizIdToCO.put(qd.id, qd.co.trim().toUpperCase());
+            Map<Integer,String> midIdToCO = new HashMap<>(); for (DatabaseService.QuestionData qd : midQuestions) if (qd.co!=null) midIdToCO.put(qd.id, qd.co.trim().toUpperCase());
+            Map<Integer,String> finalIdToCO = new HashMap<>(); for (DatabaseService.QuestionData qd : finalQuestions) if (qd.co!=null) finalIdToCO.put(qd.id, qd.co.trim().toUpperCase());
+            // Validation counters (only for CO-mapped questions)
+            int totalRequired = 0; int graded = 0; List<String> sampleMissing = new ArrayList<>();
+            // Per-student accumulation structure
             Map<String, Map<String, Double>> studentCOObtained = new HashMap<>();
             for (DatabaseService.StudentData sd : students) studentCOObtained.put(sd.id, new HashMap<>());
-            // Populate from marks: quiz
+            // Process quizzes
             for (int quizNum=1; quizNum<=4; quizNum++) {
-                List<DatabaseService.StudentMarksData> marks = db.getStudentQuizMarks(courseCode, quizNum, academicYear);
-                for (DatabaseService.StudentMarksData smd : marks) {
-                    String co = quizIdToCO.get(smd.questionId); if (co==null) continue; double obtained = smd.marksObtained; // 0 allowed
-                    studentCOObtained.get(smd.studentId).merge(co, obtained, Double::sum);
+                for (DatabaseService.StudentMarksData smd : db.getStudentQuizMarks(courseCode, quizNum, academicYear)) {
+                    String co = quizIdToCO.get(smd.questionId); if (co==null) continue; totalRequired++; if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentCOObtained.get(smd.studentId).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
                 }
             }
-            // Mid
+            // Process mid
             for (DatabaseService.StudentMarksData smd : db.getStudentMidMarks(courseCode, academicYear)) {
-                String co = midIdToCO.get(smd.questionId); if (co==null) continue; studentCOObtained.get(smd.studentId).merge(co, smd.marksObtained, Double::sum);
+                String co = midIdToCO.get(smd.questionId); if (co==null) continue; totalRequired++; if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentCOObtained.get(smd.studentId).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
             }
-            // Final
+            // Process final
             for (DatabaseService.StudentMarksData smd : db.getStudentFinalMarks(courseCode, academicYear)) {
-                String co = finalIdToCO.get(smd.questionId); if (co==null) continue; studentCOObtained.get(smd.studentId).merge(co, smd.marksObtained, Double::sum);
+                String co = finalIdToCO.get(smd.questionId); if (co==null) continue; totalRequired++; if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentCOObtained.get(smd.studentId).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
             }
-            // Optional completeness check: ensure every question contributes either 0 or >0 for each student. Since queries left join produce rows, skip advanced detection.
-            final double THRESHOLD = 0.60; // 60%
-            Map<String,Integer> attainedCounts = new HashMap<>(); for (String co: coTotal.keySet()) attainedCounts.put(co,0);
-            for (DatabaseService.StudentData sd : students) {
-                Map<String,Double> gotMap = studentCOObtained.get(sd.id);
-                for (String co : coTotal.keySet()) {
-                    double denom = coTotal.get(co); if (denom <= 0) continue; double got = gotMap.getOrDefault(co,0.0);
-                    if (got/denom >= THRESHOLD) attainedCounts.merge(co,1,Integer::sum);
-                }
-            }
-            // Percentages ordered numerically by CO index
-            Map<String,Double> percentPerCO = new TreeMap<>(Comparator.comparingInt(c -> { try { return Integer.parseInt(c.replaceAll("[^0-9]", "")); } catch(Exception ex){ return Integer.MAX_VALUE; } }));
-            for (String co: coTotal.keySet()) {
-                percentPerCO.put(co, attainedCounts.getOrDefault(co,0)*100.0 / students.size());
-            }
+            int missing = totalRequired - graded;
+            if (totalRequired == 0) { Alert a = new Alert(Alert.AlertType.INFORMATION, "There are CO-mapped questions but no enrolled students to grade.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
+            if (graded == 0) { Alert a = new Alert(Alert.AlertType.WARNING, "No marks have been entered yet. Please enter marks before generating the CO report.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
+            if (missing > 0) {
+                Alert a = new Alert(Alert.AlertType.WARNING, String.format("Cannot generate CO report. %d of %d required mark entries are still ungraded. Sample missing: %s", missing, totalRequired, sampleMissing), ButtonType.OK);
+                a.setHeaderText("Incomplete Grading"); a.showAndWait(); return; }
+            final double THRESHOLD = 0.60; Map<String,Integer> attainedCounts = new HashMap<>(); for (String co: coTotal.keySet()) attainedCounts.put(co,0);
+            for (DatabaseService.StudentData sd : students) { Map<String,Double> gotMap = studentCOObtained.get(sd.id); for (String co : coTotal.keySet()) { double denom = coTotal.get(co); if (denom <= 0) continue; double got = gotMap.getOrDefault(co,0.0); if (got/denom >= THRESHOLD) attainedCounts.merge(co,1,Integer::sum); } }
+            Map<String,Double> percentPerCO = new TreeMap<>(Comparator.comparingInt(c -> { try { return Integer.parseInt(c.replaceAll("[^0-9]", "")); } catch(Exception ex){ return Integer.MAX_VALUE; } })); for (String co: coTotal.keySet()) percentPerCO.put(co, attainedCounts.getOrDefault(co,0)*100.0 / students.size());
             // Chart
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             for (Map.Entry<String,Double> e : percentPerCO.entrySet()) dataset.addValue(e.getValue(), "CO Attainment", e.getKey());
             JFreeChart chart = ChartFactory.createBarChart("CO Attainment", "CO", "% Students", dataset);
+            // Force y-axis 0-100%
+            CategoryPlot plot = chart.getCategoryPlot();
+            if (plot.getRangeAxis() instanceof NumberAxis na) {
+                na.setRange(0.0, 100.0);
+                na.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+            }
             ByteArrayOutputStream chartBaos = new ByteArrayOutputStream(); ChartUtils.writeChartAsPNG(chartBaos, chart, 640, 400); byte[] chartBytes = chartBaos.toByteArray();
             // PDF
             File reportsDir = new File("co_reports"); if (!reportsDir.exists()) reportsDir.mkdirs();
@@ -241,6 +259,8 @@ public class FacultyDashboardController {
                 Paragraph title = new Paragraph(courseCode + " - " + selected.getCourseName()); title.setFontSize(16).setTextAlignment(TextAlignment.CENTER); doc.add(title);
                 doc.add(new Paragraph("Department: " + selected.getDepartment()));
                 doc.add(new Paragraph("Programme: " + selected.getProgramme()));
+                DatabaseService.FacultyInfo fi = UserSession.getCurrentFaculty();
+                if (fi != null) doc.add(new Paragraph("Faculty: " + fi.fullName + " (" + fi.shortname + ")"));
                 doc.add(new Paragraph("Academic Year: " + academicYear));
                 doc.add(new Paragraph("Generated: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
                 doc.add(new Paragraph("\n"));

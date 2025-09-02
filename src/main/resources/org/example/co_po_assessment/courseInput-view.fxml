@@ -28,15 +28,23 @@
 
                 <children>
                     <Label text="Course Code:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="courseCodeTextField" promptText="e.g., CSE 4107" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <TextField fx:id="courseCodeTextField" promptText="e.g., CSE4107" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                     <Label text="Course Name:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                     <TextField fx:id="courseNameTextField" promptText="e.g., Structured Programming" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                     <Label text="Credits:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                     <TextField fx:id="creditsTextField" promptText="e.g., 3.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                    <Label text="Department:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="departmentTextField" promptText="e.g., CSE" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                    <Label text="Programme:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="programmeTextField" promptText="e.g., BSCSE" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                 </children>
             <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
                <RowConstraints />
                <RowConstraints />
                <RowConstraints />

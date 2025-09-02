@@ -42,12 +42,14 @@ CREATE TABLE Student (
                          programme VARCHAR(3)
 );
 
+-- Added academic_year to support multi-year enrollments (UI requirement)
 CREATE TABLE Enrollment (
                             student_id VARCHAR(9) NOT NULL,
                             course_id VARCHAR(20) NOT NULL,
+                            academic_year VARCHAR(9) NOT NULL,
                             FOREIGN KEY (student_id) REFERENCES Student(id),
                             FOREIGN KEY (course_id) REFERENCES Course(course_code),
-                            UNIQUE (student_id, course_id)
+                            UNIQUE (student_id, course_id, academic_year)
 );
 
 -- CO and PO master tables
@@ -223,3 +225,4 @@ FROM Student s
          LEFT JOIN StudentFinalMarks sfm ON s.id = sfm.student_id AND fq.id = sfm.final_question_id
          JOIN CO co ON fq.co_id = co.id
          JOIN PO po ON fq.po_id = po.id;
+

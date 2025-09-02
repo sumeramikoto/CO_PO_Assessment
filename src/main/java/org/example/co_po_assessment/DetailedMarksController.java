@@ -125,7 +125,7 @@ public class DetailedMarksController {
 
     private void setupEmptyQuestionColumns(TableView<Map<String, Object>> tableView,
                                          List<DatabaseService.QuestionData> questions) {
-        // Keep existing student ID and name columns
+        // Keep only student ID and name columns; remove any previous question/Total columns
         tableView.getColumns().removeIf(col ->
             !col.getText().equals("Student ID") && !col.getText().equals("Name"));
 
@@ -165,11 +165,15 @@ public class DetailedMarksController {
         } catch (SQLException e) {
             showError("Error Loading Students", e.getMessage());
         }
+
+        // Add total column after questions
+        double totalMax = questions.stream().mapToDouble(q -> q.marks).sum();
+        addTotalColumn(tableView, totalMax, questions.stream().map(q -> q.title).toList());
     }
 
     private void setupQuestionColumns(TableView<Map<String, Object>> tableView,
                                     List<DatabaseService.StudentMarksData> marksData) {
-        // Keep existing student ID and name columns
+        // Keep only student ID and name columns; remove any previous question/Total columns
         tableView.getColumns().removeIf(col ->
             !col.getText().equals("Student ID") && !col.getText().equals("Name"));
 
@@ -210,6 +214,41 @@ public class DetailedMarksController {
 
         // Set the table data
         tableView.setItems(FXCollections.observableArrayList(studentRows.values()));
+
+        // Add total column
+        double totalMax = maxMarks.values().stream().mapToDouble(Double::doubleValue).sum();
+        addTotalColumn(tableView, totalMax, maxMarks.keySet());
+    }
+
+    private void addTotalColumn(TableView<Map<String, Object>> tableView, double totalMaxMarks, Collection<String> questionTitles) {
+        // Ensure we don't add duplicate
+        boolean exists = tableView.getColumns().stream().anyMatch(c -> c.getText().startsWith("Total"));
+        if (exists) return;
+        TableColumn<Map<String, Object>, Double> totalCol = new TableColumn<>(String.format("Total (%.1f)", totalMaxMarks));
+        totalCol.setCellValueFactory(data -> {
+            Map<String, Object> row = data.getValue();
+            if (row == null) return new SimpleObjectProperty<>(null);
+            double sum = 0.0;
+            boolean any = false;
+            for (String q : questionTitles) {
+                Object obj = row.get(q);
+                if (obj instanceof Double d) { sum += d; any = true; }
+            }
+            return any ? new SimpleObjectProperty<>(sum) : new SimpleObjectProperty<>(null);
+        });
+        totalCol.setEditable(false);
+        totalCol.setPrefWidth(100);
+        totalCol.setStyle("-fx-font-weight: bold;");
+        // Custom cell to show blank when null
+        totalCol.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) { setText(null); return; }
+                if (item == null) { setText(""); }
+                else setText(String.format("%.2f", item));
+            }
+        });
+        tableView.getColumns().add(totalCol);
     }
 
     private void setupEditableColumn(TableColumn<Map<String, Object>, Double> column, int questionId, double maxMarks) {
@@ -243,6 +282,8 @@ public class DetailedMarksController {
                         }
                     } catch (SQLException ex) { showError("Error Saving Mark", ex.getMessage()); }
                     updateItem(value, false);
+                    // Refresh table to update Total column
+                    column.getTableView().refresh();
                 } catch (NumberFormatException ignore) { updateItem(getItem(), false); }
             }
             @Override protected void updateItem(Double item, boolean empty) {

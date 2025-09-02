@@ -113,10 +113,10 @@ public class FacultyDashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("detailedMarks-view.fxml"));
             Parent root = loader.load();
             DetailedMarksController controller = loader.getController();
-            controller.setCourseId(selected.getCourseCode());
+            controller.setContext(selected.getCourseCode(), selected.getAcademicYear());
 
             Stage stage = new Stage();
-            stage.setTitle("Student Marks - " + selected.getCourseCode());
+            stage.setTitle("Student Marks - " + selected.getCourseCode() + " (" + selected.getAcademicYear() + ")");
             stage.setScene(new Scene(root));
             stage.show();
         } catch (Exception e) {
@@ -130,5 +130,11 @@ public class FacultyDashboardController {
     public void onReportButton(ActionEvent actionEvent) {
         // checks if all the students have been graded yet or not
         // if graded then generates the co/po assessment report for the course
+    }
+
+    public void onCOReportButton(ActionEvent actionEvent) {
+    }
+
+    public void onPOReportButton(ActionEvent actionEvent) {
     }
 }

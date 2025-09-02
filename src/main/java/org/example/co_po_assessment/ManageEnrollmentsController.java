@@ -29,6 +29,7 @@ public class ManageEnrollmentsController {
     @FXML private Button clearFiltersButton;
     @FXML private Button enrollButton;
     @FXML private Button closeButton;
+    @FXML private Button unenrollButton; // new button for unenrollment
 
     private final StudentDatabaseHelper studentDb = new StudentDatabaseHelper();
     private final DatabaseService db = DatabaseService.getInstance();
@@ -119,6 +120,27 @@ public class ManageEnrollmentsController {
         }
     }
 
+    @FXML private void onUnenrollSelected() { // new handler
+        String course = courseCombo.getValue();
+        String year = academicYearCombo.getValue();
+        if (course == null || course.isBlank()) { showWarn("Validation", "Select a course"); return; }
+        if (year == null || year.isBlank()) { showWarn("Validation", "Select an academic year"); return; }
+        List<StudentDatabaseHelper.StudentData> selected = studentTableView.getSelectionModel().getSelectedItems();
+        if (selected == null || selected.isEmpty()) { showWarn("Validation", "Select at least one student"); return; }
+        List<String> ids = selected.stream().map(s -> s.id).collect(Collectors.toList());
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirm Unenroll");
+        confirm.setHeaderText(null);
+        confirm.setContentText("Unenroll " + ids.size() + " students from course " + course + " (" + year + ")? This will remove their enrollment and any associated marks for this course-year may become orphaned.");
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+        try {
+            int removed = db.unenrollStudents(course, year, ids);
+            showInfo("Unenrollment", "Removed " + removed + " enrollments for course " + course + " (" + year + ")");
+        } catch (SQLException e) {
+            showError("Unenrollment Failed", e.getMessage());
+        }
+    }
+
     @FXML private void onClose() { closeButton.getScene().getWindow().hide(); }
 
     private void showError(String title, String msg) {
@@ -131,4 +153,3 @@ public class ManageEnrollmentsController {
         Alert a = new Alert(Alert.AlertType.INFORMATION); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
 }
-

@@ -31,6 +31,7 @@
                         <Label text="Academic Year:" />
                         <ComboBox fx:id="academicYearCombo" prefWidth="140" />
                         <Button fx:id="enrollButton" text="Enroll Selected" onAction="#onEnrollSelected" />
+                        <Button fx:id="unenrollButton" text="Unenroll Selected" onAction="#onUnenrollSelected" />
                         <Button fx:id="closeButton" text="Close" onAction="#onClose" />
                     </children>
                 </HBox>
@@ -49,4 +50,3 @@
         </TableView>
     </center>
 </BorderPane>
-

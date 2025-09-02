@@ -6,8 +6,8 @@ import java.util.List;
 
 public class DatabaseService {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
-    private static final String DB_USER = "okimi";
-    private static final String DB_PASSWORD = "ged_DAN[007]";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "pass";
 
     private static DatabaseService instance;
 
@@ -227,7 +227,7 @@ public class DatabaseService {
     // Student operations
     public List<StudentData> getEnrolledStudents(String courseId) throws SQLException {
         String sql = """
-            SELECT s.id, s.name, s.email, s.batch, s.programme, s.department
+            SELECT DISTINCT s.id, s.name, s.email, s.batch, s.programme, s.department
             FROM Student s
             JOIN Enrollment e ON s.id = e.student_id
             WHERE e.course_id = ?
@@ -1170,5 +1170,76 @@ public class DatabaseService {
             }
             stmt.executeUpdate();
         }
+    }
+
+    // Bulk enroll students into a course for an academic year (ignores duplicates)
+    public void enrollStudents(String courseId, String academicYear, List<String> studentIds) throws SQLException {
+        if (studentIds == null || studentIds.isEmpty()) return;
+        // Ensure schema is upgraded to include academic_year (backward compatibility)
+        ensureEnrollmentYearColumn();
+        String sql = "INSERT IGNORE INTO Enrollment (student_id, course_id, academic_year) VALUES (?, ?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (String sid : studentIds) {
+                ps.setString(1, sid);
+                ps.setString(2, courseId);
+                ps.setString(3, academicYear);
+                ps.addBatch();
+            }
+            ps.executeBatch();
+        } catch (SQLException ex) {
+            // Fallback: legacy schema without academic_year, insert without it
+            if (ex.getMessage() != null && ex.getMessage().toLowerCase().contains("unknown column 'academic_year'")) {
+                String legacySql = "INSERT IGNORE INTO Enrollment (student_id, course_id) VALUES (?, ?)";
+                try (Connection conn2 = getConnection(); PreparedStatement ps2 = conn2.prepareStatement(legacySql)) {
+                    for (String sid : studentIds) {
+                        ps2.setString(1, sid);
+                        ps2.setString(2, courseId);
+                        ps2.addBatch();
+                    }
+                    ps2.executeBatch();
+                }
+            } else {
+                throw ex;
+            }
+        }
+    }
+
+    private static volatile Boolean enrollmentYearChecked = false;
+    private synchronized void ensureEnrollmentYearColumn() throws SQLException {
+        if (Boolean.TRUE.equals(enrollmentYearChecked)) return;
+        try (Connection conn = getConnection()) {
+            boolean hasColumn;
+            try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='Enrollment' AND COLUMN_NAME='academic_year'")) {
+                try (ResultSet rs = ps.executeQuery()) { rs.next(); hasColumn = rs.getInt(1) > 0; }
+            }
+            if (!hasColumn) {
+                // Add column with a provisional default; later inserts will override.
+                try (Statement st = conn.createStatement()) {
+                    st.executeUpdate("ALTER TABLE Enrollment ADD COLUMN academic_year VARCHAR(9) NOT NULL DEFAULT '2024-2025' AFTER course_id");
+                }
+                // Adjust unique constraint: drop any existing unique on (student_id, course_id)
+                try (PreparedStatement psIdx = conn.prepareStatement("SHOW INDEX FROM Enrollment")) {
+                    try (ResultSet rs = psIdx.executeQuery()) {
+                        // Collect index names matching unique pair
+                        while (rs.next()) {
+                            String keyName = rs.getString("Key_name");
+                            int nonUnique = rs.getInt("Non_unique");
+                            String colName = rs.getString("Column_name");
+                            // Heuristic: if unique and first column student_id capture index
+                            if (nonUnique == 0 && "student_id".equalsIgnoreCase(colName)) {
+                                try (Statement drop = conn.createStatement()) {
+                                    drop.executeUpdate("ALTER TABLE Enrollment DROP INDEX `" + keyName + "`");
+                                } catch (SQLException ignored) { /* best effort */ }
+                            }
+                        }
+                    }
+                }
+                try (Statement st = conn.createStatement()) {
+                    st.executeUpdate("ALTER TABLE Enrollment ADD UNIQUE KEY uniq_enrollment (student_id, course_id, academic_year)");
+                } catch (SQLException ignored) { /* If already exists */ }
+            }
+        }
+        enrollmentYearChecked = true;
     }
 }

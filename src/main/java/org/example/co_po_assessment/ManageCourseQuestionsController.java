@@ -198,16 +198,41 @@ public class ManageCourseQuestionsController implements Initializable {
         grid.add(new Label("PO:"),0,3); grid.add(poChoice,1,3);
         dialog.getDialogPane().setContent(grid);
 
+        Node addButton = dialog.getDialogPane().lookupButton(addBtnType);
+        addButton.setDisable(true);
+
+        Runnable validate = () -> {
+            String no = numberField.getText().trim();
+            String marksTxt = marksField.getText().trim();
+            boolean valid = !no.isEmpty() && coChoice.getValue() != null && poChoice.getValue() != null;
+            double m = -1;
+            try { m = Double.parseDouble(marksTxt); } catch (Exception ignored) {}
+            if (m <= 0) valid = false;
+            if (valid && questionNumberExists(assessmentType, no)) valid = false; // uniqueness per assessment
+            addButton.setDisable(!valid);
+        };
+
+        numberField.textProperty().addListener((obs,o,n)-> validate.run());
+        marksField.textProperty().addListener((obs,o,n)-> validate.run());
+        coChoice.valueProperty().addListener((obs,o,n)-> validate.run());
+        poChoice.valueProperty().addListener((obs,o,n)-> validate.run());
+
         dialog.setResultConverter(btn -> {
             if (btn == addBtnType) {
+                String no = numberField.getText().trim();
+                String marksStr = marksField.getText().trim();
                 try {
-                    String no = numberField.getText().trim();
-                    double marks = Double.parseDouble(marksField.getText().trim());
+                    double marks = Double.parseDouble(marksStr);
                     String co = coChoice.getValue();
                     String po = poChoice.getValue();
                     if (no.isEmpty() || co == null || po == null || marks <= 0) return null;
+                    if (questionNumberExists(assessmentType, no)) {
+                        Alert dup = new Alert(Alert.AlertType.WARNING, "Question number '"+ no + "' already exists in this assessment.", ButtonType.OK);
+                        dup.setHeaderText(null);
+                        dup.showAndWait();
+                        return null;
+                    }
                     AssessmentQuestion q = new AssessmentQuestion(no, marks, co, po, assessmentType);
-                    // Persist immediately if we have context
                     persistQuestion(q);
                     return q;
                 } catch (NumberFormatException e) {
@@ -227,6 +252,28 @@ public class ManageCourseQuestionsController implements Initializable {
                 case "Final" -> finalQuestions.add(q);
             }
         });
+    }
+
+    private boolean questionNumberExists(String assessmentType, String number) {
+        if (number == null) return false;
+        String target = number.trim();
+        if (target.isEmpty()) return false;
+        ObservableList<AssessmentQuestion> list = switch (assessmentType) {
+            case "Quiz1" -> quiz1Questions;
+            case "Quiz2" -> quiz2Questions;
+            case "Quiz3" -> quiz3Questions;
+            case "Quiz4" -> quiz4Questions;
+            case "Mid" -> midQuestions;
+            case "Final" -> finalQuestions;
+            default -> null;
+        };
+        if (list == null) return false;
+        for (AssessmentQuestion q : list) {
+            if (q.getNumber() != null && q.getNumber().trim().equalsIgnoreCase(target)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void persistQuestion(AssessmentQuestion q) {

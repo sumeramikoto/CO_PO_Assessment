@@ -30,7 +30,7 @@ CREATE TABLE CourseAssignment (
                                   programme VARCHAR(11) NOT NULL,
                                   FOREIGN KEY (faculty_id) REFERENCES Faculty(id),
                                   FOREIGN KEY (course_code) REFERENCES Course(course_code),
-                                  UNIQUE (faculty_id, course_code)
+                                  UNIQUE (course_code, academic_year, department, programme)
 );
 
 CREATE TABLE Student (
@@ -42,12 +42,14 @@ CREATE TABLE Student (
                          programme VARCHAR(3)
 );
 
+-- Added academic_year to support multi-year enrollments (UI requirement)
 CREATE TABLE Enrollment (
                             student_id VARCHAR(9) NOT NULL,
                             course_id VARCHAR(20) NOT NULL,
+                            academic_year VARCHAR(9) NOT NULL,
                             FOREIGN KEY (student_id) REFERENCES Student(id),
                             FOREIGN KEY (course_id) REFERENCES Course(course_code),
-                            UNIQUE (student_id, course_id)
+                            UNIQUE (student_id, course_id, academic_year)
 );
 
 -- CO and PO master tables

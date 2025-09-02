@@ -51,18 +51,7 @@
                         <Insets />
                     </VBox.margin>
                 </TextField>
-            <VBox>
-               <children>
-                  <Label text="Department" />
-                  <TextField fx:id="departmentTextField" promptText="e.g., CSE" />
-                  <VBox>
-                     <children>
-                        <Label text="Programme" />
-                        <TextField fx:id="programmeTextField" promptText="e.g., BSc in SWE" />
-                     </children>
-                  </VBox>
-               </children>
-            </VBox>
+            <VBox />
             </VBox>
         </VBox>
 

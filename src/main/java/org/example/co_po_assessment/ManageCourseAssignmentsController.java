@@ -147,10 +147,11 @@ public class ManageCourseAssignmentsController implements Initializable {
             showInfoAlert("Success", "Course assigned successfully.");
 
         } catch (SQLException e) {
-            if (e.getMessage().contains("Duplicate entry")) {
-                showErrorAlert("Assignment Error", "This course is already assigned to the selected faculty for that academic year.");
+            String msg = e.getMessage();
+            if (msg != null && (msg.contains("already assigned for the selected academic year") || msg.contains("DUPLICATE_COURSE_YEAR") || msg.contains("Duplicate entry"))) {
+                showErrorAlert("Assignment Error", "This course already has an assignment for that academic year (same department & programme).");
             } else {
-                showErrorAlert("Database Error", "Failed to assign course: " + e.getMessage());
+                showErrorAlert("Database Error", "Failed to assign course: " + msg);
             }
         }
     }

@@ -7,7 +7,7 @@ import java.util.List;
 public class CourseAssignmentDatabaseHelper {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
     private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "sinhawiz123";
+    private static final String DB_PASSWORD = "pass";
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -43,9 +43,9 @@ public class CourseAssignmentDatabaseHelper {
         return assignments;
     }
 
-    // Get all available courses (showing code and name)
+    // Get all available courses (showing code, name, department, programme)
     public List<String> getAllCourses() throws SQLException {
-        String sql = "SELECT course_code, course_name FROM Course ORDER BY course_code";
+        String sql = "SELECT course_code, course_name, department, programme FROM Course ORDER BY course_code";
         List<String> courses = new ArrayList<>();
 
         try (Connection conn = getConnection();
@@ -53,7 +53,7 @@ public class CourseAssignmentDatabaseHelper {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                courses.add(rs.getString("course_code") + " - " + rs.getString("course_name"));
+                courses.add(rs.getString("course_code") + " - " + rs.getString("course_name") + " - " + rs.getString("department") + " - " + rs.getString("programme"));
             }
         }
         return courses;
@@ -77,24 +77,35 @@ public class CourseAssignmentDatabaseHelper {
 
     // Assign course to faculty (copy department & programme from Course table)
     public void assignCourse(String courseCode, String facultyName, String academicYear) throws SQLException {
-        String sql = """
+        try (Connection conn = getConnection()) {
+            // Ensure schema migration
+            ensureNewUniqueConstraint(conn);
+            // Pre-check duplicate (same course/year/department/programme) regardless of faculty
+            String dupCheck = "SELECT 1 FROM CourseAssignment ca JOIN Course c ON ca.course_code=c.course_code WHERE ca.course_code=? AND ca.academic_year=? AND ca.department=c.department AND ca.programme=c.programme LIMIT 1";
+            try (PreparedStatement dps = conn.prepareStatement(dupCheck)) {
+                dps.setString(1, courseCode); dps.setString(2, academicYear); try (ResultSet rs = dps.executeQuery()) { if (rs.next()) { throw new SQLException("DUPLICATE_COURSE_YEAR"); } }
+            }
+            String sql = """
             INSERT INTO CourseAssignment (faculty_id, course_code, academic_year, department, programme)
             SELECT f.id, c.course_code, ?, c.department, c.programme
             FROM Faculty f
             JOIN Course c ON c.course_code = ?
             WHERE f.full_name = ?
             """;
-
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, academicYear);
-            stmt.setString(2, courseCode);
-            stmt.setString(3, facultyName);
-
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new SQLException("Faculty or Course not found for assignment");
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, academicYear);
+                stmt.setString(2, courseCode);
+                stmt.setString(3, facultyName);
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new SQLException("Faculty or Course not found for assignment");
+                }
             }
+        } catch (SQLException ex) {
+            if ("DUPLICATE_COURSE_YEAR".equals(ex.getMessage())) {
+                throw new SQLException("This course is already assigned for the selected academic year with the same department & programme.");
+            }
+            throw ex;
         }
     }
 
@@ -117,6 +128,39 @@ public class CourseAssignmentDatabaseHelper {
                 throw new SQLException("Course assignment not found");
             }
         }
+    }
+
+    private void ensureNewUniqueConstraint(Connection conn) throws SQLException {
+        // Detect if the new unique index (course_code, academic_year, department, programme) exists
+        String idxSql = "SELECT INDEX_NAME, GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX) cols FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='CourseAssignment' GROUP BY INDEX_NAME";
+        boolean hasNew = false; String oldIndexToDrop = null; String oldCols = null;
+        try (PreparedStatement ps = conn.prepareStatement(idxSql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String name = rs.getString(1); String cols = rs.getString(2);
+                if ("course_code,academic_year,department,programme".equalsIgnoreCase(cols)) { hasNew = true; }
+                if ("faculty_id,course_code".equalsIgnoreCase(cols)) { oldIndexToDrop = name; oldCols = cols; }
+            }
+        }
+        if (hasNew) return; // Already migrated
+        conn.setAutoCommit(false);
+        try {
+            // Remove duplicate rows that would violate new uniqueness, keep lowest faculty_id
+            try (Statement st = conn.createStatement()) {
+                st.executeUpdate("DELETE ca1 FROM CourseAssignment ca1 JOIN CourseAssignment ca2 ON ca1.course_code=ca2.course_code AND ca1.academic_year=ca2.academic_year AND ca1.department=ca2.department AND ca1.programme=ca2.programme AND ca1.faculty_id>ca2.faculty_id");
+            }
+            if (oldIndexToDrop != null) {
+                try (Statement st = conn.createStatement()) { st.executeUpdate("ALTER TABLE CourseAssignment DROP INDEX `" + oldIndexToDrop + "`"); }
+            }
+            try (Statement st = conn.createStatement()) { st.executeUpdate("ALTER TABLE CourseAssignment ADD UNIQUE KEY uniq_course_assignment (course_code, academic_year, department, programme)"); }
+            conn.commit();
+        } catch (SQLException ex) {
+            conn.rollback(); throw ex;
+        } finally { conn.setAutoCommit(true); }
+    }
+
+    private boolean existsDuplicateAssignment(Connection conn, String courseCode, String academicYear) throws SQLException {
+        String sql = "SELECT 1 FROM CourseAssignment WHERE course_code=? AND academic_year=? LIMIT 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) { ps.setString(1, courseCode); ps.setString(2, academicYear); try (ResultSet rs = ps.executeQuery()) { return rs.next(); }}
     }
 
     // Data class for course assignments

@@ -106,6 +106,19 @@ public class AdminDashboardController implements Initializable {
         showInfoAlert("Reports", "Reports functionality will be implemented soon.");
     }
 
+    public void onManageEnrollmentsButton(ActionEvent actionEvent) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("manageEnrollments-view.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 840, 520);
+            Stage stage = new Stage();
+            stage.setTitle("Manage Enrollments");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            showErrorAlert("Navigation Error", "Failed to open Manage Enrollments window: " + e.getMessage());
+        }
+    }
+
     public void onLogoutButton(ActionEvent event) {
         // Close current dashboard and relaunch the AssessmentSystem (login) window
         try {

@@ -30,7 +30,7 @@ CREATE TABLE CourseAssignment (
                                   programme VARCHAR(11) NOT NULL,
                                   FOREIGN KEY (faculty_id) REFERENCES Faculty(id),
                                   FOREIGN KEY (course_code) REFERENCES Course(course_code),
-                                  UNIQUE (faculty_id, course_code)
+                                  UNIQUE (course_code, academic_year, department, programme)
 );
 
 CREATE TABLE Student (
@@ -225,4 +225,3 @@ FROM Student s
          LEFT JOIN StudentFinalMarks sfm ON s.id = sfm.student_id AND fq.id = sfm.final_question_id
          JOIN CO co ON fq.co_id = co.id
          JOIN PO po ON fq.po_id = po.id;
-

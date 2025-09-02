@@ -10,7 +10,7 @@ public class DatabaseService {
     // ------------------------------------------------------------------
     private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
     private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "pass";
+    private static final String DB_PASSWORD = "sinhawiz123";
     private static DatabaseService instance;
 
     private DatabaseService() {

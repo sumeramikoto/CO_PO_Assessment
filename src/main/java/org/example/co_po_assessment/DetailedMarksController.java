@@ -214,72 +214,40 @@ public class DetailedMarksController {
     private void setupEditableColumn(TableColumn<Map<String, Object>, Double> column, int questionId, double maxMarks) {
         column.setCellFactory(tc -> new TableCell<>() {
             private final TextField textField = new TextField();
-
             {
-                textField.focusedProperty().addListener((obs, oldVal, newVal) -> {
-                    if (!newVal) {
-                        commitEdit();
-                    }
-                });
-                textField.setOnAction(event -> commitEdit());
+                textField.focusedProperty().addListener((obs, o, n) -> { if (!n) commitEdit(); });
+                textField.setOnAction(e -> commitEdit());
             }
-
             private void commitEdit() {
                 try {
                     double value = Double.parseDouble(textField.getText());
                     Map<String, Object> rowData = getTableRow().getItem();
-
-                    if (rowData != null) {
-                        String questionTitle = column.getText().split(" \\(")[0]; // Remove the marks part from title
-
-                        // Get the actual question ID and validate the input value
-                        int actualQuestionId = questionId != -1 ? questionId :
-                            ((Integer) rowData.get("qid_" + questionTitle));
-
-                        if (value < 0 || value > maxMarks) {
-                            showError("Invalid Input",
-                                String.format("Marks must be between 0 and %.1f", maxMarks));
-                            updateItem(getItem(), false);
-                            return;
+                    if (rowData == null) return;
+                    String questionTitle = column.getText();
+                    int parenIndex = questionTitle.indexOf(" (");
+                    if (parenIndex >= 0) questionTitle = questionTitle.substring(0, parenIndex);
+                    int actualQuestionId = questionId != -1 ? questionId : (Integer) rowData.get("qid_" + questionTitle);
+                    if (value < 0 || value > maxMarks) { showError("Invalid Input", String.format("Marks must be between 0 and %.1f", maxMarks)); updateItem(getItem(), false); return; }
+                    rowData.put(questionTitle, value);
+                    hasUnsavedChanges = true;
+                    try {
+                        TableView<Map<String,Object>> tv = column.getTableView();
+                        String sid = (String) rowData.get("studentId");
+                        if (tv == midTableView) {
+                            dbService.saveStudentMidMarks(sid, actualQuestionId, value);
+                        } else if (tv == finalTableView) {
+                            dbService.saveStudentFinalMarks(sid, actualQuestionId, value);
+                        } else {
+                            dbService.saveStudentQuizMarks(sid, actualQuestionId, value);
                         }
-
-                        rowData.put(questionTitle, value);
-                        hasUnsavedChanges = true;
-
-                        try {
-                            dbService.saveStudentQuizMarks(
-                                (String) rowData.get("studentId"),
-                                actualQuestionId,
-                                value
-                            );
-                        } catch (SQLException e) {
-                            showError("Error Saving Mark", e.getMessage());
-                        }
-
-                        updateItem(value, false);
-                    }
-                } catch (NumberFormatException e) {
-                    updateItem(getItem(), false);
-                }
+                    } catch (SQLException ex) { showError("Error Saving Mark", ex.getMessage()); }
+                    updateItem(value, false);
+                } catch (NumberFormatException ignore) { updateItem(getItem(), false); }
             }
-
-            @Override
-            protected void updateItem(Double item, boolean empty) {
+            @Override protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                    setText(null);
-                } else {
-                    setText(String.format("%.2f", item));
-                    setOnMouseClicked(event -> {
-                        if (event.getClickCount() == 2) {
-                            textField.setText(getText());
-                            setGraphic(textField);
-                            setText(null);
-                            textField.requestFocus();
-                        }
-                    });
-                }
+                if (empty || item == null) { setGraphic(null); setText(null); }
+                else { setText(String.format("%.2f", item)); setOnMouseClicked(evt -> { if (evt.getClickCount() == 2) { textField.setText(getText()); setGraphic(textField); setText(null); textField.requestFocus(); } }); }
             }
         });
     }

@@ -186,7 +186,7 @@ public class ManageCourseQuestionsController implements Initializable {
         ChoiceBox<String> coChoice = new ChoiceBox<>();
         ChoiceBox<String> poChoice = new ChoiceBox<>();
 
-        coChoice.getItems().addAll("CO1","CO2","CO3","CO4","CO5","CO6","CO7","CO8","CO9","CO10");
+        coChoice.getItems().addAll("CO1","CO2","CO3","CO4","CO5","CO6","CO7","CO8","CO9","CO10","CO11","CO12","CO13","CO14","CO15","CO16","CO17","CO18","CO19","CO20");
         poChoice.getItems().addAll("PO1","PO2","PO3","PO4","PO5","PO6","PO7","PO8","PO9","PO10","PO11","PO12");
 
         GridPane grid = new GridPane();

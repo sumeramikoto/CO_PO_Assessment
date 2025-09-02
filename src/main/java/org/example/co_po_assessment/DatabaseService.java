@@ -331,15 +331,42 @@ public class DatabaseService {
     // ------------------------------------------------------------------
     public void enrollStudents(String courseId, String academicYear, List<String> studentIds) throws SQLException {
         if (studentIds == null || studentIds.isEmpty()) return;
+        // Fetch course department & programme
+        String courseDept = null, courseProg = null;
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement("SELECT department, programme FROM Course WHERE course_code=?")) {
+            ps.setString(1, courseId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) { courseDept = rs.getString(1); courseProg = rs.getString(2); }
+                else throw new SQLException("Course not found: " + courseId);
+            }
+        }
+        // Build placeholders for IN clause
+        String placeholders = studentIds.stream().map(s -> "?").collect(java.util.stream.Collectors.joining(","));
+        List<String> eligible = new ArrayList<>();
+        String fetchStudents = "SELECT id, department, programme FROM Student WHERE id IN (" + placeholders + ")";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(fetchStudents)) {
+            int idx = 1; for (String id : studentIds) ps.setString(idx++, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String sid = rs.getString(1);
+                    String dept = rs.getString(2);
+                    String prog = rs.getString(3);
+                    if (dept != null && prog != null && dept.equalsIgnoreCase(courseDept) && prog.equalsIgnoreCase(courseProg)) {
+                        eligible.add(sid);
+                    }
+                }
+            }
+        }
+        if (eligible.isEmpty()) return; // no matching students
         ensureEnrollmentYearColumn();
         String sql = "INSERT IGNORE INTO Enrollment (student_id, course_id, academic_year) VALUES (?,?,?)";
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            for (String sid : studentIds) { ps.setString(1,sid); ps.setString(2,courseId); ps.setString(3,academicYear); ps.addBatch(); }
+            for (String sid : eligible) { ps.setString(1,sid); ps.setString(2,courseId); ps.setString(3,academicYear); ps.addBatch(); }
             ps.executeBatch();
         } catch (SQLException ex) {
             if (ex.getMessage()!=null && ex.getMessage().toLowerCase().contains("unknown column 'academic_year'")) {
                 String legacy = "INSERT IGNORE INTO Enrollment (student_id, course_id) VALUES (?,?)";
-                try (Connection c2 = getConnection(); PreparedStatement ps2 = c2.prepareStatement(legacy)) { for (String sid: studentIds){ ps2.setString(1,sid); ps2.setString(2,courseId); ps2.addBatch(); } ps2.executeBatch(); }
+                try (Connection c2 = getConnection(); PreparedStatement ps2 = c2.prepareStatement(legacy)) { for (String sid: eligible){ ps2.setString(1,sid); ps2.setString(2,courseId); ps2.addBatch(); } ps2.executeBatch(); }
             } else throw ex;
         }
     }

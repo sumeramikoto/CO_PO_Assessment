@@ -129,17 +129,18 @@ public class ManageCourseQuestionsController implements Initializable {
 
         quiz1Questions.clear(); quiz2Questions.clear(); quiz3Questions.clear(); quiz4Questions.clear(); midQuestions.clear(); finalQuestions.clear();
         try {
+            String year = courseAssignment.academicYear;
             for (int i = 1; i <= 4; i++) {
-                List<DatabaseService.QuestionData> qd = db.getQuizQuestions(courseAssignment.courseCode, i);
+                List<DatabaseService.QuestionData> qd = db.getQuizQuestions(courseAssignment.courseCode, i, year);
                 ObservableList<AssessmentQuestion> target = switch (i) { case 1 -> quiz1Questions; case 2 -> quiz2Questions; case 3 -> quiz3Questions; default -> quiz4Questions; };
                 for (DatabaseService.QuestionData d : qd) {
                     target.add(new AssessmentQuestion(d.id, d.title, d.marks, d.co, d.po, "Quiz" + i));
                 }
             }
-            for (DatabaseService.QuestionData d : db.getMidQuestions(courseAssignment.courseCode)) {
+            for (DatabaseService.QuestionData d : db.getMidQuestions(courseAssignment.courseCode, year)) {
                 midQuestions.add(new AssessmentQuestion(d.id, d.title, d.marks, d.co, d.po, "Mid"));
             }
-            for (DatabaseService.QuestionData d : db.getFinalQuestions(courseAssignment.courseCode)) {
+            for (DatabaseService.QuestionData d : db.getFinalQuestions(courseAssignment.courseCode, year)) {
                 finalQuestions.add(new AssessmentQuestion(d.id, d.title, d.marks, d.co, d.po, "Final"));
             }
         } catch (Exception e) {
@@ -232,13 +233,14 @@ public class ManageCourseQuestionsController implements Initializable {
         if (courseAssignment == null || q == null) return;
         try {
             String code = courseAssignment.courseCode;
+            String year = courseAssignment.academicYear;
             switch (q.getAssessmentType()) {
-                case "Quiz1" -> db.saveQuizQuestion(code,1,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
-                case "Quiz2" -> db.saveQuizQuestion(code,2,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
-                case "Quiz3" -> db.saveQuizQuestion(code,3,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
-                case "Quiz4" -> db.saveQuizQuestion(code,4,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
-                case "Mid" -> db.saveMidQuestion(code,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
-                case "Final" -> db.saveFinalQuestion(code,q.getNumber(),q.getMarks(),q.getCo(),q.getPo());
+                case "Quiz1" -> db.saveQuizQuestion(code,1,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
+                case "Quiz2" -> db.saveQuizQuestion(code,2,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
+                case "Quiz3" -> db.saveQuizQuestion(code,3,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
+                case "Quiz4" -> db.saveQuizQuestion(code,4,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
+                case "Mid" -> db.saveMidQuestion(code,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
+                case "Final" -> db.saveFinalQuestion(code,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
             }
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to save question: " + e.getMessage(), ButtonType.OK);

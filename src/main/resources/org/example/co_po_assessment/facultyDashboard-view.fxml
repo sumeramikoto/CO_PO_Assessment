@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane dividerPositions="0.10038610038610038" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="520.0" prefWidth="819.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.FacultyDashboardController">
+<SplitPane dividerPositions="0.10038610038610038" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.FacultyDashboardController">
   <items>
     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
          <children>
@@ -19,15 +19,15 @@
                </font>
             </Label>
          </children></AnchorPane>
-    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="447.0" prefWidth="745.0">
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="463.0" prefWidth="918.0">
          <children>
-            <TableView fx:id="assignedCoursesTableView" layoutX="-1.0" layoutY="39.0" prefHeight="293.0" prefWidth="819.0">
+            <TableView fx:id="assignedCoursesTableView" layoutX="-1.0" layoutY="39.0">
               <columns>
                 <TableColumn fx:id="courseCodeColumn" prefWidth="110.0" text="Course Code" />
                 <TableColumn fx:id="courseNameColumn" prefWidth="233.0" text="Course Name" />
                   <TableColumn fx:id="academicYearColumn" prefWidth="132.0" text="Academic Year" />
                   <TableColumn fx:id="departmentColumn" prefWidth="122.0" text="Department" />
-                  <TableColumn fx:id="programmeColumn" prefWidth="158.0" text="Programme" />
+                  <TableColumn fx:id="programmeColumn" prefWidth="221.0" text="Programme" />
               </columns>
             </TableView>
             <Label fx:id="listLabel" alignment="CENTER" layoutY="-2.0" prefHeight="42.0" prefWidth="817.0" text="List of Assigned Courses" textAlignment="CENTER">
@@ -35,9 +35,10 @@
                   <Font size="21.0" />
                </font>
             </Label>
-            <Button fx:id="questionsButton" layoutX="98.0" layoutY="362.0" mnemonicParsing="false" onAction="#onQuestionsButton" prefHeight="75.0" prefWidth="167.0" text="View Course Questions" />
-            <Button fx:id="marksButton" layoutX="325.0" layoutY="362.0" mnemonicParsing="false" onAction="#onMarksButton" prefHeight="75.0" prefWidth="167.0" text="View Student Marks" />
-            <Button fx:id="reportButton" layoutX="535.0" layoutY="362.0" mnemonicParsing="false" onAction="#onReportButton" prefHeight="75.0" prefWidth="268.0" text="Generate CO/PO Assessment Report" />
+            <Button fx:id="questionsButton" layoutX="14.0" layoutY="455.0" mnemonicParsing="false" onAction="#onQuestionsButton" prefHeight="54.0" prefWidth="167.0" text="View Course Questions" />
+            <Button fx:id="marksButton" layoutX="211.0" layoutY="458.0" mnemonicParsing="false" onAction="#onMarksButton" prefHeight="54.0" prefWidth="167.0" text="View Student Marks" />
+            <Button fx:id="COReportButton" layoutX="394.0" layoutY="458.0" mnemonicParsing="false" onAction="#onCOReportButton" prefHeight="54.0" prefWidth="221.0" text="Generate CO Assessment Report" />
+            <Button fx:id="POReportButton" layoutX="641.0" layoutY="458.0" mnemonicParsing="false" onAction="#onPOReportButton" prefHeight="54.0" prefWidth="221.0" text="Generate PO Assessment Report" />
          </children></AnchorPane>
   </items>
 </SplitPane>

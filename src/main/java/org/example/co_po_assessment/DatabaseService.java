@@ -246,21 +246,48 @@ public class DatabaseService {
     // Student marks retrieval (academic-year aware) + wrappers
     // ------------------------------------------------------------------
     public List<StudentMarksData> getStudentQuizMarks(String courseId, int quizNumber, String ay) throws SQLException {
-        String sql = "SELECT s.id,s.name,qq.id,qq.title,qq.marks,COALESCE(sqm.marks_obtained,0) FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.academic_year=? JOIN Quiz q ON q.course_id=e.course_id AND q.quiz_number=? AND q.academic_year=e.academic_year JOIN QuizQuestion qq ON qq.quiz_id=q.id LEFT JOIN StudentQuizMarks sqm ON sqm.student_id=s.id AND sqm.quiz_question_id=qq.id ORDER BY s.id,qq.title";
+        String sql = "SELECT s.id,s.name,qq.id,qq.title,qq.marks,sqm.marks_obtained FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.academic_year=? JOIN Quiz q ON q.course_id=e.course_id AND q.quiz_number=? AND q.academic_year=e.academic_year JOIN QuizQuestion qq ON qq.quiz_id=q.id LEFT JOIN StudentQuizMarks sqm ON sqm.student_id=s.id AND sqm.quiz_question_id=qq.id ORDER BY s.id,qq.title";
         List<StudentMarksData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseId); ps.setString(2,ay); ps.setInt(3,quizNumber); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), rs.getDouble(6))); }}
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1,courseId); ps.setString(2,ay); ps.setInt(3,quizNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Object val = rs.getObject(6);
+                    Double obtained = (val == null) ? null : ((Number) val).doubleValue();
+                    list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), obtained));
+                }
+            }
+        }
         return list;
     }
     public List<StudentMarksData> getStudentMidMarks(String courseId, String ay) throws SQLException {
-        String sql = "SELECT s.id,s.name,mq.id,mq.title,mq.marks,COALESCE(smm.marks_obtained,0) FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.academic_year=? JOIN Mid m ON m.course_id=e.course_id AND m.academic_year=e.academic_year JOIN MidQuestion mq ON mq.mid_id=m.id LEFT JOIN StudentMidMarks smm ON smm.student_id=s.id AND smm.mid_question_id=mq.id ORDER BY s.id,mq.title";
+        String sql = "SELECT s.id,s.name,mq.id,mq.title,mq.marks,smm.marks_obtained FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.academic_year=? JOIN Mid m ON m.course_id=e.course_id AND m.academic_year=e.academic_year JOIN MidQuestion mq ON mq.mid_id=m.id LEFT JOIN StudentMidMarks smm ON smm.student_id=s.id AND smm.mid_question_id=mq.id ORDER BY s.id,mq.title";
         List<StudentMarksData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseId); ps.setString(2,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), rs.getDouble(6))); }}
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1,courseId); ps.setString(2,ay);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Object val = rs.getObject(6);
+                    Double obtained = (val == null) ? null : ((Number) val).doubleValue();
+                    list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), obtained));
+                }
+            }
+        }
         return list;
     }
     public List<StudentMarksData> getStudentFinalMarks(String courseId, String ay) throws SQLException {
-        String sql = "SELECT s.id,s.name,fq.id,fq.title,fq.marks,COALESCE(sfm.marks_obtained,0) FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.academic_year=? JOIN Final f ON f.course_id=e.course_id AND f.academic_year=e.academic_year JOIN FinalQuestion fq ON fq.final_id=f.id LEFT JOIN StudentFinalMarks sfm ON sfm.student_id=s.id AND sfm.final_question_id=fq.id ORDER BY s.id,fq.title";
+        String sql = "SELECT s.id,s.name,fq.id,fq.title,fq.marks,sfm.marks_obtained FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.academic_year=? JOIN Final f ON f.course_id=e.course_id AND f.academic_year=e.academic_year JOIN FinalQuestion fq ON fq.final_id=f.id LEFT JOIN StudentFinalMarks sfm ON sfm.student_id=s.id AND sfm.final_question_id=fq.id ORDER BY s.id,fq.title";
         List<StudentMarksData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseId); ps.setString(2,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), rs.getDouble(6))); }}
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1,courseId); ps.setString(2,ay);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Object val = rs.getObject(6);
+                    Double obtained = (val == null) ? null : ((Number) val).doubleValue();
+                    list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), obtained));
+                }
+            }
+        }
         return list;
     }
     // Legacy wrappers
@@ -374,12 +401,40 @@ public class DatabaseService {
     public Integer getFinalQuestionId(String cId, String title) throws SQLException { return getFinalQuestionId(cId, title, latestAcademicYear()); }
 
     // ------------------------------------------------------------------
+    // Delete questions (academic-year aware)
+    // ------------------------------------------------------------------
+    public boolean deleteQuizQuestion(String courseId, int quizNumber, String title, String ay) throws SQLException {
+        String sql = "DELETE qq FROM QuizQuestion qq JOIN Quiz q ON qq.quiz_id=q.id WHERE q.course_id=? AND q.quiz_number=? AND q.academic_year=? AND qq.title=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, courseId); ps.setInt(2, quizNumber); ps.setString(3, ay); ps.setString(4, title);
+            return ps.executeUpdate() > 0;
+        }
+    }
+    public boolean deleteMidQuestion(String courseId, String title, String ay) throws SQLException {
+        String sql = "DELETE mq FROM MidQuestion mq JOIN Mid m ON mq.mid_id=m.id WHERE m.course_id=? AND m.academic_year=? AND mq.title=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, courseId); ps.setString(2, ay); ps.setString(3, title);
+            return ps.executeUpdate() > 0;
+        }
+    }
+    public boolean deleteFinalQuestion(String courseId, String title, String ay) throws SQLException {
+        String sql = "DELETE fq FROM FinalQuestion fq JOIN Final f ON fq.final_id=f.id WHERE f.course_id=? AND f.academic_year=? AND fq.title=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, courseId); ps.setString(2, ay); ps.setString(3, title);
+            return ps.executeUpdate() > 0;
+        }
+    }
+    public boolean deleteQuizQuestion(String c, int n, String t) throws SQLException { return deleteQuizQuestion(c,n,t,latestAcademicYear()); }
+    public boolean deleteMidQuestion(String c, String t) throws SQLException { return deleteMidQuestion(c,t,latestAcademicYear()); }
+    public boolean deleteFinalQuestion(String c, String t) throws SQLException { return deleteFinalQuestion(c,t,latestAcademicYear()); }
+
+    // ------------------------------------------------------------------
     // Data classes
     // ------------------------------------------------------------------
     public static class QuestionData { public final int id; public final String title; public final double marks; public final String co; public final String po; public QuestionData(int id,String title,double marks,String co,String po){this.id=id;this.title=title;this.marks=marks;this.co=co;this.po=po;} }
     public static class StudentData { public final String id,name,email; public final int batch; public final String programme,department; public StudentData(String id,String name,String email,int batch,String programme,String department){this.id=id;this.name=name;this.email=email;this.batch=batch;this.programme=programme;this.department=department;} }
     public static class CourseData { public final String courseCode, courseName, department, programme, instructorName; public final double credits; public CourseData(String courseCode,String courseName,double credits,String department,String programme,String instructorName){this.courseCode=courseCode;this.courseName=courseName;this.credits=credits;this.department=department;this.programme=programme;this.instructorName=instructorName;} }
-    public static class StudentMarksData { public final String studentId, studentName, questionTitle; public final int questionId; public final double maxMarks, marksObtained; public StudentMarksData(String sid,String sname,int qid,String qTitle,double max,double obtained){this.studentId=sid;this.studentName=sname;this.questionId=qid;this.questionTitle=qTitle;this.maxMarks=max;this.marksObtained=obtained;} }
+    public static class StudentMarksData { public final String studentId, studentName, questionTitle; public final int questionId; public final double maxMarks; public final Double marksObtained; public StudentMarksData(String sid,String sname,int qid,String qTitle,double max,Double obtained){this.studentId=sid;this.studentName=sname;this.questionId=qid;this.questionTitle=qTitle;this.maxMarks=max;this.marksObtained=obtained;} }
     public static class StudentPerformanceData { public final String studentId, studentName, assessmentType, questionTitle, coNumber, poNumber; public final int batch, assessmentNumber; public final double maxMarks, marksObtained; public StudentPerformanceData(String sid,String sname,int batch,String at,int an,String qt,double max,double got,String co,String po){this.studentId=sid;this.studentName=sname;this.batch=batch;this.assessmentType=at;this.assessmentNumber=an;this.questionTitle=qt;this.maxMarks=max;this.marksObtained=got;this.coNumber=co;this.poNumber=po;} }
     public static class FacultyInfo { public final int id; public final String shortname, fullName, email; public FacultyInfo(int id,String shortname,String fullName,String email){this.id=id;this.shortname=shortname;this.fullName=fullName;this.email=email;} public int getId(){return id;} public String getShortname(){return shortname;} public String getFullName(){return fullName;} public String getEmail(){return email;} }
     public static class FacultyCourseAssignment { public final String courseCode, courseName, academicYear, department, programme; public FacultyCourseAssignment(String courseCode,String courseName,String academicYear,String department,String programme){this.courseCode=courseCode;this.courseName=courseName;this.academicYear=academicYear;this.department=department;this.programme=programme;} public String getCourseCode(){return courseCode;} public String getCourseName(){return courseName;} public String getAcademicYear(){return academicYear;} public String getDepartment(){return department;} public String getProgramme(){return programme;} }

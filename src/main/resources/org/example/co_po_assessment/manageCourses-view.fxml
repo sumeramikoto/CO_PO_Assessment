@@ -13,9 +13,12 @@
     <TableView fx:id="courseTableView" AnchorPane.topAnchor="82.0" AnchorPane.leftAnchor="0.0"
                AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="60.0">
         <columns>
-            <TableColumn fx:id="courseCodeColumn" prefWidth="193.0" text="Course Code" />
-            <TableColumn fx:id="courseNameColumn" prefWidth="440.0" text="Course Name" />
-            <TableColumn fx:id="creditsColumn" prefWidth="144.0" text="Credits" />
+            <TableColumn fx:id="courseCodeColumn" prefWidth="150.0" text="Course Code" />
+            <TableColumn fx:id="courseNameColumn" prefWidth="300.0" text="Course Name" />
+            <TableColumn fx:id="creditsColumn" prefWidth="80.0" text="Credits" />
+            <!-- Newly added columns -->
+            <TableColumn fx:id="departmentColumn" prefWidth="100.0" text="Department" />
+            <TableColumn fx:id="programmeColumn" prefWidth="140.0" text="Programme" />
         </columns>
     </TableView>
 

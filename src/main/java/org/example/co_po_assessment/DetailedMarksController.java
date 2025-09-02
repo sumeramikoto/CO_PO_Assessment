@@ -20,6 +20,7 @@ public class DetailedMarksController {
     @FXML private TableView<Map<String, Object>> finalTableView;
 
     private String courseId;
+    private String academicYear;
     private final DatabaseService dbService = DatabaseService.getInstance();
     private boolean hasUnsavedChanges = false;
 
@@ -33,18 +34,25 @@ public class DetailedMarksController {
         setupBasicColumns(finalTableView);
     }
 
-    public void setCourseId(String courseId) {
+    // New context setter
+    public void setContext(String courseId, String academicYear) {
         this.courseId = courseId;
+        this.academicYear = academicYear;
         try {
-            dbService.ensureAssessmentsExist(courseId, getCurrentAcademicYear());
+            dbService.ensureAssessmentsExist(courseId, academicYear);
             loadAllMarks();
         } catch (SQLException e) {
             showError("Error Initializing", e.getMessage());
         }
     }
 
+    // Backward compatibility (if only courseId provided, fall back to latest year assumption via existing hard-coded method)
+    public void setCourseId(String courseId) {
+        setContext(courseId, getCurrentAcademicYear());
+    }
+
     private String getCurrentAcademicYear() {
-        return "2025-2026";
+        return academicYear != null ? academicYear : "2025-2026";
     }
 
     private void setupBasicColumns(TableView<Map<String, Object>> tableView) {
@@ -76,9 +84,10 @@ public class DetailedMarksController {
     }
 
     private void loadQuizMarks(int quizNumber, TableView<Map<String, Object>> tableView) throws SQLException {
-        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentQuizMarks(courseId, quizNumber);
+        if (academicYear == null) academicYear = getCurrentAcademicYear();
+        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentQuizMarks(courseId, quizNumber, academicYear);
         if (marksData.isEmpty()) {
-            List<DatabaseService.QuestionData> questions = dbService.getQuizQuestions(courseId, quizNumber);
+            List<DatabaseService.QuestionData> questions = dbService.getQuizQuestions(courseId, quizNumber, academicYear);
             if (!questions.isEmpty()) {
                 setupEmptyQuestionColumns(tableView, questions);
             }
@@ -88,9 +97,10 @@ public class DetailedMarksController {
     }
 
     private void loadMidMarks() throws SQLException {
-        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentMidMarks(courseId);
+        if (academicYear == null) academicYear = getCurrentAcademicYear();
+        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentMidMarks(courseId, academicYear);
         if (marksData.isEmpty()) {
-            List<DatabaseService.QuestionData> questions = dbService.getMidQuestions(courseId);
+            List<DatabaseService.QuestionData> questions = dbService.getMidQuestions(courseId, academicYear);
             if (!questions.isEmpty()) {
                 setupEmptyQuestionColumns(midTableView, questions);
             }
@@ -100,9 +110,10 @@ public class DetailedMarksController {
     }
 
     private void loadFinalMarks() throws SQLException {
-        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentFinalMarks(courseId);
+        if (academicYear == null) academicYear = getCurrentAcademicYear();
+        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentFinalMarks(courseId, academicYear);
         if (marksData.isEmpty()) {
-            List<DatabaseService.QuestionData> questions = dbService.getFinalQuestions(courseId);
+            List<DatabaseService.QuestionData> questions = dbService.getFinalQuestions(courseId, academicYear);
             if (!questions.isEmpty()) {
                 setupEmptyQuestionColumns(finalTableView, questions);
             }
@@ -134,7 +145,7 @@ public class DetailedMarksController {
 
         // Load enrolled students with empty marks
         try {
-            List<DatabaseService.StudentData> students = dbService.getEnrolledStudents(courseId);
+            List<DatabaseService.StudentData> students = dbService.getEnrolledStudents(courseId, getCurrentAcademicYear());
             ObservableList<Map<String, Object>> data = FXCollections.observableArrayList();
 
             for (DatabaseService.StudentData student : students) {

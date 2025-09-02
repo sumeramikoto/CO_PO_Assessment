@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.co_po_assessment.ManageEnrollmentsController"
+            prefWidth="840" prefHeight="520">
+    <top>
+        <VBox spacing="6" BorderPane.alignment="CENTER_LEFT">
+            <padding><Insets top="10" left="10" right="10" bottom="10"/></padding>
+            <children>
+                <Label text="Manage Enrollments" style="-fx-font-size:20; -fx-font-weight:bold;" />
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="Batch:" />
+                        <ComboBox fx:id="batchFilterCombo" prefWidth="110" />
+                        <Label text="Department:" />
+                        <ComboBox fx:id="departmentFilterCombo" prefWidth="110" />
+                        <Label text="Programme:" />
+                        <ComboBox fx:id="programmeFilterCombo" prefWidth="110" />
+                        <Button fx:id="refreshButton" text="Refresh" onAction="#onRefresh" />
+                        <Button fx:id="clearFiltersButton" text="Clear Filters" onAction="#onClearFilters" />
+                    </children>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="Course:" />
+                        <ComboBox fx:id="courseCombo" prefWidth="140" />
+                        <Label text="Academic Year:" />
+                        <ComboBox fx:id="academicYearCombo" prefWidth="140" />
+                        <Button fx:id="enrollButton" text="Enroll Selected" onAction="#onEnrollSelected" />
+                        <Button fx:id="closeButton" text="Close" onAction="#onClose" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </top>
+    <center>
+        <TableView fx:id="studentTableView" BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn fx:id="idColumn" text="ID" prefWidth="120" />
+                <TableColumn fx:id="nameColumn" text="Name" prefWidth="240" />
+                <TableColumn fx:id="batchColumn" text="Batch" prefWidth="70" />
+                <TableColumn fx:id="departmentColumn" text="Department" prefWidth="140" />
+                <TableColumn fx:id="programmeColumn" text="Programme" prefWidth="140" />
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>
+

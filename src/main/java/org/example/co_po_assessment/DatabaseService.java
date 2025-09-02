@@ -395,5 +395,14 @@ public class DatabaseService {
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setInt(1,facultyId); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new FacultyCourseAssignment(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5))); }}
         return list;
     }
+    public List<String> getCoursesDetailed() throws SQLException {
+        String sql = "SELECT course_code, course_name, department, programme FROM Course ORDER BY course_code";
+        List<String> list = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(rs.getString(1) + " - " + rs.getString(2) + " - " + rs.getString(3) + " - " + rs.getString(4));
+            }
+        }
+        return list;
+    }
 }
-

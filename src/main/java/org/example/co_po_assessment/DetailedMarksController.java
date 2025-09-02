@@ -2,6 +2,7 @@ package org.example.co_po_assessment;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleObjectProperty; // added
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -134,7 +135,7 @@ public class DetailedMarksController {
             TableColumn<Map<String, Object>, Double> col = new TableColumn<>(columnTitle);
             col.setCellValueFactory(data -> {
                 Double value = (Double) data.getValue().get(question.title);
-                return new SimpleDoubleProperty(value != null ? value : 0.0).asObject();
+                return new SimpleObjectProperty<>(value); // keep nulls as null (blank cell)
             });
             setupEditableColumn(col, question.id, question.marks);
             tableView.getColumns().add(col);
@@ -153,7 +154,7 @@ public class DetailedMarksController {
                 row.put("studentId", student.id);
                 row.put("studentName", student.name);
                 for (DatabaseService.QuestionData question : questions) {
-                    row.put(question.title, 0.0);
+                    row.put(question.title, null); // do NOT default to 0.0
                     row.put("qid_" + question.title, question.id);
                     row.put("max_" + question.title, question.marks);
                 }
@@ -199,11 +200,11 @@ public class DetailedMarksController {
             String columnTitle = String.format("%s (%.1f)", title, maxMark);
             TableColumn<Map<String, Object>, Double> col = new TableColumn<>(columnTitle);
             col.setCellValueFactory(data -> {
-                Double value = (Double) data.getValue().get(title);
-                return new SimpleDoubleProperty(value != null ? value : 0.0).asObject();
+                Double value = (Double) data.getValue().get(title); // may be null if ungraded
+                return new SimpleObjectProperty<>(value);
             });
             col.setPrefWidth(80);
-            setupEditableColumn(col, -1, maxMark); // questionId will be retrieved from the row data
+            setupEditableColumn(col, -1, maxMark);
             tableView.getColumns().add(col);
         }
 
@@ -246,8 +247,14 @@ public class DetailedMarksController {
             }
             @Override protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) { setGraphic(null); setText(null); }
-                else { setText(String.format("%.2f", item)); setOnMouseClicked(evt -> { if (evt.getClickCount() == 2) { textField.setText(getText()); setGraphic(textField); setText(null); textField.requestFocus(); } }); }
+                if (empty) { setGraphic(null); setText(null); return; }
+                if (item == null) { // show blank for ungraded
+                    setGraphic(null); setText("");
+                    setOnMouseClicked(evt -> { if (evt.getClickCount() == 2) { textField.setText(""); setGraphic(textField); setText(null); textField.requestFocus(); } });
+                } else {
+                    setText(String.format("%.2f", item));
+                    setOnMouseClicked(evt -> { if (evt.getClickCount() == 2) { textField.setText(getText()); setGraphic(textField); setText(null); textField.requestFocus(); } });
+                }
             }
         });
     }

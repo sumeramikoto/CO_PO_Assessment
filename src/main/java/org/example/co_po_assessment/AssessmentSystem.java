@@ -10,9 +10,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import org.example.co_po_assessment.AdminDashboardWindow;
-import org.example.co_po_assessment.DatabaseService;
-import org.example.co_po_assessment.FacultyDashboardView;
 
 public class AssessmentSystem extends Application {
 
@@ -181,7 +178,7 @@ public class AssessmentSystem extends Application {
     private void launchAdminDashboard() {
         try {
             Stage adminStage = new Stage();
-            AdminDashboardWindow adminDashboard = new AdminDashboardWindow();
+            AdminDashboardView adminDashboard = new AdminDashboardView();
             adminDashboard.start(adminStage);
             primaryStage.close();
         } catch (Exception e) {

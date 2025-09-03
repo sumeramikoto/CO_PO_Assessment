@@ -1,167 +1,128 @@
-# CO / PO Assessment System
+# CO-PO Assessment System
 
-A JavaFX + MySQL desktop application for managing university course outcome (CO) and program outcome (PO) assessment workflows: course & faculty management, student enrollment, question definition, marks entry, and attainment reporting.
+## Overview
 
-## Key Features
-- Admin dashboard: manage faculties, students, courses, course assignments.
-- Assessment panel (Manual window): select course & academic year, load enrolled students, define quiz/mid/final questions, enter marks, view CO/PO attainment.
-- Persistence via MySQL (schema + seed data provided).
-- Dynamic question definition with CO/PO tagging.
-- Export/report groundwork (PDF / Excel libs present for future use).
-- authentication uses bcrypt
+The CO-PO Assessment System is a comprehensive educational management platform designed to track, measure, and analyze Course Outcomes (CO) against Program Outcomes (PO) in an academic setting. This JavaFX-based application provides a robust solution for educational institutions to monitor student performance, assess curriculum effectiveness, and ensure alignment with program objectives.
+
+## Features
+
+### Authentication & User Management
+- **Multi-user Login**: Separate authentication for administrators and faculty members
+- **Secure Password Storage**: Implements password hashing using jBCrypt for enhanced security
+- **User Session Management**: Maintains active sessions for authenticated users
+
+### Administrator Dashboard
+- **Course Management**: Add, edit, and remove courses with details like course code, name, credits, department, and program
+- **Faculty Management**: Register and manage faculty information
+- **Student Management**: Maintain student records and track enrollment
+- **Course Assignment**: Assign faculty members to specific courses
+- **Enrollment Management**: Track and manage student enrollment in courses
+
+### Faculty Dashboard
+- **Course View**: Access to assigned courses
+- **Assessment Management**: Create and manage assessment questions
+- **Student Performance Tracking**: Record and analyze student marks and performance
+- **Reports Generation**: Generate assessment reports for courses
+
+### Assessment & Reporting
+- **CO-PO Mapping**: Map course outcomes to program outcomes
+- **Performance Analytics**: Visualize student performance against course outcomes
+- **PDF Report Generation**: Create detailed reports of CO-PO attainment
+- **Data Export**: Export assessment data for further analysis
 
 ## Technology Stack
-| Layer | Tech |
-|-------|------|
-| UI | JavaFX |
-| Charts/Reports | JFreeChart, iText Core (PDF) |
-| Database | MySQL 8 (JDBC) |
 
-## Module & Packaging
-Java module: `org.example.co_po_assessment` (see `module-info.java`). Preview features enabled (source/target 24). Ensure you run with a matching JDK (>=24) and add `--enable-preview`.
+- **Frontend**: JavaFX (UI components, FXML for layouts)
+- **Backend**: Java
+- **Database**: MySQL
+- **Authentication**: jBCrypt for password hashing
+- **Reporting**: iText PDF for report generation
+- **Data Visualization**: JFreeChart for charts and graphs
+- **Excel Integration**: Apache POI for Excel file handling
 
-## Project Structure (simplified)
-```
-src/main/java/
-  module-info.java
-  org/example/co_po_assessment/
-    AdminDashboardWindow / Controller & FXML
-    Manual (CO/PO assessment panel)
-    DatabaseService (core DB access)
-    *DatabaseHelper classes (entity-specific queries)
-    Faculty / Course / AssessmentQuestion / Student models
-    FXML view controllers
-  depricatedClasses/ (legacy screens)
-resources/
-  schema.sql (DDL)
-insert.sql (seed data: faculty, courses, assignments, CO/PO, students, enrollments)
-```
+## System Requirements
 
-## Database Schema Overview
-Tables: Admin, Faculty, Course, CourseAssignment, Student, Enrollment, Quiz, Mid, Final, QuizQuestion, CO, PO (see `schema.sql`).
-Relationships:
-- `CourseAssignment(faculty_id, course_code)` links instructors to courses & academic years.
-- `Enrollment(student_id, course_id)` maps students to courses.
-- Assessment tables (Quiz / Mid / Final) reference `Course`.
-- Question tables reference both assessment instance and CO/PO master tables.
+- Java Development Kit (JDK) 17 or higher
+- MySQL 8.0 or higher
+- Maven for dependency management
 
-## Setup
-### Prerequisites
-- JDK 24 (or newer) with preview features
-- Maven 3.9+
-- MySQL Server 8+
+## Installation & Setup
 
-### 1. Create Database & Apply Schema
-```sql
-CREATE DATABASE SPL2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE SPL2;
-SOURCE schema.sql;   -- or copy contents manually
-SOURCE insert.sql;   -- seed data
-```
+1. **Clone the repository**
+   ```
+   git clone [repository-url]
+   cd CO_PO_Assessment2
+   ```
 
-### 2. Adjust Connection Settings (optional)
-Edit `DatabaseService.java` if your MySQL credentials differ:
-```java
-private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
-private static final String DB_USER = "root";
-private static final String DB_PASSWORD = "yourPassword";
-```
+2. **Database Setup**
+   - Create a MySQL database named `SPL2`
+   - Run the schema script located at `src/main/resources/schema.sql`
+   - Update database credentials in:
+     - `DatabaseService.java`
+     - `CoursesDatabaseHelper.java`
+     - And other database helper classes if necessary
 
-### 3. Build
-```bash
-mvn clean package -DskipTests
-```
+3. **Build the project**
+   ```
+   mvn clean install
+   ```
 
-### 4. Run (Examples)
-Run Admin dashboard main window (adjust if class changes):
-```bash
-java --enable-preview -p target/classes;path/to/javafx-sdk/lib \
-     -m org.example.co_po_assessment/org.example.co_po_assessment.AdminDashboardWindow
-```
-Run assessment panel directly:
-```bash
-java --enable-preview -p target/classes;path/to/javafx-sdk/lib \
-     -m org.example.co_po_assessment/org.example.co_po_assessment.Manual
-```
-(If using javafx-maven-plugin, update `<mainClass>` to a valid launcher then `mvn clean javafx:run`).
+4. **Run the application**
+   ```
+   mvn javafx:run
+   ```
+   Alternatively, run the `AssessmentSystem` class directly from your IDE.
 
-## Usage Flow (Typical)
-1. Launch Admin dashboard → add/verify faculty, courses, assign faculty to courses, manage students.
-2. Launch CO/PO Assessment (Manual):
-   - Click "Select Course" → choose course code + instructor + academic year.
-   - Enrolled students load (via `Enrollment`).
-   - Add quiz / mid / final questions (CO & PO mapping) → they persist to DB.
-   - Enter marks per student → totals recompute.
-   - Calculate results → view preliminary CO/PO attainment (simple averaging placeholder).
-3. Export (future work) to PDF / Excel.
+## Usage Guide
 
-## CO/PO Attainment Logic (Current State)
-- Present implementation: average percentage of marks earned per CO/PO across relevant questions.
-- Placeholder only; refine mapping & weighting to institutional rules.
+### Administrator Functions
+1. Log in using administrator credentials
+2. Use the dashboard to access various management modules
+3. Manage courses, faculty, students, and course assignments
+4. Generate and view reports
 
-## Extending
-### Add a New Assessment Question Type
-1. Create new assessment table (DDL) similar to Quiz.
-2. Add persistence methods in `DatabaseService`.
-3. Extend UI creation in `Manual#createMarksEntryTab` + question dialogs.
-4. Update attainment aggregation.
+### Faculty Functions
+1. Log in using faculty credentials
+2. View assigned courses
+3. Manage assessments and student marks
+4. Generate CO-PO attainment reports for courses
 
-### Add Configuration Externalization
-Replace hard-coded DB credentials with a `config.properties` loaded at startup.
+## Database Structure
 
-## Troubleshooting
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Empty student table after selecting course | Missing enrollments | Verify `Enrollment` rows and course code match | 
-| ClassNotFound for controller | Wrong module export/open | Ensure `module-info.java` opens package to `javafx.fxml` |
-| JavaFX version warning (23 vs 17) | FXML saved with newer SceneBuilder | Align SceneBuilder to 17 or upgrade dependencies | 
-| Questions not saving | Course not selected or CO/PO rows absent | Select course first; seed CO/PO tables | 
-| Duplicate key on question insert | Reusing title per assessment | Use unique `title` per quiz/mid/final |
+The application uses a MySQL database with the following main tables:
+- Course: Stores course information
+- Faculty: Manages faculty records
+- Student: Contains student data
+- CourseAssignment: Maps faculty to courses
+- Enrollment: Tracks student enrollment in courses
+- Assessment: Stores assessment details and questions
 
-## Known Limitations / TODO
-- Authentication & role-based access minimal.
-- Attainment formulas simplistic.
-- No input validation for many dialogs yet.
-- Export/report generation not finalized.
-- Hard-coded DB credentials.
-- Lack of automated tests.
+## Reporting
 
-## Possible Next Steps
-- Add DAO abstraction & connection pooling.
-- Introduce Flyway/Liquibase migrations.
-- Implement service layer unit tests (JUnit + Testcontainers).
-- Add user authentication (password hashing, sessions).
-- Implement configurable attainment thresholds & weighting.
-- Dark mode / responsive layout improvements.
+The system generates two types of reports:
+- **CO Reports**: Assessment of Course Outcomes
+- **PO Reports**: Analysis of Program Outcomes based on course attainments
 
-## Testing (Suggested Pattern)
-Add JUnit tests under `src/test/java` e.g.:
-- `DatabaseServiceTest`: CRUD operations (with test DB).
-- Attainment calculation tests with synthetic data.
-Run:
-```bash
-mvn test
-```
+Reports are saved in the respective folders:
+- `co_reports/`
+- `po_reports/`
 
-## Security Notes
-- Replace plain-text passwords with hashed storage (BCrypt / Argon2).
-- Lock DB user to least privileges (SELECT/INSERT/UPDATE only as needed).
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
-See [LICENSE](LICENSE).
 
-## Attribution / Credits
-- JavaFX & ControlsFX for UI.
-- Apache POI & iText for planned reporting.
-- JFreeChart for potential attainment visualizations.
+This project is licensed under the terms of the license included in the repository.
 
-## Support
-Open an issue describing:
-- Environment (OS, JDK, MySQL version)
-- Steps to reproduce
-- Expected vs actual behavior
-- Relevant logs/stack traces
+## Acknowledgements
 
----
-Maintained as a learning-oriented academic assessment tooling prototype. Contributions welcome.
-
+- Apache POI for Excel integration
+- iText for PDF generation
+- JFreeChart for data visualization
+- MySQL Connector for database connectivity
+- JavaFX for the user interface framework

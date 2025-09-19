@@ -43,17 +43,25 @@ public class CourseInputController implements Initializable {
     }
 
     public void onConfirmButton(ActionEvent event) {
+        // Normalize course code input (collapse multiple spaces, uppercase) before validation
+        if (courseCodeTextField.getText() != null) {
+            String normalized = courseCodeTextField.getText().trim().replaceAll("\\s+", " ").toUpperCase();
+            courseCodeTextField.setText(normalized);
+        }
+
+        // NOTE: We intentionally do NOT auto-normalize programme beyond trimming, to enforce explicit user entry format.
+
         // Validate input fields
         if (!validateInputs()) {
             return;
         }
 
-        // Get input values
-        String courseCode = courseCodeTextField.getText().trim().toUpperCase();
+        // Get input values (course code already normalized above)
+        String courseCode = courseCodeTextField.getText().trim();
         String courseName = courseNameTextField.getText().trim();
         double credits = Double.parseDouble(creditsTextField.getText().trim());
         String department = departmentTextField.getText().trim().toUpperCase();
-        String programme = programmeTextField.getText().trim().toUpperCase();
+        String programme = programmeTextField.getText().trim();
 
         try {
             // Call parent controller to add the course
@@ -82,12 +90,12 @@ public class CourseInputController implements Initializable {
     private boolean validateInputs() {
         StringBuilder errors = new StringBuilder();
 
-        // Validate course code
-        String courseCode = courseCodeTextField.getText().trim();
+        // Validate course code (normalize for validation)
+        String courseCode = courseCodeTextField.getText() == null ? "" : courseCodeTextField.getText().trim().replaceAll("\\s+", " ");
         if (courseCode.isEmpty()) {
             errors.append("Course code is required.\n");
         } else if (!isValidCourseCode(courseCode)) {
-            errors.append("Course code must be alphanumeric (3-8 chars).\n");
+            errors.append("Course code must be in the format ABC 1234 or ABCD 1234 (three or four letters, space, four digits).\n");
         }
 
         // Validate course name
@@ -121,15 +129,15 @@ public class CourseInputController implements Initializable {
             errors.append("Department must be 2-3 letters.\n");
         }
 
-        // Validate programme
+        // Validate programme (strict format e.g., BSc in SWE, MSc in CSE, PhD in CS, BBA in FIN)
         String programme = programmeTextField.getText().trim();
         if (programme.isEmpty()) {
             errors.append("Programme is required.\n");
-        } else if (programme.length() > 11) {
-            errors.append("Programme max length is 11.\n");
+        } else if (!isValidProgramme(programme)) {
+            errors.append("Programme must match the format: BSc in XX, BSc in XXX, MSc in XX/XXX, PhD in XX/XXX, or BBA in XX/XXX (where the last part is 2 or 3 uppercase letters).\n");
         }
 
-        // Check if course code already exists
+        // Check if course code already exists (use normalized uppercase format)
         try {
             if (!courseCode.isEmpty() && databaseHelper.courseExists(courseCode.toUpperCase())) {
                 errors.append("Course code already exists. Please use a different code.\n");
@@ -147,11 +155,24 @@ public class CourseInputController implements Initializable {
     }
 
     /**
-     * Validate course code format
+     * Validate course code format.
+     * Expected format: Three OR four letters, a single space, four digits (e.g., SWE 4402 or MATH 4141).
      */
     private boolean isValidCourseCode(String courseCode) {
-        // Course code should be alphanumeric, typically 3-8 characters
-        return courseCode.matches("[A-Za-z0-9]{3,8}");
+        if (courseCode == null) return false;
+        String normalized = courseCode.trim().replaceAll("\\s+", " ").toUpperCase();
+        return normalized.matches("[A-Z]{3,4} [0-9]{4}");
+    }
+
+    /**
+     * Validate programme format.
+     * Expected format: (BSc|MSc|PhD|BBA) in XX or XXX where X are uppercase letters.
+     * Examples: BSc in SWE, MSc in CSE, PhD in CS, BBA in FIN
+     */
+    private boolean isValidProgramme(String programme) {
+        if (programme == null) return false;
+        String trimmed = programme.trim().replaceAll("\\s+", " ");
+        return trimmed.matches("(BSc|MSc|PhD|BBA) in [A-Z]{2,3}");
     }
 
     /**

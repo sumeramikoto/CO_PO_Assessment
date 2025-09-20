@@ -136,7 +136,7 @@ public class FacultyDashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("detailedMarks-view.fxml"));
             Parent root = loader.load();
             DetailedMarksController controller = loader.getController();
-            controller.setContext(selected.getCourseCode(), selected.getAcademicYear());
+            controller.setContext(selected.getCourseCode(), selected.getProgramme(), selected.getAcademicYear());
 
             Stage stage = new Stage();
             stage.setTitle("Student Marks - " + selected.getCourseCode() + " (" + selected.getAcademicYear() + ")");
@@ -165,14 +165,15 @@ public class FacultyDashboardController {
         }
         String courseCode = selected.getCourseCode();
         String academicYear = selected.getAcademicYear();
+        String programme = selected.getProgramme();
         try {
             // Fetch questions per assessment individually to validate completeness
-            List<DatabaseService.QuestionData> quiz1 = db.getQuizQuestions(courseCode,1,academicYear);
-            List<DatabaseService.QuestionData> quiz2 = db.getQuizQuestions(courseCode,2,academicYear);
-            List<DatabaseService.QuestionData> quiz3 = db.getQuizQuestions(courseCode,3,academicYear);
-            List<DatabaseService.QuestionData> quiz4 = db.getQuizQuestions(courseCode,4,academicYear);
-            List<DatabaseService.QuestionData> midQuestions = db.getMidQuestions(courseCode, academicYear);
-            List<DatabaseService.QuestionData> finalQuestions = db.getFinalQuestions(courseCode, academicYear);
+            List<DatabaseService.QuestionData> quiz1 = db.getQuizQuestions(courseCode, programme, 1,academicYear);
+            List<DatabaseService.QuestionData> quiz2 = db.getQuizQuestions(courseCode, programme, 2,academicYear);
+            List<DatabaseService.QuestionData> quiz3 = db.getQuizQuestions(courseCode, programme, 3,academicYear);
+            List<DatabaseService.QuestionData> quiz4 = db.getQuizQuestions(courseCode, programme, 4,academicYear);
+            List<DatabaseService.QuestionData> midQuestions = db.getMidQuestions(courseCode, programme, academicYear);
+            List<DatabaseService.QuestionData> finalQuestions = db.getFinalQuestions(courseCode, programme, academicYear);
 
             List<String> missingAssessments = new ArrayList<>();
             List<String> noCOAssessments = new ArrayList<>();
@@ -207,7 +208,7 @@ public class FacultyDashboardController {
             addQuestions.accept(midQuestions, "Mid");
             addQuestions.accept(finalQuestions, "Final");
             if (coTotal.isEmpty()) { Alert a = new Alert(Alert.AlertType.INFORMATION, "Questions exist but none have CO mappings.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
-            List<DatabaseService.StudentData> students = db.getEnrolledStudents(courseCode, academicYear);
+            List<DatabaseService.StudentData> students = db.getEnrolledStudents(courseCode, programme, academicYear);
             if (students.isEmpty()) { Alert a = new Alert(Alert.AlertType.INFORMATION, "No students enrolled for this course in the selected academic year.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
             Map<Integer,String> quizIdToCO = new HashMap<>(); for (DatabaseService.QuestionData qd : quizQuestionsAll) if (qd.co!=null) quizIdToCO.put(qd.id, qd.co.trim().toUpperCase());
             Map<Integer,String> midIdToCO = new HashMap<>(); for (DatabaseService.QuestionData qd : midQuestions) if (qd.co!=null) midIdToCO.put(qd.id, qd.co.trim().toUpperCase());
@@ -219,16 +220,16 @@ public class FacultyDashboardController {
             for (DatabaseService.StudentData sd : students) studentCOObtained.put(sd.id, new HashMap<>());
             // Process quizzes
             for (int quizNum=1; quizNum<=4; quizNum++) {
-                for (DatabaseService.StudentMarksData smd : db.getStudentQuizMarks(courseCode, quizNum, academicYear)) {
+                for (DatabaseService.StudentMarksData smd : db.getStudentQuizMarks(courseCode, programme, quizNum, academicYear)) {
                     String co = quizIdToCO.get(smd.questionId); if (co==null) continue; totalRequired++; if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentCOObtained.get(smd.studentId).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
                 }
             }
             // Process mid
-            for (DatabaseService.StudentMarksData smd : db.getStudentMidMarks(courseCode, academicYear)) {
+            for (DatabaseService.StudentMarksData smd : db.getStudentMidMarks(courseCode, programme, academicYear)) {
                 String co = midIdToCO.get(smd.questionId); if (co==null) continue; totalRequired++; if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentCOObtained.get(smd.studentId).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
             }
             // Process final
-            for (DatabaseService.StudentMarksData smd : db.getStudentFinalMarks(courseCode, academicYear)) {
+            for (DatabaseService.StudentMarksData smd : db.getStudentFinalMarks(courseCode, programme, academicYear)) {
                 String co = finalIdToCO.get(smd.questionId); if (co==null) continue; totalRequired++; if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentCOObtained.get(smd.studentId).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
             }
             int missing = totalRequired - graded;
@@ -285,13 +286,14 @@ public class FacultyDashboardController {
         }
         String courseCode = selected.getCourseCode();
         String academicYear = selected.getAcademicYear();
+        String programme = selected.getProgramme();
         try {
-            List<DatabaseService.QuestionData> quiz1 = db.getQuizQuestions(courseCode,1,academicYear);
-            List<DatabaseService.QuestionData> quiz2 = db.getQuizQuestions(courseCode,2,academicYear);
-            List<DatabaseService.QuestionData> quiz3 = db.getQuizQuestions(courseCode,3,academicYear);
-            List<DatabaseService.QuestionData> quiz4 = db.getQuizQuestions(courseCode,4,academicYear);
-            List<DatabaseService.QuestionData> midQuestions = db.getMidQuestions(courseCode, academicYear);
-            List<DatabaseService.QuestionData> finalQuestions = db.getFinalQuestions(courseCode, academicYear);
+            List<DatabaseService.QuestionData> quiz1 = db.getQuizQuestions(courseCode, programme, 1,academicYear);
+            List<DatabaseService.QuestionData> quiz2 = db.getQuizQuestions(courseCode, programme, 2,academicYear);
+            List<DatabaseService.QuestionData> quiz3 = db.getQuizQuestions(courseCode, programme, 3,academicYear);
+            List<DatabaseService.QuestionData> quiz4 = db.getQuizQuestions(courseCode, programme, 4,academicYear);
+            List<DatabaseService.QuestionData> midQuestions = db.getMidQuestions(courseCode, programme, academicYear);
+            List<DatabaseService.QuestionData> finalQuestions = db.getFinalQuestions(courseCode, programme, academicYear);
 
             List<String> missingAssessments = new ArrayList<>();
             List<String> noPOAssessments = new ArrayList<>();
@@ -329,7 +331,7 @@ public class FacultyDashboardController {
             quizQuestionsAll.forEach(accumulate); midQuestions.forEach(accumulate); finalQuestions.forEach(accumulate);
             if (poTotal.isEmpty()) { Alert a = new Alert(Alert.AlertType.INFORMATION, "Questions exist but none have PO mappings.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
 
-            List<DatabaseService.StudentData> students = db.getEnrolledStudents(courseCode, academicYear);
+            List<DatabaseService.StudentData> students = db.getEnrolledStudents(courseCode, programme, academicYear);
             if (students.isEmpty()) { Alert a = new Alert(Alert.AlertType.INFORMATION, "No students enrolled for this course in the selected academic year.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
 
             Map<Integer,String> quizIdToPO = new HashMap<>(); Map<Integer,String> quizIdToCO = new HashMap<>();
@@ -346,7 +348,7 @@ public class FacultyDashboardController {
 
             // Process quizzes
             for (int quizNum=1; quizNum<=4; quizNum++) {
-                for (DatabaseService.StudentMarksData smd : db.getStudentQuizMarks(courseCode, quizNum, academicYear)) {
+                for (DatabaseService.StudentMarksData smd : db.getStudentQuizMarks(courseCode, programme, quizNum, academicYear)) {
                     String po = quizIdToPO.get(smd.questionId); String co = quizIdToCO.get(smd.questionId);
                     if (po==null || co==null) continue;
                     totalRequired++;
@@ -358,14 +360,14 @@ public class FacultyDashboardController {
                 }
             }
             // Mid
-            for (DatabaseService.StudentMarksData smd : db.getStudentMidMarks(courseCode, academicYear)) {
+            for (DatabaseService.StudentMarksData smd : db.getStudentMidMarks(courseCode, programme, academicYear)) {
                 String po = midIdToPO.get(smd.questionId); String co = midIdToCO.get(smd.questionId);
                 if (po==null || co==null) continue;
                 totalRequired++;
                 if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentPoTotals.get(smd.studentId).merge(po, got, Double::sum); studentPoCoTotals.get(smd.studentId).computeIfAbsent(po,k-> new HashMap<>()).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
             }
             // Final
-            for (DatabaseService.StudentMarksData smd : db.getStudentFinalMarks(courseCode, academicYear)) {
+            for (DatabaseService.StudentMarksData smd : db.getStudentFinalMarks(courseCode, programme, academicYear)) {
                 String po = finalIdToPO.get(smd.questionId); String co = finalIdToCO.get(smd.questionId);
                 if (po==null || co==null) continue;
                 totalRequired++;

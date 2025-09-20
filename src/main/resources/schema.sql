@@ -15,22 +15,24 @@ CREATE TABLE Faculty (
 );
 
 CREATE TABLE Course (
-                        course_code VARCHAR(20) PRIMARY KEY,
+                        course_code VARCHAR(20),
                         course_name VARCHAR(100) NOT NULL,
                         credits DECIMAL(3,1) NOT NULL,
                         department VARCHAR(3) NOT NULL,
-                        programme VARCHAR(11) NOT NULL
+                        programme VARCHAR(11) NOT NULL,
+                        PRIMARY KEY (course_code, programme)
 );
 
+-- Updated: include programme in FK to Course
 CREATE TABLE CourseAssignment (
                                   faculty_id INT NOT NULL,
                                   course_code VARCHAR(20) NOT NULL,
+                                  programme VARCHAR(11) NOT NULL,
                                   academic_year VARCHAR(9) NOT NULL,
                                   department VARCHAR(3) NOT NULL,
-                                  programme VARCHAR(11) NOT NULL,
                                   FOREIGN KEY (faculty_id) REFERENCES Faculty(id),
-                                  FOREIGN KEY (course_code) REFERENCES Course(course_code),
-                                  UNIQUE (course_code, academic_year, department, programme)
+                                  FOREIGN KEY (course_code, programme) REFERENCES Course(course_code, programme),
+                                  UNIQUE (course_code, programme, academic_year, department)
 );
 
 CREATE TABLE Student (
@@ -39,17 +41,19 @@ CREATE TABLE Student (
                          name VARCHAR(100) NOT NULL,
                          email VARCHAR(100) NOT NULL UNIQUE,
                          department VARCHAR(3),
-                         programme VARCHAR(3)
+                         programme VARCHAR(11)
 );
 
 -- Added academic_year to support multi-year enrollments (UI requirement)
+-- Added programme to reference composite key in Course
 CREATE TABLE Enrollment (
                             student_id VARCHAR(9) NOT NULL,
                             course_id VARCHAR(20) NOT NULL,
+                            programme VARCHAR(11) NOT NULL,
                             academic_year VARCHAR(9) NOT NULL,
                             FOREIGN KEY (student_id) REFERENCES Student(id),
-                            FOREIGN KEY (course_id) REFERENCES Course(course_code),
-                            UNIQUE (student_id, course_id, academic_year)
+                            FOREIGN KEY (course_id, programme) REFERENCES Course(course_code, programme),
+                            UNIQUE (student_id, course_id, programme, academic_year)
 );
 
 -- CO and PO master tables
@@ -63,34 +67,37 @@ CREATE TABLE PO (
                     po_number VARCHAR(10) NOT NULL UNIQUE -- PO1, PO2, etc.
 );
 
--- Assessment tables
+-- Assessment tables (added programme for FK to Course)
 CREATE TABLE Quiz (
                       id INT AUTO_INCREMENT PRIMARY KEY,
                       course_id VARCHAR(20) NOT NULL,
+                      programme VARCHAR(11) NOT NULL,
                       quiz_number INT NOT NULL,
                       academic_year VARCHAR(9) NOT NULL,
                       total_marks DECIMAL(5,2) DEFAULT 0,
-                      FOREIGN KEY (course_id) REFERENCES Course(course_code),
-                      UNIQUE(course_id, quiz_number),
+                      FOREIGN KEY (course_id, programme) REFERENCES Course(course_code, programme),
+                      UNIQUE(course_id, programme, quiz_number),
                       CHECK (quiz_number BETWEEN 1 AND 4)
 );
 
 CREATE TABLE `Mid` (
                        id INT AUTO_INCREMENT PRIMARY KEY,
                        course_id VARCHAR(20) NOT NULL,
+                       programme VARCHAR(11) NOT NULL,
                        academic_year VARCHAR(9) NOT NULL,
                        total_marks DECIMAL(5,2) DEFAULT 0,
-                       FOREIGN KEY (course_id) REFERENCES Course(course_code),
-                       UNIQUE(course_id)
+                       FOREIGN KEY (course_id, programme) REFERENCES Course(course_code, programme),
+                       UNIQUE(course_id, programme)
 );
 
 CREATE TABLE `Final` (
                          id INT AUTO_INCREMENT PRIMARY KEY,
                          course_id VARCHAR(20) NOT NULL,
+                         programme VARCHAR(11) NOT NULL,
                          academic_year VARCHAR(9) NOT NULL,
                          total_marks DECIMAL(5,2) DEFAULT 0,
-                         FOREIGN KEY (course_id) REFERENCES Course(course_code),
-                         UNIQUE(course_id)
+                         FOREIGN KEY (course_id, programme) REFERENCES Course(course_code, programme),
+                         UNIQUE(course_id, programme)
 );
 
 -- Question tables with unique titles (1a, 1b, 3a, etc.)
@@ -164,12 +171,13 @@ CREATE TABLE StudentFinalMarks (
                                    UNIQUE(student_id, final_question_id)
 );
 
--- Views for easy mark retrieval and CO/PO analysis
+-- Views for easy mark retrieval and CO/PO analysis (updated joins to include programme)
 CREATE VIEW StudentQuizPerformance AS
 SELECT
     s.id as student_id,
     s.name as student_name,
     c.course_code as course_id,
+    c.programme,
     c.course_name,
     q.quiz_number,
     qq.title as question_title,
@@ -179,8 +187,8 @@ SELECT
     po.po_number
 FROM Student s
          JOIN Enrollment e ON s.id = e.student_id
-         JOIN Course c ON e.course_id = c.course_code
-         JOIN Quiz q ON c.course_code = q.course_id
+         JOIN Course c ON e.course_id = c.course_code AND e.programme = c.programme
+         JOIN Quiz q ON c.course_code = q.course_id AND c.programme = q.programme
          JOIN QuizQuestion qq ON q.id = qq.quiz_id
          LEFT JOIN StudentQuizMarks sqm ON s.id = sqm.student_id AND qq.id = sqm.quiz_question_id
          JOIN CO co ON qq.co_id = co.id
@@ -191,6 +199,7 @@ SELECT
     s.id as student_id,
     s.name as student_name,
     c.course_code as course_id,
+    c.programme,
     c.course_name,
     mq.title as question_title,
     mq.marks as max_marks,
@@ -199,8 +208,8 @@ SELECT
     po.po_number
 FROM Student s
          JOIN Enrollment e ON s.id = e.student_id
-         JOIN Course c ON e.course_id = c.course_code
-         JOIN `Mid` m ON c.course_code = m.course_id
+         JOIN Course c ON e.course_id = c.course_code AND e.programme = c.programme
+         JOIN `Mid` m ON c.course_code = m.course_id AND c.programme = m.programme
          JOIN MidQuestion mq ON m.id = mq.mid_id
          LEFT JOIN StudentMidMarks smm ON s.id = smm.student_id AND mq.id = smm.mid_question_id
          JOIN CO co ON mq.co_id = co.id
@@ -211,6 +220,7 @@ SELECT
     s.id as student_id,
     s.name as student_name,
     c.course_code as course_id,
+    c.programme,
     c.course_name,
     fq.title as question_title,
     fq.marks as max_marks,
@@ -219,8 +229,8 @@ SELECT
     po.po_number
 FROM Student s
          JOIN Enrollment e ON s.id = e.student_id
-         JOIN Course c ON e.course_id = c.course_code
-         JOIN `Final` f ON c.course_code = f.course_id
+         JOIN Course c ON e.course_id = c.course_code AND e.programme = c.programme
+         JOIN `Final` f ON c.course_code = f.course_id AND c.programme = f.programme
          JOIN FinalQuestion fq ON f.id = fq.final_id
          LEFT JOIN StudentFinalMarks sfm ON s.id = sfm.student_id AND fq.id = sfm.final_question_id
          JOIN CO co ON fq.co_id = co.id

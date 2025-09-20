@@ -101,7 +101,7 @@ public class ManageCoursesController implements Initializable {
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                databaseHelper.removeCourse(selectedCourse.getCode());
+                databaseHelper.removeCourse(selectedCourse.getCode(), selectedCourse.getProgramme());
                 courseList.remove(selectedCourse);
                 showInfoAlert("Success", "Course removed successfully.");
             } catch (SQLException e) {
@@ -124,7 +124,7 @@ public class ManageCoursesController implements Initializable {
             showInfoAlert("Success", "Course added successfully.");
         } catch (SQLException e) {
             if (e.getMessage().contains("Duplicate entry")) {
-                showErrorAlert("Course Error", "A course with this code already exists.");
+                showErrorAlert("Course Error", "A course with this code already exists for the selected programme.");
             } else {
                 showErrorAlert("Database Error", "Failed to add course: " + e.getMessage());
             }

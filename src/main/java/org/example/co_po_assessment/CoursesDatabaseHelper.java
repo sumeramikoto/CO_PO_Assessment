@@ -6,8 +6,8 @@ import java.util.List;
 
 public class CoursesDatabaseHelper {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "sinhawiz123";
+    private static final String DB_USER = "user";
+    private static final String DB_PASSWORD = "pass";
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -15,7 +15,7 @@ public class CoursesDatabaseHelper {
 
     // Get all courses (now including department & programme)
     public List<CourseData> getAllCourses() throws SQLException {
-        String sql = "SELECT course_code, course_name, credits, department, programme FROM Course ORDER BY course_code";
+        String sql = "SELECT course_code, course_name, credits, department, programme FROM Course ORDER BY course_code, programme";
         List<CourseData> courses = new ArrayList<>();
 
         try (Connection conn = getConnection();
@@ -54,14 +54,15 @@ public class CoursesDatabaseHelper {
         }
     }
 
-    // Remove a course
-    public void removeCourse(String courseCode) throws SQLException {
+    // Remove a course (by composite key)
+    public void removeCourse(String courseCode, String programme) throws SQLException {
         // First check if course is assigned to any faculty
-        String checkAssignmentSql = "SELECT COUNT(*) FROM CourseAssignment WHERE course_code = ?";
+        String checkAssignmentSql = "SELECT COUNT(*) FROM CourseAssignment WHERE course_code = ? AND programme = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement checkStmt = conn.prepareStatement(checkAssignmentSql)) {
             checkStmt.setString(1, courseCode);
+            checkStmt.setString(2, programme);
             ResultSet rs = checkStmt.executeQuery();
 
             if (rs.next() && rs.getInt(1) > 0) {
@@ -70,11 +71,12 @@ public class CoursesDatabaseHelper {
         }
 
         // Check if course has enrollments
-        String checkEnrollmentSql = "SELECT COUNT(*) FROM Enrollment WHERE course_id = ?";
+        String checkEnrollmentSql = "SELECT COUNT(*) FROM Enrollment WHERE course_id = ? AND programme = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement checkStmt = conn.prepareStatement(checkEnrollmentSql)) {
             checkStmt.setString(1, courseCode);
+            checkStmt.setString(2, programme);
             ResultSet rs = checkStmt.executeQuery();
 
             if (rs.next() && rs.getInt(1) > 0) {
@@ -83,11 +85,12 @@ public class CoursesDatabaseHelper {
         }
 
         // If no dependencies, delete the course
-        String deleteSql = "DELETE FROM Course WHERE course_code = ?";
+        String deleteSql = "DELETE FROM Course WHERE course_code = ? AND programme = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(deleteSql)) {
             stmt.setString(1, courseCode);
+            stmt.setString(2, programme);
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
@@ -96,13 +99,14 @@ public class CoursesDatabaseHelper {
         }
     }
 
-    // Check if course code already exists
-    public boolean courseExists(String courseCode) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM Course WHERE course_code = ?";
+    // Check if course (code + programme) already exists
+    public boolean courseExists(String courseCode, String programme) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Course WHERE UPPER(course_code) = UPPER(?) AND programme = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, courseCode);
+            stmt.setString(2, programme);
             ResultSet rs = stmt.executeQuery();
 
             return rs.next() && rs.getInt(1) > 0;

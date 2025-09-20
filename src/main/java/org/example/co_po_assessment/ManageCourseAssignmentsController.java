@@ -87,37 +87,38 @@ public class ManageCourseAssignmentsController implements Initializable {
     }
 
     public void onRemoveCourseButton(ActionEvent actionEvent) {
-        CourseAssignment selectedAssignment = courseTableView.getSelectionModel().getSelectedItem();
+        CourseAssignment selected = courseTableView.getSelectionModel().getSelectedItem();
 
-        if (selectedAssignment == null) {
+        if (selected == null) {
             showWarningAlert("No Selection", "Please select a course assignment to remove.");
             return;
         }
 
         // Confirm deletion
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Confirm Removal");
-        confirmAlert.setHeaderText("Remove Course Assignment");
-        confirmAlert.setContentText("Are you sure you want to remove the assignment:\n" +
-                "Course: " + selectedAssignment.getCourseCode() + " - " + selectedAssignment.getCourseName() + "\n" +
-                "Faculty: " + selectedAssignment.getFacultyName() + "\n" +
-                "Academic Year: " + selectedAssignment.getAcademicYear() + "\n" +
-                "Department: " + selectedAssignment.getDepartment() + "\n" +
-                "Programme: " + selectedAssignment.getProgramme());
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirm Removal");
+        confirm.setHeaderText("Remove Course Assignment");
+        confirm.setContentText("Are you sure you want to remove the assignment:\n" +
+                "Course: " + selected.getCourseCode() + " - " + selected.getCourseName() + "\n" +
+                "Faculty: " + selected.getFacultyName() + "\n" +
+                "Academic Year: " + selected.getAcademicYear() + "\n" +
+                "Department: " + selected.getDepartment() + "\n" +
+                "Programme: " + selected.getProgramme());
 
-        Optional<ButtonType> result = confirmAlert.showAndWait();
+        Optional<ButtonType> result = confirm.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 // Remove from database
                 databaseHelper.removeCourseAssignment(
-                    selectedAssignment.getCourseCode(),
-                    selectedAssignment.getFacultyName(),
-                    selectedAssignment.getAcademicYear()
+                        selected.getCourseCode(),
+                        selected.getProgramme(),
+                        selected.getFacultyName(),
+                        selected.getAcademicYear()
                 );
 
                 // Remove from table
-                courseAssignmentList.remove(selectedAssignment);
+                courseAssignmentList.remove(selected);
 
                 showInfoAlert("Success", "Course assignment removed successfully.");
 
@@ -136,10 +137,10 @@ public class ManageCourseAssignmentsController implements Initializable {
     /**
      * Method to be called by CourseAssignmentInputController when new assignment is added
      */
-    public void addNewCourseAssignment(String courseCode, String facultyName, String academicYear) {
+    public void addNewCourseAssignment(String courseCode, String programme, String facultyName, String academicYear) {
         try {
             // Add to database
-            databaseHelper.assignCourse(courseCode, facultyName, academicYear);
+            databaseHelper.assignCourse(courseCode, programme, facultyName, academicYear);
 
             // Reload data to get the course name
             loadCourseAssignmentData();
@@ -148,7 +149,7 @@ public class ManageCourseAssignmentsController implements Initializable {
 
         } catch (SQLException e) {
             String msg = e.getMessage();
-            if (msg != null && (msg.contains("already assigned for the selected academic year") || msg.contains("DUPLICATE_COURSE_YEAR") || msg.contains("Duplicate entry"))) {
+            if (msg != null && (msg.contains("already assigned") || msg.contains("DUPLICATE_COURSE_YEAR") || msg.contains("Duplicate entry"))) {
                 showErrorAlert("Assignment Error", "This course already has an assignment for that academic year (same department & programme).");
             } else {
                 showErrorAlert("Database Error", "Failed to assign course: " + msg);
@@ -162,17 +163,17 @@ public class ManageCourseAssignmentsController implements Initializable {
     private void loadCourseAssignmentData() {
         try {
             // Get all course assignments from database
-            var assignmentData = databaseHelper.getAllCourseAssignments();
+            var data = databaseHelper.getAllCourseAssignments();
 
             courseAssignmentList.clear();
-            for (var assignment : assignmentData) {
+            for (var a : data) {
                 courseAssignmentList.add(new CourseAssignment(
-                    assignment.getCourseCode(),
-                    assignment.getCourseName(),
-                    assignment.getFacultyName(),
-                    assignment.getAcademicYear(),
-                    assignment.getDepartment(),
-                    assignment.getProgramme()
+                        a.getCourseCode(),
+                        a.getCourseName(),
+                        a.getFacultyName(),
+                        a.getAcademicYear(),
+                        a.getDepartment(),
+                        a.getProgramme()
                 ));
             }
 

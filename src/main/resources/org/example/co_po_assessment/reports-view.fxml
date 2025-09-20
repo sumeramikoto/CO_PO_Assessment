@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.ReportsController" prefWidth="500" prefHeight="400">
+    <top>
+        <HBox spacing="10" BorderPane.alignment="CENTER_LEFT">
+            <children>
+                <Label text="CO / PO Reports" style="-fx-font-size:18; -fx-font-weight:bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="Refresh" onAction="#onRefresh" />
+            </children>
+        </HBox>
+    </top>
+    <center>
+        <ListView fx:id="reportsList" />
+    </center>
+    <bottom>
+        <HBox spacing="10">
+            <children>
+                <Label fx:id="statusLabel" text="" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="Open" onAction="#onOpenSelected" />
+                <Button text="Close" onAction="#onClose" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>
+

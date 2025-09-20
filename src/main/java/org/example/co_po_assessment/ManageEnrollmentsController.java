@@ -109,13 +109,36 @@ public class ManageEnrollmentsController {
         String year = academicYearCombo.getValue();
         if (courseDisplay == null || courseDisplay.isBlank()) { showWarn("Validation", "Select a course"); return; }
         if (year == null || year.isBlank()) { showWarn("Validation", "Select an academic year"); return; }
-        String courseCode = courseDisplay.split(" - ")[0];
+        String[] parts = courseDisplay.split(" - ");
+        String courseCode = parts[0];
+        String courseDept = parts.length >= 3 ? parts[2] : null;
+        String courseProg = parts.length >= 4 ? parts[3] : null;
         List<StudentDatabaseHelper.StudentData> selected = studentTableView.getSelectionModel().getSelectedItems();
         if (selected == null || selected.isEmpty()) { showWarn("Validation", "Select at least one student"); return; }
-        List<String> ids = selected.stream().map(s -> s.id).collect(Collectors.toList());
+        List<StudentDatabaseHelper.StudentData> eligible = new ArrayList<>();
+        List<StudentDatabaseHelper.StudentData> mismatched = new ArrayList<>();
+        for (StudentDatabaseHelper.StudentData s : selected) {
+            if (courseDept != null && courseProg != null && s.department != null && s.programme != null &&
+                    courseDept.equalsIgnoreCase(s.department) && courseProg.equalsIgnoreCase(s.programme)) {
+                eligible.add(s);
+            } else {
+                mismatched.add(s);
+            }
+        }
+        if (eligible.isEmpty()) {
+            showWarn("Enrollment", "No selected students match the course's department/programme (" + courseDept + "/" + courseProg + ").");
+            return;
+        }
+        List<String> ids = eligible.stream().map(s -> s.id).collect(Collectors.toList());
         try {
-            db.enrollStudents(courseCode, year, ids);
-            showInfo("Enrollment", "Enrolled/updated " + ids.size() + " students for course " + courseCode + " (" + year + ")");
+            db.enrollStudents(courseCode, courseProg, year, ids);
+            StringBuilder msg = new StringBuilder();
+            msg.append("Enrolled/updated ").append(ids.size()).append(" students for course ").append(courseCode).append(" (" + year + ")");
+            if (!mismatched.isEmpty()) {
+                msg.append(". Skipped ").append(mismatched.size()).append(" mismatched: ");
+                msg.append(mismatched.stream().map(m -> m.id).collect(Collectors.joining(", ")));
+            }
+            showInfo("Enrollment", msg.toString());
         } catch (SQLException e) {
             showError("Enrollment Failed", e.getMessage());
         }
@@ -126,7 +149,9 @@ public class ManageEnrollmentsController {
         String year = academicYearCombo.getValue();
         if (courseDisplay == null || courseDisplay.isBlank()) { showWarn("Validation", "Select a course"); return; }
         if (year == null || year.isBlank()) { showWarn("Validation", "Select an academic year"); return; }
-        String courseCode = courseDisplay.split(" - ")[0];
+        String[] parts = courseDisplay.split(" - ");
+        String courseCode = parts[0];
+        String courseProg = parts.length >= 4 ? parts[3] : null;
         List<StudentDatabaseHelper.StudentData> selected = studentTableView.getSelectionModel().getSelectedItems();
         if (selected == null || selected.isEmpty()) { showWarn("Validation", "Select at least one student"); return; }
         List<String> ids = selected.stream().map(s -> s.id).collect(Collectors.toList());
@@ -136,7 +161,7 @@ public class ManageEnrollmentsController {
         confirm.setContentText("Unenroll " + ids.size() + " students from course " + courseCode + " (" + year + ")? This will remove their enrollment and any associated marks for this course-year may become orphaned.");
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
         try {
-            int removed = db.unenrollStudents(courseCode, year, ids);
+            int removed = db.unenrollStudents(courseCode, courseProg, year, ids);
             showInfo("Unenrollment", "Removed " + removed + " enrollments for course " + courseCode + " (" + year + ")");
         } catch (SQLException e) {
             showError("Unenrollment Failed", e.getMessage());

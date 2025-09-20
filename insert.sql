@@ -12,7 +12,8 @@ INSERT INTO Course (course_code, course_name, credits, department, programme) VA
 ('4432', 'Database Systems', 3.0, 'CSE', 'SWE'),
 ('4433', 'Computer Networks', 3.0, 'CSE', 'SWE'),
 ('4434', 'Operating Systems', 3.0, 'CSE', 'SWE'),
-('4435', 'Data Structures and Algorithms', 3.0, 'CSE', 'SWE');
+('4435', 'Data Structures and Algorithms', 3.0, 'CSE', 'SWE'),
+(4501, 'Operating Systems', 3.0, 'CSE', 'CSE');
 
 -- Insert course assignments (linking faculty to courses)
 -- Updated to include department and programme columns
@@ -93,7 +94,12 @@ INSERT INTO Student (id, batch, name, email, department, programme) VALUES
 ('220042157', 22, 'Rahela Begum', 'rahela.begum.220042157@iut-dhaka.edu', 'CSE', 'SWE'),
 ('220042158', 22, 'Hafizur Rahman', 'hafizur.rahman.220042158@iut-dhaka.edu', 'CSE', 'SWE'),
 ('220042159', 22, 'Jesmin Akter', 'jesmin.akter.220042159@iut-dhaka.edu', 'CSE', 'SWE'),
-('220042160', 22, 'Shamsul Haque', 'shamsul.haque.220042160@iut-dhaka.edu', 'CSE', 'SWE');
+('220042160', 22, 'Shamsul Haque', 'shamsul.haque.220042160@iut-dhaka.edu', 'CSE', 'SWE'),
+('220041101', 22, 'Nuruddin', 'nurudding22@iut-dhaka.edu', 'CSE', 'CSE'),
+('220041102', 22, 'Anika Rahman', 'anikar22@iut-dhaka.edu', 'CSE', 'CSE'),
+('220041103', 22, 'Rafi Ahmed', 'rafiahmed@iut-dhaka.edu', 'CSE', 'CSE'),
+('220041104', 22, 'Mousumi Khatun', 'mousumikhatun@iut-dhaka.edu', 'CSE', 'CSE'),
+('220041105', 22, 'Jahid Hasan', 'jahidhasan22@iut-dhaka.edu', 'CSE', 'CSE');
 
 -- Verify the insertion
 SELECT COUNT(*) as total_students FROM Student WHERE batch = 22 AND department = 'CSE' AND programme = 'SWE';

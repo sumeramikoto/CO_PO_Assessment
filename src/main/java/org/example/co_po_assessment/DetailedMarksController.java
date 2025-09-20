@@ -2,6 +2,7 @@ package org.example.co_po_assessment;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleObjectProperty; // added
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,6 +22,7 @@ public class DetailedMarksController {
 
     private String courseId;
     private String academicYear;
+    private String programme;
     private final DatabaseService dbService = DatabaseService.getInstance();
     private boolean hasUnsavedChanges = false;
 
@@ -35,11 +37,12 @@ public class DetailedMarksController {
     }
 
     // New context setter
-    public void setContext(String courseId, String academicYear) {
+    public void setContext(String courseId, String programme, String academicYear) {
         this.courseId = courseId;
         this.academicYear = academicYear;
+        this.programme = programme;
         try {
-            dbService.ensureAssessmentsExist(courseId, academicYear);
+            dbService.ensureAssessmentsExist(courseId, programme, academicYear);
             loadAllMarks();
         } catch (SQLException e) {
             showError("Error Initializing", e.getMessage());
@@ -48,7 +51,7 @@ public class DetailedMarksController {
 
     // Backward compatibility (if only courseId provided, fall back to latest year assumption via existing hard-coded method)
     public void setCourseId(String courseId) {
-        setContext(courseId, getCurrentAcademicYear());
+        setContext(courseId, programme, getCurrentAcademicYear());
     }
 
     private String getCurrentAcademicYear() {
@@ -85,9 +88,9 @@ public class DetailedMarksController {
 
     private void loadQuizMarks(int quizNumber, TableView<Map<String, Object>> tableView) throws SQLException {
         if (academicYear == null) academicYear = getCurrentAcademicYear();
-        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentQuizMarks(courseId, quizNumber, academicYear);
+        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentQuizMarks(courseId, programme, quizNumber, academicYear);
         if (marksData.isEmpty()) {
-            List<DatabaseService.QuestionData> questions = dbService.getQuizQuestions(courseId, quizNumber, academicYear);
+            List<DatabaseService.QuestionData> questions = dbService.getQuizQuestions(courseId, programme, quizNumber, academicYear);
             if (!questions.isEmpty()) {
                 setupEmptyQuestionColumns(tableView, questions);
             }
@@ -98,9 +101,9 @@ public class DetailedMarksController {
 
     private void loadMidMarks() throws SQLException {
         if (academicYear == null) academicYear = getCurrentAcademicYear();
-        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentMidMarks(courseId, academicYear);
+        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentMidMarks(courseId, programme, academicYear);
         if (marksData.isEmpty()) {
-            List<DatabaseService.QuestionData> questions = dbService.getMidQuestions(courseId, academicYear);
+            List<DatabaseService.QuestionData> questions = dbService.getMidQuestions(courseId, programme, academicYear);
             if (!questions.isEmpty()) {
                 setupEmptyQuestionColumns(midTableView, questions);
             }
@@ -111,9 +114,9 @@ public class DetailedMarksController {
 
     private void loadFinalMarks() throws SQLException {
         if (academicYear == null) academicYear = getCurrentAcademicYear();
-        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentFinalMarks(courseId, academicYear);
+        List<DatabaseService.StudentMarksData> marksData = dbService.getStudentFinalMarks(courseId, programme, academicYear);
         if (marksData.isEmpty()) {
-            List<DatabaseService.QuestionData> questions = dbService.getFinalQuestions(courseId, academicYear);
+            List<DatabaseService.QuestionData> questions = dbService.getFinalQuestions(courseId, programme, academicYear);
             if (!questions.isEmpty()) {
                 setupEmptyQuestionColumns(finalTableView, questions);
             }
@@ -124,7 +127,7 @@ public class DetailedMarksController {
 
     private void setupEmptyQuestionColumns(TableView<Map<String, Object>> tableView,
                                          List<DatabaseService.QuestionData> questions) {
-        // Keep existing student ID and name columns
+        // Keep only student ID and name columns; remove any previous question/Total columns
         tableView.getColumns().removeIf(col ->
             !col.getText().equals("Student ID") && !col.getText().equals("Name"));
 
@@ -134,7 +137,7 @@ public class DetailedMarksController {
             TableColumn<Map<String, Object>, Double> col = new TableColumn<>(columnTitle);
             col.setCellValueFactory(data -> {
                 Double value = (Double) data.getValue().get(question.title);
-                return new SimpleDoubleProperty(value != null ? value : 0.0).asObject();
+                return new SimpleObjectProperty<>(value); // keep nulls as null (blank cell)
             });
             setupEditableColumn(col, question.id, question.marks);
             tableView.getColumns().add(col);
@@ -145,7 +148,7 @@ public class DetailedMarksController {
 
         // Load enrolled students with empty marks
         try {
-            List<DatabaseService.StudentData> students = dbService.getEnrolledStudents(courseId, getCurrentAcademicYear());
+            List<DatabaseService.StudentData> students = dbService.getEnrolledStudents(courseId, programme, getCurrentAcademicYear());
             ObservableList<Map<String, Object>> data = FXCollections.observableArrayList();
 
             for (DatabaseService.StudentData student : students) {
@@ -153,7 +156,7 @@ public class DetailedMarksController {
                 row.put("studentId", student.id);
                 row.put("studentName", student.name);
                 for (DatabaseService.QuestionData question : questions) {
-                    row.put(question.title, 0.0);
+                    row.put(question.title, null); // do NOT default to 0.0
                     row.put("qid_" + question.title, question.id);
                     row.put("max_" + question.title, question.marks);
                 }
@@ -164,11 +167,15 @@ public class DetailedMarksController {
         } catch (SQLException e) {
             showError("Error Loading Students", e.getMessage());
         }
+
+        // Add total column after questions
+        double totalMax = questions.stream().mapToDouble(q -> q.marks).sum();
+        addTotalColumn(tableView, totalMax, questions.stream().map(q -> q.title).toList());
     }
 
     private void setupQuestionColumns(TableView<Map<String, Object>> tableView,
                                     List<DatabaseService.StudentMarksData> marksData) {
-        // Keep existing student ID and name columns
+        // Keep only student ID and name columns; remove any previous question/Total columns
         tableView.getColumns().removeIf(col ->
             !col.getText().equals("Student ID") && !col.getText().equals("Name"));
 
@@ -199,86 +206,97 @@ public class DetailedMarksController {
             String columnTitle = String.format("%s (%.1f)", title, maxMark);
             TableColumn<Map<String, Object>, Double> col = new TableColumn<>(columnTitle);
             col.setCellValueFactory(data -> {
-                Double value = (Double) data.getValue().get(title);
-                return new SimpleDoubleProperty(value != null ? value : 0.0).asObject();
+                Double value = (Double) data.getValue().get(title); // may be null if ungraded
+                return new SimpleObjectProperty<>(value);
             });
             col.setPrefWidth(80);
-            setupEditableColumn(col, -1, maxMark); // questionId will be retrieved from the row data
+            setupEditableColumn(col, -1, maxMark);
             tableView.getColumns().add(col);
         }
 
         // Set the table data
         tableView.setItems(FXCollections.observableArrayList(studentRows.values()));
+
+        // Add total column
+        double totalMax = maxMarks.values().stream().mapToDouble(Double::doubleValue).sum();
+        addTotalColumn(tableView, totalMax, maxMarks.keySet());
+    }
+
+    private void addTotalColumn(TableView<Map<String, Object>> tableView, double totalMaxMarks, Collection<String> questionTitles) {
+        // Ensure we don't add duplicate
+        boolean exists = tableView.getColumns().stream().anyMatch(c -> c.getText().startsWith("Total"));
+        if (exists) return;
+        TableColumn<Map<String, Object>, Double> totalCol = new TableColumn<>(String.format("Total (%.1f)", totalMaxMarks));
+        totalCol.setCellValueFactory(data -> {
+            Map<String, Object> row = data.getValue();
+            if (row == null) return new SimpleObjectProperty<>(null);
+            double sum = 0.0;
+            boolean any = false;
+            for (String q : questionTitles) {
+                Object obj = row.get(q);
+                if (obj instanceof Double d) { sum += d; any = true; }
+            }
+            return any ? new SimpleObjectProperty<>(sum) : new SimpleObjectProperty<>(null);
+        });
+        totalCol.setEditable(false);
+        totalCol.setPrefWidth(100);
+        totalCol.setStyle("-fx-font-weight: bold;");
+        // Custom cell to show blank when null
+        totalCol.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) { setText(null); return; }
+                if (item == null) { setText(""); }
+                else setText(String.format("%.2f", item));
+            }
+        });
+        tableView.getColumns().add(totalCol);
     }
 
     private void setupEditableColumn(TableColumn<Map<String, Object>, Double> column, int questionId, double maxMarks) {
         column.setCellFactory(tc -> new TableCell<>() {
             private final TextField textField = new TextField();
-
             {
-                textField.focusedProperty().addListener((obs, oldVal, newVal) -> {
-                    if (!newVal) {
-                        commitEdit();
-                    }
-                });
-                textField.setOnAction(event -> commitEdit());
+                textField.focusedProperty().addListener((obs, o, n) -> { if (!n) commitEdit(); });
+                textField.setOnAction(e -> commitEdit());
             }
-
             private void commitEdit() {
                 try {
                     double value = Double.parseDouble(textField.getText());
                     Map<String, Object> rowData = getTableRow().getItem();
-
-                    if (rowData != null) {
-                        String questionTitle = column.getText().split(" \\(")[0]; // Remove the marks part from title
-
-                        // Get the actual question ID and validate the input value
-                        int actualQuestionId = questionId != -1 ? questionId :
-                            ((Integer) rowData.get("qid_" + questionTitle));
-
-                        if (value < 0 || value > maxMarks) {
-                            showError("Invalid Input",
-                                String.format("Marks must be between 0 and %.1f", maxMarks));
-                            updateItem(getItem(), false);
-                            return;
+                    if (rowData == null) return;
+                    String questionTitle = column.getText();
+                    int parenIndex = questionTitle.indexOf(" (");
+                    if (parenIndex >= 0) questionTitle = questionTitle.substring(0, parenIndex);
+                    int actualQuestionId = questionId != -1 ? questionId : (Integer) rowData.get("qid_" + questionTitle);
+                    if (value < 0 || value > maxMarks) { showError("Invalid Input", String.format("Marks must be between 0 and %.1f", maxMarks)); updateItem(getItem(), false); return; }
+                    rowData.put(questionTitle, value);
+                    hasUnsavedChanges = true;
+                    try {
+                        TableView<Map<String,Object>> tv = column.getTableView();
+                        String sid = (String) rowData.get("studentId");
+                        if (tv == midTableView) {
+                            dbService.saveStudentMidMarks(sid, actualQuestionId, value);
+                        } else if (tv == finalTableView) {
+                            dbService.saveStudentFinalMarks(sid, actualQuestionId, value);
+                        } else {
+                            dbService.saveStudentQuizMarks(sid, actualQuestionId, value);
                         }
-
-                        rowData.put(questionTitle, value);
-                        hasUnsavedChanges = true;
-
-                        try {
-                            dbService.saveStudentQuizMarks(
-                                (String) rowData.get("studentId"),
-                                actualQuestionId,
-                                value
-                            );
-                        } catch (SQLException e) {
-                            showError("Error Saving Mark", e.getMessage());
-                        }
-
-                        updateItem(value, false);
-                    }
-                } catch (NumberFormatException e) {
-                    updateItem(getItem(), false);
-                }
+                    } catch (SQLException ex) { showError("Error Saving Mark", ex.getMessage()); }
+                    updateItem(value, false);
+                    // Refresh table to update Total column
+                    column.getTableView().refresh();
+                } catch (NumberFormatException ignore) { updateItem(getItem(), false); }
             }
-
-            @Override
-            protected void updateItem(Double item, boolean empty) {
+            @Override protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                    setText(null);
+                if (empty) { setGraphic(null); setText(null); return; }
+                if (item == null) { // show blank for ungraded
+                    setGraphic(null); setText("");
+                    setOnMouseClicked(evt -> { if (evt.getClickCount() == 2) { textField.setText(""); setGraphic(textField); setText(null); textField.requestFocus(); } });
                 } else {
                     setText(String.format("%.2f", item));
-                    setOnMouseClicked(event -> {
-                        if (event.getClickCount() == 2) {
-                            textField.setText(getText());
-                            setGraphic(textField);
-                            setText(null);
-                            textField.requestFocus();
-                        }
-                    });
+                    setOnMouseClicked(evt -> { if (evt.getClickCount() == 2) { textField.setText(getText()); setGraphic(textField); setText(null); textField.requestFocus(); } });
                 }
             }
         });

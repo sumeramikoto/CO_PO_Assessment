@@ -48,14 +48,19 @@ public class CourseAssignmentInputController implements Initializable {
 
         // Get input values
         String selectedCourse = courseComboBox.getValue();
-        String courseCode = selectedCourse.split(" - ")[0]; // Extract course code
+        // Robust parsing: pattern ends with " - DEPT - PROGRAMME"; programme after last delimiter; code before first delimiter
+        int lastSep = selectedCourse.lastIndexOf(" - ");
+        String programme = selectedCourse.substring(lastSep + 3);
+        String beforeLast = selectedCourse.substring(0, lastSep);
+        int firstSep = beforeLast.indexOf(" - ");
+        String courseCode = beforeLast.substring(0, firstSep);
         String facultyName = facultyComboBox.getValue();
         String academicYear = academicYearTextField.getText().trim();
 
         try {
             // Call parent controller to add the assignment
             if (parentController != null) {
-                parentController.addNewCourseAssignment(courseCode, facultyName, academicYear);
+                parentController.addNewCourseAssignment(courseCode, programme, facultyName, academicYear);
             }
 
             // Close the current window

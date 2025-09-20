@@ -9,8 +9,8 @@ public class DatabaseService {
     // Basic singleton + connection
     // ------------------------------------------------------------------
     private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "sinhawiz123";
+    private static final String DB_USER = "user";
+    private static final String DB_PASSWORD = "pass";
     private static DatabaseService instance;
 
     private DatabaseService() {
@@ -74,14 +74,15 @@ public class DatabaseService {
         return list;
     }
     public List<String> getCoursesByInstructor(String instructorName) throws SQLException {
-        String sql = "SELECT c.course_name FROM Course c JOIN CourseAssignment ca ON c.course_code=ca.course_code JOIN Faculty f ON ca.faculty_id=f.id WHERE f.full_name=? ORDER BY c.course_name";
+        String sql = "SELECT DISTINCT c.course_code, c.programme, c.course_name FROM Course c JOIN CourseAssignment ca ON c.course_code=ca.course_code AND c.programme=ca.programme JOIN Faculty f ON ca.faculty_id=f.id WHERE f.full_name=? ORDER BY c.course_code,c.programme";
         List<String> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1, instructorName); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(rs.getString(1)); }}
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1, instructorName); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(rs.getString(1)+" / "+rs.getString(2)+" - "+rs.getString(3)); }}
         return list;
     }
-    public CourseData getCourseByCodeAndInstructor(String courseCode, String instructorName) throws SQLException {
-        String sql = "SELECT c.course_code,c.course_name,c.credits,c.department,c.programme,f.full_name FROM Course c JOIN CourseAssignment ca ON c.course_code=ca.course_code JOIN Faculty f ON ca.faculty_id=f.id WHERE c.course_code=? AND f.full_name=?";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1, courseCode); ps.setString(2, instructorName); try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return new CourseData(rs.getString(1), rs.getString(2), rs.getDouble(3), rs.getString(4), rs.getString(5), rs.getString(6)); }}
+
+    public CourseData getCourseByCodeAndInstructor(String courseCode, String programme, String instructorName) throws SQLException {
+        String sql = "SELECT c.course_code,c.course_name,c.credits,c.department,c.programme,f.full_name FROM Course c JOIN CourseAssignment ca ON c.course_code=ca.course_code AND c.programme=ca.programme JOIN Faculty f ON ca.faculty_id=f.id WHERE c.course_code=? AND c.programme=? AND f.full_name=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1, courseCode); ps.setString(2, programme); ps.setString(3, instructorName); try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return new CourseData(rs.getString(1), rs.getString(2), rs.getDouble(3), rs.getString(4), rs.getString(5), rs.getString(6)); }}
         return null;
     }
 
@@ -146,154 +147,138 @@ public class DatabaseService {
     // ------------------------------------------------------------------
     // Course info / update
     // ------------------------------------------------------------------
-    public CourseData getCourseInfo(String courseCode) throws SQLException {
-        String sql = "SELECT c.course_code,c.course_name,c.credits,c.department,c.programme,f.full_name FROM Course c JOIN CourseAssignment ca ON c.course_code=ca.course_code JOIN Faculty f ON ca.faculty_id=f.id WHERE c.course_code=?";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1, courseCode); try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return new CourseData(rs.getString(1), rs.getString(2), rs.getDouble(3), rs.getString(4), rs.getString(5), rs.getString(6)); }}
+    public CourseData getCourseInfo(String courseCode, String programme) throws SQLException {
+        String sql = "SELECT c.course_code,c.course_name,c.credits,c.department,c.programme,f.full_name FROM Course c LEFT JOIN CourseAssignment ca ON c.course_code=ca.course_code AND c.programme=ca.programme LEFT JOIN Faculty f ON ca.faculty_id=f.id WHERE c.course_code=? AND c.programme=? LIMIT 1";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1, courseCode); ps.setString(2, programme); try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return new CourseData(rs.getString(1), rs.getString(2), rs.getDouble(3), rs.getString(4), rs.getString(5), rs.getString(6)); }}
         return null;
     }
-    public void updateCourseInfo(String code, String name, double credits, String dept, String prog) throws SQLException {
-        String sql = "UPDATE Course SET course_name=?, credits=?, department=?, programme=? WHERE course_code=?";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,name); ps.setDouble(2,credits); ps.setString(3,dept); ps.setString(4,prog); ps.setString(5,code); ps.executeUpdate(); }
-    }
-    public void updateCourseInfo(String code, String name, double credits) throws SQLException {
-        CourseData existing = getCourseInfo(code);
-        updateCourseInfo(code, name, credits, existing != null ? existing.department : "", existing != null ? existing.programme : "");
-    }
-    public void updateCourseInstructor(String courseCode, String instructorName, String academicYear) throws SQLException {
-        String sql = "UPDATE CourseAssignment ca JOIN Faculty f ON f.full_name=? SET ca.faculty_id=f.id WHERE ca.course_code=? AND ca.academic_year=?";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,instructorName); ps.setString(2,courseCode); ps.setString(3,academicYear); if (ps.executeUpdate()==0) throw new SQLException("Assignment not found"); }
+
+    public void updateCourseInfo(String code, String programme, String name, double credits, String dept) throws SQLException {
+        String sql = "UPDATE Course SET course_name=?, credits=?, department=? WHERE course_code=? AND programme=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,name); ps.setDouble(2,credits); ps.setString(3,dept); ps.setString(4,code); ps.setString(5,programme); ps.executeUpdate(); }
     }
 
     // ------------------------------------------------------------------
-    // Ensure assessment shells per academic year
+    // Assessments (programme-aware)
     // ------------------------------------------------------------------
-    public void ensureAssessmentsExist(String courseId, String academicYear) throws SQLException {
+    public void ensureAssessmentsExist(String courseCode, String programme, String academicYear) throws SQLException {
         try (Connection c = getConnection()) {
             for (int i=1;i<=4;i++) {
-                try (PreparedStatement ps = c.prepareStatement("INSERT IGNORE INTO Quiz (course_id, quiz_number, academic_year) VALUES (?,?,?)")) {
-                    ps.setString(1, courseId); ps.setInt(2, i); ps.setString(3, academicYear); ps.executeUpdate();
+                try (PreparedStatement ps = c.prepareStatement("INSERT IGNORE INTO Quiz (course_id, programme, quiz_number, academic_year) VALUES (?,?,?,?)")) {
+                    ps.setString(1, courseCode); ps.setString(2, programme); ps.setInt(3, i); ps.setString(4, academicYear); ps.executeUpdate();
                 }
             }
-            try (PreparedStatement ps = c.prepareStatement("INSERT IGNORE INTO Mid (course_id, academic_year) VALUES (?,?)")) { ps.setString(1, courseId); ps.setString(2, academicYear); ps.executeUpdate(); }
-            try (PreparedStatement ps = c.prepareStatement("INSERT IGNORE INTO Final (course_id, academic_year) VALUES (?,?)")) { ps.setString(1, courseId); ps.setString(2, academicYear); ps.executeUpdate(); }
+            try (PreparedStatement ps = c.prepareStatement("INSERT IGNORE INTO Mid (course_id, programme, academic_year) VALUES (?,?,?)")) { ps.setString(1, courseCode); ps.setString(2, programme); ps.setString(3, academicYear); ps.executeUpdate(); }
+            try (PreparedStatement ps = c.prepareStatement("INSERT IGNORE INTO Final (course_id, programme, academic_year) VALUES (?,?,?)")) { ps.setString(1, courseCode); ps.setString(2, programme); ps.setString(3, academicYear); ps.executeUpdate(); }
         }
     }
 
-    // ------------------------------------------------------------------
-    // Save questions (academic-year aware) + wrappers
-    // ------------------------------------------------------------------
-    public void saveQuizQuestion(String courseId, int quizNumber, String title, double marks, String co, String po, String academicYear) throws SQLException {
-        String sql = "INSERT INTO QuizQuestion (quiz_id, title, marks, co_id, po_id) SELECT q.id, ?, ?, co.id, po.id FROM Quiz q, CO co, PO po WHERE q.course_id=? AND q.quiz_number=? AND q.academic_year=? AND co.co_number=? AND po.po_number=?";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,title); ps.setDouble(2,marks); ps.setString(3,courseId); ps.setInt(4,quizNumber); ps.setString(5,academicYear); ps.setString(6,co); ps.setString(7,po); ps.executeUpdate(); }
+    public void saveQuizQuestion(String courseCode, String programme, int quizNumber, String title, double marks, String co, String po, String academicYear) throws SQLException {
+        String sql = "INSERT INTO QuizQuestion (quiz_id, title, marks, co_id, po_id) SELECT q.id, ?, ?, co.id, po.id FROM Quiz q, CO co, PO po WHERE q.course_id=? AND q.programme=? AND q.quiz_number=? AND q.academic_year=? AND co.co_number=? AND po.po_number=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,title); ps.setDouble(2,marks); ps.setString(3,courseCode); ps.setString(4,programme); ps.setInt(5,quizNumber); ps.setString(6,academicYear); ps.setString(7,co); ps.setString(8,po); ps.executeUpdate(); }
     }
-    public void saveMidQuestion(String courseId, String title, double marks, String co, String po, String academicYear) throws SQLException {
-        String sql = "INSERT INTO MidQuestion (mid_id, title, marks, co_id, po_id) SELECT m.id, ?, ?, co.id, po.id FROM Mid m, CO co, PO po WHERE m.course_id=? AND m.academic_year=? AND co.co_number=? AND po.po_number=?";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,title); ps.setDouble(2,marks); ps.setString(3,courseId); ps.setString(4,academicYear); ps.setString(5,co); ps.setString(6,po); ps.executeUpdate(); }
+    public void saveMidQuestion(String courseCode, String programme, String title, double marks, String co, String po, String academicYear) throws SQLException {
+        String sql = "INSERT INTO MidQuestion (mid_id, title, marks, co_id, po_id) SELECT m.id, ?, ?, co.id, po.id FROM Mid m, CO co, PO po WHERE m.course_id=? AND m.programme=? AND m.academic_year=? AND co.co_number=? AND po.po_number=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,title); ps.setDouble(2,marks); ps.setString(3,courseCode); ps.setString(4,programme); ps.setString(5,academicYear); ps.setString(6,co); ps.setString(7,po); ps.executeUpdate(); }
     }
-    public void saveFinalQuestion(String courseId, String title, double marks, String co, String po, String academicYear) throws SQLException {
-        String sql = "INSERT INTO FinalQuestion (final_id, title, marks, co_id, po_id) SELECT f.id, ?, ?, co.id, po.id FROM Final f, CO co, PO po WHERE f.course_id=? AND f.academic_year=? AND co.co_number=? AND po.po_number=?";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,title); ps.setDouble(2,marks); ps.setString(3,courseId); ps.setString(4,academicYear); ps.setString(5,co); ps.setString(6,po); ps.executeUpdate(); }
+    public void saveFinalQuestion(String courseCode, String programme, String title, double marks, String co, String po, String academicYear) throws SQLException {
+        String sql = "INSERT INTO FinalQuestion (final_id, title, marks, co_id, po_id) SELECT f.id, ?, ?, co.id, po.id FROM Final f, CO co, PO po WHERE f.course_id=? AND f.programme=? AND f.academic_year=? AND co.co_number=? AND po.po_number=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,title); ps.setDouble(2,marks); ps.setString(3,courseCode); ps.setString(4,programme); ps.setString(5,academicYear); ps.setString(6,co); ps.setString(7,po); ps.executeUpdate(); }
     }
-    // Legacy (defaults to latest year)
-    public void saveQuizQuestion(String cId, int qNum, String t, double m, String co, String po) throws SQLException { saveQuizQuestion(cId,qNum,t,m,co,po,latestAcademicYear()); }
-    public void saveMidQuestion(String cId, String t, double m, String co, String po) throws SQLException { saveMidQuestion(cId,t,m,co,po,latestAcademicYear()); }
-    public void saveFinalQuestion(String cId, String t, double m, String co, String po) throws SQLException { saveFinalQuestion(cId,t,m,co,po,latestAcademicYear()); }
 
     // ------------------------------------------------------------------
-    // Retrieve questions (academic-year aware) + wrappers
+    // Retrieve questions (programme-aware)
     // ------------------------------------------------------------------
-    public List<QuestionData> getQuizQuestions(String courseId, int quizNumber, String ay) throws SQLException {
-        String sql = "SELECT qq.id, qq.title, qq.marks, c.co_number, p.po_number FROM QuizQuestion qq JOIN Quiz q ON qq.quiz_id=q.id JOIN CO c ON qq.co_id=c.id JOIN PO p ON qq.po_id=p.id WHERE q.course_id=? AND q.quiz_number=? AND q.academic_year=? ORDER BY qq.title";
+    public List<QuestionData> getQuizQuestions(String courseCode, String programme, int quizNumber, String ay) throws SQLException {
+        String sql = "SELECT qq.id, qq.title, qq.marks, c.co_number, p.po_number FROM QuizQuestion qq JOIN Quiz q ON qq.quiz_id=q.id JOIN CO c ON qq.co_id=c.id JOIN PO p ON qq.po_id=p.id WHERE q.course_id=? AND q.programme=? AND q.quiz_number=? AND q.academic_year=? ORDER BY qq.title";
         List<QuestionData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseId); ps.setInt(2,quizNumber); ps.setString(3,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new QuestionData(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getString(4), rs.getString(5))); }}
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseCode); ps.setString(2,programme); ps.setInt(3,quizNumber); ps.setString(4,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new QuestionData(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getString(4), rs.getString(5))); }}
         return list;
     }
-    public List<QuestionData> getMidQuestions(String courseId, String ay) throws SQLException {
-        String sql = "SELECT mq.id, mq.title, mq.marks, c.co_number, p.po_number FROM MidQuestion mq JOIN Mid m ON mq.mid_id=m.id JOIN CO c ON mq.co_id=c.id JOIN PO p ON mq.po_id=p.id WHERE m.course_id=? AND m.academic_year=? ORDER BY mq.title";
+    public List<QuestionData> getMidQuestions(String courseCode, String programme, String ay) throws SQLException {
+        String sql = "SELECT mq.id, mq.title, mq.marks, c.co_number, p.po_number FROM MidQuestion mq JOIN Mid m ON mq.mid_id=m.id JOIN CO c ON mq.co_id=c.id JOIN PO p ON mq.po_id=p.id WHERE m.course_id=? AND m.programme=? AND m.academic_year=? ORDER BY mq.title";
         List<QuestionData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseId); ps.setString(2,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new QuestionData(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getString(4), rs.getString(5))); }}
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseCode); ps.setString(2,programme); ps.setString(3,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new QuestionData(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getString(4), rs.getString(5))); }}
         return list;
     }
-    public List<QuestionData> getFinalQuestions(String courseId, String ay) throws SQLException {
-        String sql = "SELECT fq.id, fq.title, fq.marks, c.co_number, p.po_number FROM FinalQuestion fq JOIN Final f ON fq.final_id=f.id JOIN CO c ON fq.co_id=c.id JOIN PO p ON fq.po_id=p.id WHERE f.course_id=? AND f.academic_year=? ORDER BY fq.title";
+    public List<QuestionData> getFinalQuestions(String courseCode, String programme, String ay) throws SQLException {
+        String sql = "SELECT fq.id, fq.title, fq.marks, c.co_number, p.po_number FROM FinalQuestion fq JOIN Final f ON fq.final_id=f.id JOIN CO c ON fq.co_id=c.id JOIN PO p ON fq.po_id=p.id WHERE f.course_id=? AND f.programme=? AND f.academic_year=? ORDER BY fq.title";
         List<QuestionData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseId); ps.setString(2,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new QuestionData(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getString(4), rs.getString(5))); }}
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseCode); ps.setString(2,programme); ps.setString(3,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new QuestionData(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getString(4), rs.getString(5))); }}
         return list;
     }
-    // Legacy wrappers
-    public List<QuestionData> getQuizQuestions(String c, int n) throws SQLException { return getQuizQuestions(c,n,latestAcademicYear()); }
-    public List<QuestionData> getMidQuestions(String c) throws SQLException { return getMidQuestions(c,latestAcademicYear()); }
-    public List<QuestionData> getFinalQuestions(String c) throws SQLException { return getFinalQuestions(c,latestAcademicYear()); }
 
     // ------------------------------------------------------------------
-    // Enrollment retrieval
+    // Enrollment retrieval & management (programme-aware)
     // ------------------------------------------------------------------
-    public List<StudentData> getEnrolledStudents(String courseId, String ay) throws SQLException {
-        String sql = "SELECT DISTINCT s.id,s.name,s.email,s.batch,s.programme,s.department FROM Student s JOIN Enrollment e ON s.id=e.student_id WHERE e.course_id=? AND e.academic_year=? ORDER BY s.id";
+    public List<StudentData> getEnrolledStudents(String courseCode, String programme, String ay) throws SQLException {
+        String sql = "SELECT DISTINCT s.id,s.name,s.email,s.batch,s.programme,s.department FROM Student s JOIN Enrollment e ON s.id=e.student_id WHERE e.course_id=? AND e.programme=? AND e.academic_year=? ORDER BY s.id";
         List<StudentData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseId); ps.setString(2,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new StudentData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6))); }}
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseCode); ps.setString(2,programme); ps.setString(3,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new StudentData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6))); }}
         return list;
     }
-    public List<StudentData> getEnrolledStudentsAllYears(String courseId) throws SQLException {
-        String sql = "SELECT DISTINCT s.id,s.name,s.email,s.batch,s.programme,s.department FROM Student s JOIN Enrollment e ON s.id=e.student_id WHERE e.course_id=? ORDER BY s.id";
+    public List<StudentData> getEnrolledStudentsAllYears(String courseCode, String programme) throws SQLException {
+        String sql = "SELECT DISTINCT s.id,s.name,s.email,s.batch,s.programme,s.department FROM Student s JOIN Enrollment e ON s.id=e.student_id WHERE e.course_id=? AND e.programme=? ORDER BY s.id";
         List<StudentData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseId); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new StudentData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6))); }}
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseCode); ps.setString(2,programme); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new StudentData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6))); }}
         return list;
     }
-    public List<StudentData> getEnrolledStudents(String courseId) throws SQLException { return getEnrolledStudentsAllYears(courseId); }
+
+    public void enrollStudents(String courseCode, String programme, String academicYear, List<String> studentIds) throws SQLException {
+        if (studentIds==null || studentIds.isEmpty()) return;
+        // Filter eligible students (dept & programme match course)
+        String courseDept;
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement("SELECT department FROM Course WHERE course_code=? AND programme=?")) {
+            ps.setString(1, courseCode); ps.setString(2, programme); try (ResultSet rs = ps.executeQuery()) { if (!rs.next()) throw new SQLException("Course not found"); courseDept = rs.getString(1); }
+        }
+        String placeholders = studentIds.stream().map(s -> "?").collect(java.util.stream.Collectors.joining(","));
+        List<String> eligible = new ArrayList<>();
+        String fetch = "SELECT id, department, programme FROM Student WHERE id IN ("+placeholders+")";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(fetch)) {
+            int idx=1; for (String sid: studentIds) ps.setString(idx++, sid);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    if (courseDept.equalsIgnoreCase(rs.getString(2)) && programme.equalsIgnoreCase(rs.getString(3))) eligible.add(rs.getString(1));
+                }
+            }
+        }
+        if (eligible.isEmpty()) return;
+        ensureEnrollmentYearColumn();
+        String sql = "INSERT IGNORE INTO Enrollment (student_id, course_id, programme, academic_year) VALUES (?,?,?,?)";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            for (String sid : eligible) { ps.setString(1,sid); ps.setString(2,courseCode); ps.setString(3,programme); ps.setString(4,academicYear); ps.addBatch(); }
+            ps.executeBatch();
+        }
+    }
+
+    public int unenrollStudents(String courseCode, String programme, String academicYear, List<String> studentIds) throws SQLException {
+        if (studentIds==null || studentIds.isEmpty()) return 0; ensureEnrollmentYearColumn();
+        String sql = "DELETE FROM Enrollment WHERE course_id=? AND programme=? AND academic_year=? AND student_id=?";
+        int total=0; try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { for (String sid: studentIds){ ps.setString(1,courseCode); ps.setString(2,programme); ps.setString(3,academicYear); ps.setString(4,sid); ps.addBatch(); } int[] res=ps.executeBatch(); for(int r:res) if(r>=0) total+=r; }
+        return total;
+    }
 
     // ------------------------------------------------------------------
-    // Student marks retrieval (academic-year aware) + wrappers
+    // Student marks retrieval (programme-aware)
     // ------------------------------------------------------------------
-    public List<StudentMarksData> getStudentQuizMarks(String courseId, int quizNumber, String ay) throws SQLException {
-        String sql = "SELECT s.id,s.name,qq.id,qq.title,qq.marks,sqm.marks_obtained FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.academic_year=? JOIN Quiz q ON q.course_id=e.course_id AND q.quiz_number=? AND q.academic_year=e.academic_year JOIN QuizQuestion qq ON qq.quiz_id=q.id LEFT JOIN StudentQuizMarks sqm ON sqm.student_id=s.id AND sqm.quiz_question_id=qq.id ORDER BY s.id,qq.title";
+    public List<StudentMarksData> getStudentQuizMarks(String courseCode, String programme, int quizNumber, String ay) throws SQLException {
+        String sql = "SELECT s.id,s.name,qq.id,qq.title,qq.marks,sqm.marks_obtained FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.programme=? AND e.academic_year=? JOIN Quiz q ON q.course_id=e.course_id AND q.programme=e.programme AND q.quiz_number=? AND q.academic_year=e.academic_year JOIN QuizQuestion qq ON qq.quiz_id=q.id LEFT JOIN StudentQuizMarks sqm ON sqm.student_id=s.id AND sqm.quiz_question_id=qq.id ORDER BY s.id,qq.title";
         List<StudentMarksData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1,courseId); ps.setString(2,ay); ps.setInt(3,quizNumber);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Object val = rs.getObject(6);
-                    Double obtained = (val == null) ? null : ((Number) val).doubleValue();
-                    list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), obtained));
-                }
-            }
-        }
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseCode); ps.setString(2,programme); ps.setString(3,ay); ps.setInt(4,quizNumber); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) { Object val = rs.getObject(6); Double obtained = val==null? null : ((Number)val).doubleValue(); list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), obtained)); } }}
         return list;
     }
-    public List<StudentMarksData> getStudentMidMarks(String courseId, String ay) throws SQLException {
-        String sql = "SELECT s.id,s.name,mq.id,mq.title,mq.marks,smm.marks_obtained FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.academic_year=? JOIN Mid m ON m.course_id=e.course_id AND m.academic_year=e.academic_year JOIN MidQuestion mq ON mq.mid_id=m.id LEFT JOIN StudentMidMarks smm ON smm.student_id=s.id AND smm.mid_question_id=mq.id ORDER BY s.id,mq.title";
+    public List<StudentMarksData> getStudentMidMarks(String courseCode, String programme, String ay) throws SQLException {
+        String sql = "SELECT s.id,s.name,mq.id,mq.title,mq.marks,smm.marks_obtained FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.programme=? AND e.academic_year=? JOIN Mid m ON m.course_id=e.course_id AND m.programme=e.programme AND m.academic_year=e.academic_year JOIN MidQuestion mq ON mq.mid_id=m.id LEFT JOIN StudentMidMarks smm ON smm.student_id=s.id AND smm.mid_question_id=mq.id ORDER BY s.id,mq.title";
         List<StudentMarksData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1,courseId); ps.setString(2,ay);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Object val = rs.getObject(6);
-                    Double obtained = (val == null) ? null : ((Number) val).doubleValue();
-                    list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), obtained));
-                }
-            }
-        }
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseCode); ps.setString(2,programme); ps.setString(3,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) { Object val = rs.getObject(6); Double obtained = val==null? null : ((Number)val).doubleValue(); list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), obtained)); } }}
         return list;
     }
-    public List<StudentMarksData> getStudentFinalMarks(String courseId, String ay) throws SQLException {
-        String sql = "SELECT s.id,s.name,fq.id,fq.title,fq.marks,sfm.marks_obtained FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.academic_year=? JOIN Final f ON f.course_id=e.course_id AND f.academic_year=e.academic_year JOIN FinalQuestion fq ON fq.final_id=f.id LEFT JOIN StudentFinalMarks sfm ON sfm.student_id=s.id AND sfm.final_question_id=fq.id ORDER BY s.id,fq.title";
+    public List<StudentMarksData> getStudentFinalMarks(String courseCode, String programme, String ay) throws SQLException {
+        String sql = "SELECT s.id,s.name,fq.id,fq.title,fq.marks,sfm.marks_obtained FROM Student s JOIN Enrollment e ON s.id=e.student_id AND e.course_id=? AND e.programme=? AND e.academic_year=? JOIN Final f ON f.course_id=e.course_id AND f.programme=e.programme AND f.academic_year=e.academic_year JOIN FinalQuestion fq ON fq.final_id=f.id LEFT JOIN StudentFinalMarks sfm ON sfm.student_id=s.id AND sfm.final_question_id=fq.id ORDER BY s.id,fq.title";
         List<StudentMarksData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1,courseId); ps.setString(2,ay);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Object val = rs.getObject(6);
-                    Double obtained = (val == null) ? null : ((Number) val).doubleValue();
-                    list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), obtained));
-                }
-            }
-        }
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,courseCode); ps.setString(2,programme); ps.setString(3,ay); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) { Object val = rs.getObject(6); Double obtained = val==null? null : ((Number)val).doubleValue(); list.add(new StudentMarksData(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getDouble(5), obtained)); } }}
         return list;
     }
-    // Legacy wrappers
-    public List<StudentMarksData> getStudentQuizMarks(String c, int n) throws SQLException { return getStudentQuizMarks(c,n,latestAcademicYear()); }
-    public List<StudentMarksData> getStudentMidMarks(String c) throws SQLException { return getStudentMidMarks(c,latestAcademicYear()); }
-    public List<StudentMarksData> getStudentFinalMarks(String c) throws SQLException { return getStudentFinalMarks(c,latestAcademicYear()); }
 
     // ------------------------------------------------------------------
     // Save marks for individual question results (already by question ID)
@@ -472,7 +457,7 @@ public class DatabaseService {
         return null;
     }
     public List<FacultyCourseAssignment> getAssignmentsForFaculty(int facultyId) throws SQLException {
-        String sql = "SELECT ca.course_code,c.course_name,ca.academic_year,ca.department,ca.programme FROM CourseAssignment ca JOIN Course c ON ca.course_code=c.course_code WHERE ca.faculty_id=? ORDER BY ca.academic_year DESC, ca.course_code";
+        String sql = "SELECT DISTINCT ca.course_code,c.course_name,ca.academic_year,ca.department,ca.programme FROM CourseAssignment ca JOIN Course c ON ca.course_code=c.course_code WHERE ca.faculty_id=? ORDER BY ca.academic_year DESC, ca.course_code";
         List<FacultyCourseAssignment> list = new ArrayList<>();
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setInt(1,facultyId); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new FacultyCourseAssignment(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5))); }}
         return list;

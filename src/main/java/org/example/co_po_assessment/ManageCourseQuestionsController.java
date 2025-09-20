@@ -125,22 +125,22 @@ public class ManageCourseQuestionsController implements Initializable {
     private void loadExistingQuestions() {
         if (courseAssignment == null) return;
         // Ensure assessment shells exist
-        try { db.ensureAssessmentsExist(courseAssignment.courseCode, courseAssignment.academicYear); } catch (Exception ignored) {}
+        try { db.ensureAssessmentsExist(courseAssignment.courseCode, courseAssignment.programme, courseAssignment.academicYear); } catch (Exception ignored) {}
 
         quiz1Questions.clear(); quiz2Questions.clear(); quiz3Questions.clear(); quiz4Questions.clear(); midQuestions.clear(); finalQuestions.clear();
         try {
             String year = courseAssignment.academicYear;
             for (int i = 1; i <= 4; i++) {
-                List<DatabaseService.QuestionData> qd = db.getQuizQuestions(courseAssignment.courseCode, i, year);
+                List<DatabaseService.QuestionData> qd = db.getQuizQuestions(courseAssignment.courseCode, courseAssignment.programme, i, year);
                 ObservableList<AssessmentQuestion> target = switch (i) { case 1 -> quiz1Questions; case 2 -> quiz2Questions; case 3 -> quiz3Questions; default -> quiz4Questions; };
                 for (DatabaseService.QuestionData d : qd) {
                     target.add(new AssessmentQuestion(d.id, d.title, d.marks, d.co, d.po, "Quiz" + i));
                 }
             }
-            for (DatabaseService.QuestionData d : db.getMidQuestions(courseAssignment.courseCode, year)) {
+            for (DatabaseService.QuestionData d : db.getMidQuestions(courseAssignment.courseCode, courseAssignment.programme, year)) {
                 midQuestions.add(new AssessmentQuestion(d.id, d.title, d.marks, d.co, d.po, "Mid"));
             }
-            for (DatabaseService.QuestionData d : db.getFinalQuestions(courseAssignment.courseCode, year)) {
+            for (DatabaseService.QuestionData d : db.getFinalQuestions(courseAssignment.courseCode, courseAssignment.programme, year)) {
                 finalQuestions.add(new AssessmentQuestion(d.id, d.title, d.marks, d.co, d.po, "Final"));
             }
         } catch (Exception e) {
@@ -285,13 +285,14 @@ public class ManageCourseQuestionsController implements Initializable {
         try {
             String code = courseAssignment.courseCode;
             String year = courseAssignment.academicYear;
+            String programme = courseAssignment.programme;
             switch (q.getAssessmentType()) {
-                case "Quiz1" -> db.saveQuizQuestion(code,1,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
-                case "Quiz2" -> db.saveQuizQuestion(code,2,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
-                case "Quiz3" -> db.saveQuizQuestion(code,3,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
-                case "Quiz4" -> db.saveQuizQuestion(code,4,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
-                case "Mid" -> db.saveMidQuestion(code,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
-                case "Final" -> db.saveFinalQuestion(code,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
+                case "Quiz1" -> db.saveQuizQuestion(code, programme, 1,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
+                case "Quiz2" -> db.saveQuizQuestion(code, programme,2,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
+                case "Quiz3" -> db.saveQuizQuestion(code, programme, 3,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
+                case "Quiz4" -> db.saveQuizQuestion(code, programme, 4,q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
+                case "Mid" -> db.saveMidQuestion(code, programme, q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
+                case "Final" -> db.saveFinalQuestion(code, programme, q.getNumber(),q.getMarks(),q.getCo(),q.getPo(), year);
             }
             return true;
         } catch (Exception e) {

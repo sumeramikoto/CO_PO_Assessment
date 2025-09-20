@@ -131,7 +131,7 @@ public class ManageEnrollmentsController {
         }
         List<String> ids = eligible.stream().map(s -> s.id).collect(Collectors.toList());
         try {
-            db.enrollStudents(courseCode, year, ids);
+            db.enrollStudents(courseCode, courseProg, year, ids);
             StringBuilder msg = new StringBuilder();
             msg.append("Enrolled/updated ").append(ids.size()).append(" students for course ").append(courseCode).append(" (" + year + ")");
             if (!mismatched.isEmpty()) {
@@ -149,7 +149,9 @@ public class ManageEnrollmentsController {
         String year = academicYearCombo.getValue();
         if (courseDisplay == null || courseDisplay.isBlank()) { showWarn("Validation", "Select a course"); return; }
         if (year == null || year.isBlank()) { showWarn("Validation", "Select an academic year"); return; }
-        String courseCode = courseDisplay.split(" - ")[0];
+        String[] parts = courseDisplay.split(" - ");
+        String courseCode = parts[0];
+        String courseProg = parts.length >= 4 ? parts[3] : null;
         List<StudentDatabaseHelper.StudentData> selected = studentTableView.getSelectionModel().getSelectedItems();
         if (selected == null || selected.isEmpty()) { showWarn("Validation", "Select at least one student"); return; }
         List<String> ids = selected.stream().map(s -> s.id).collect(Collectors.toList());
@@ -159,7 +161,7 @@ public class ManageEnrollmentsController {
         confirm.setContentText("Unenroll " + ids.size() + " students from course " + courseCode + " (" + year + ")? This will remove their enrollment and any associated marks for this course-year may become orphaned.");
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
         try {
-            int removed = db.unenrollStudents(courseCode, year, ids);
+            int removed = db.unenrollStudents(courseCode, courseProg, year, ids);
             showInfo("Unenrollment", "Removed " + removed + " enrollments for course " + courseCode + " (" + year + ")");
         } catch (SQLException e) {
             showError("Unenrollment Failed", e.getMessage());

@@ -137,13 +137,13 @@ public class CourseInputController implements Initializable {
             errors.append("Programme must match the format: BSc in XX, BSc in XXX, MSc in XX/XXX, PhD in XX/XXX, or BBA in XX/XXX (where the last part is 2 or 3 uppercase letters).\n");
         }
 
-        // Check if course code already exists (use normalized uppercase format)
+        // Check if course (code + programme) already exists
         try {
-            if (!courseCode.isEmpty() && databaseHelper.courseExists(courseCode.toUpperCase())) {
-                errors.append("Course code already exists. Please use a different code.\n");
+            if (!courseCode.isEmpty() && !programme.isEmpty() && databaseHelper.courseExists(courseCode.toUpperCase(), programme)) {
+                errors.append("A course with this code already exists for the selected programme.\n");
             }
         } catch (Exception e) {
-            errors.append("Database error while checking course code.\n");
+            errors.append("Database error while checking course code/programme combination.\n");
         }
 
         if (errors.length() > 0) {

@@ -316,15 +316,16 @@ public class ManageCourseQuestionsController implements Initializable {
         if (courseAssignment != null) {
             String code = courseAssignment.courseCode;
             String year = courseAssignment.academicYear;
+            String programme = courseAssignment.programme;
             boolean deleted = false;
             try {
                 switch (selected.getAssessmentType()) {
-                    case "Quiz1" -> deleted = db.deleteQuizQuestion(code,1,selected.getNumber(), year);
-                    case "Quiz2" -> deleted = db.deleteQuizQuestion(code,2,selected.getNumber(), year);
-                    case "Quiz3" -> deleted = db.deleteQuizQuestion(code,3,selected.getNumber(), year);
-                    case "Quiz4" -> deleted = db.deleteQuizQuestion(code,4,selected.getNumber(), year);
-                    case "Mid" -> deleted = db.deleteMidQuestion(code,selected.getNumber(), year);
-                    case "Final" -> deleted = db.deleteFinalQuestion(code,selected.getNumber(), year);
+                    case "Quiz1" -> deleted = db.deleteQuizQuestion(code,programme,1,selected.getNumber(), year);
+                    case "Quiz2" -> deleted = db.deleteQuizQuestion(code,programme,2,selected.getNumber(), year);
+                    case "Quiz3" -> deleted = db.deleteQuizQuestion(code,programme,3,selected.getNumber(), year);
+                    case "Quiz4" -> deleted = db.deleteQuizQuestion(code,programme,4,selected.getNumber(), year);
+                    case "Mid" -> deleted = db.deleteMidQuestion(code,programme,selected.getNumber(), year);
+                    case "Final" -> deleted = db.deleteFinalQuestion(code,programme,selected.getNumber(), year);
                 }
             } catch (Exception ex) {
                 Alert err = new Alert(Alert.AlertType.ERROR, "Failed to delete question: " + ex.getMessage(), ButtonType.OK);

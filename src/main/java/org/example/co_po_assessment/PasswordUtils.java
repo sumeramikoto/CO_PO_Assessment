@@ -76,13 +76,4 @@ public final class PasswordUtils {
         for (int i = 0; i < a.length; i++) result |= a[i] ^ b[i];
         return result == 0;
     }
-
-    public static void main(String[] args) {
-        String raw = "password";
-        String hashed = hash(raw);
-        System.out.println("Raw: " + raw);
-        System.out.println("Hashed: " + hashed);
-        System.out.println("Matches: " + matches(raw, hashed));
-        System.out.println("Matches wrong: " + matches("wrongpassword", hashed));
-    }
 }

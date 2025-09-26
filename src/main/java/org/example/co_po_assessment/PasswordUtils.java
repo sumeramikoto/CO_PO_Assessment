@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import org.mindrot.jbcrypt.BCrypt; // backward compatibility
 
 public final class PasswordUtils {
     private static final String PREFIX = "sha256$"; // new unsalted format: sha256$<Base64Digest>
@@ -67,9 +66,6 @@ public final class PasswordUtils {
                 }
             }
             return false; // malformed
-        }
-        if (stored.matches("^\\$2[aby]\\$\\d{2}\\$[./A-Za-z0-9]{53}$")) {
-            try { return BCrypt.checkpw(raw, stored); } catch (Exception ignored) { return false; }
         }
         return raw.equals(stored);
     }

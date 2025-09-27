@@ -8,9 +8,9 @@ public class DatabaseService {
     // ------------------------------------------------------------------
     // Basic singleton + connection
     // ------------------------------------------------------------------
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "pass";
+    private static final String DB_URL = "jdbc:mysql://u2pt07.h.filess.io:3307/SPL2_stiffstiff";
+    private static final String DB_USER = "SPL2_stiffstiff";
+    private static final String DB_PASSWORD = "44f45683637f5c4f3cba0ad2eb7966589c4c0a2f";
     private static DatabaseService instance;
 
     private DatabaseService() {

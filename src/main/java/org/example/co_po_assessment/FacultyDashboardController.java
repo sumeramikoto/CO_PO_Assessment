@@ -168,116 +168,20 @@ public class FacultyDashboardController {
             alert.showAndWait();
             return;
         }
-        String courseCode = selected.getCourseCode();
-        String academicYear = selected.getAcademicYear();
-        String programme = selected.getProgramme();
         try {
-            // Fetch questions per assessment individually to validate completeness
-            List<DatabaseService.QuestionData> quiz1 = db.getQuizQuestions(courseCode, programme, 1,academicYear);
-            List<DatabaseService.QuestionData> quiz2 = db.getQuizQuestions(courseCode, programme, 2,academicYear);
-            List<DatabaseService.QuestionData> quiz3 = db.getQuizQuestions(courseCode, programme, 3,academicYear);
-            List<DatabaseService.QuestionData> quiz4 = db.getQuizQuestions(courseCode, programme, 4,academicYear);
-            List<DatabaseService.QuestionData> midQuestions = db.getMidQuestions(courseCode, programme, academicYear);
-            List<DatabaseService.QuestionData> finalQuestions = db.getFinalQuestions(courseCode, programme, academicYear);
-
-            List<String> missingAssessments = new ArrayList<>();
-            List<String> noCOAssessments = new ArrayList<>();
-            java.util.function.BiConsumer<String,List<DatabaseService.QuestionData>> classify = (label,list)-> {
-                if (list.isEmpty()) missingAssessments.add(label);
-                else if (list.stream().noneMatch(q-> q.co!=null && !q.co.trim().isEmpty())) noCOAssessments.add(label);
-            };
-            classify.accept("Quiz 1", quiz1);
-            classify.accept("Quiz 2", quiz2);
-            classify.accept("Quiz 3", quiz3);
-            classify.accept("Quiz 4", quiz4);
-            classify.accept("Mid", midQuestions);
-            classify.accept("Final", finalQuestions);
-
-            if (!missingAssessments.isEmpty() || !noCOAssessments.isEmpty()) {
-                StringBuilder msg = new StringBuilder();
-                if (!missingAssessments.isEmpty()) msg.append("These assessments have no questions defined: ").append(String.join(", ", missingAssessments)).append(".\n");
-                if (!noCOAssessments.isEmpty()) msg.append("These assessments have questions but none mapped to COs: ").append(String.join(", ", noCOAssessments)).append(".\n");
-                msg.append("Add & map all assessments before generating the CO report.");
-                Alert a = new Alert(Alert.AlertType.WARNING, msg.toString(), ButtonType.OK); a.setHeaderText("Incomplete Assessment Setup"); a.showAndWait();
-                return;
-            }
-
-            // Combine all quiz questions for existing downstream logic
-            List<DatabaseService.QuestionData> quizQuestionsAll = new ArrayList<>();
-            quizQuestionsAll.addAll(quiz1); quizQuestionsAll.addAll(quiz2); quizQuestionsAll.addAll(quiz3); quizQuestionsAll.addAll(quiz4);
-            // Build CO totals
-            Map<String,Double> coTotal = new HashMap<>();
-            java.util.function.BiConsumer<List<DatabaseService.QuestionData>,String> addQuestions = (list,label)-> {
-                for (DatabaseService.QuestionData qd : list) { if (qd.co==null) continue; String co = qd.co.trim().toUpperCase(); if (co.isEmpty()) continue; coTotal.merge(co, qd.marks, Double::sum);} };
-            addQuestions.accept(quizQuestionsAll, "Quiz");
-            addQuestions.accept(midQuestions, "Mid");
-            addQuestions.accept(finalQuestions, "Final");
-            if (coTotal.isEmpty()) { Alert a = new Alert(Alert.AlertType.INFORMATION, "Questions exist but none have CO mappings.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
-            List<DatabaseService.StudentData> students = db.getEnrolledStudents(courseCode, programme, academicYear);
-            if (students.isEmpty()) { Alert a = new Alert(Alert.AlertType.INFORMATION, "No students enrolled for this course in the selected academic year.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
-            Map<Integer,String> quizIdToCO = new HashMap<>(); for (DatabaseService.QuestionData qd : quizQuestionsAll) if (qd.co!=null) quizIdToCO.put(qd.id, qd.co.trim().toUpperCase());
-            Map<Integer,String> midIdToCO = new HashMap<>(); for (DatabaseService.QuestionData qd : midQuestions) if (qd.co!=null) midIdToCO.put(qd.id, qd.co.trim().toUpperCase());
-            Map<Integer,String> finalIdToCO = new HashMap<>(); for (DatabaseService.QuestionData qd : finalQuestions) if (qd.co!=null) finalIdToCO.put(qd.id, qd.co.trim().toUpperCase());
-            // Validation counters (only for CO-mapped questions)
-            int totalRequired = 0; int graded = 0; List<String> sampleMissing = new ArrayList<>();
-            // Per-student accumulation structure
-            Map<String, Map<String, Double>> studentCOObtained = new HashMap<>();
-            for (DatabaseService.StudentData sd : students) studentCOObtained.put(sd.id, new HashMap<>());
-            // Process quizzes
-            for (int quizNum=1; quizNum<=4; quizNum++) {
-                for (DatabaseService.StudentMarksData smd : db.getStudentQuizMarks(courseCode, programme, quizNum, academicYear)) {
-                    String co = quizIdToCO.get(smd.questionId); if (co==null) continue; totalRequired++; if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentCOObtained.get(smd.studentId).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
-                }
-            }
-            // Process mid
-            for (DatabaseService.StudentMarksData smd : db.getStudentMidMarks(courseCode, programme, academicYear)) {
-                String co = midIdToCO.get(smd.questionId); if (co==null) continue; totalRequired++; if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentCOObtained.get(smd.studentId).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
-            }
-            // Process final
-            for (DatabaseService.StudentMarksData smd : db.getStudentFinalMarks(courseCode, programme, academicYear)) {
-                String co = finalIdToCO.get(smd.questionId); if (co==null) continue; totalRequired++; if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentCOObtained.get(smd.studentId).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
-            }
-            int missing = totalRequired - graded;
-            if (totalRequired == 0) { Alert a = new Alert(Alert.AlertType.INFORMATION, "There are CO-mapped questions but no enrolled students to grade.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
-            if (graded == 0) { Alert a = new Alert(Alert.AlertType.WARNING, "No marks have been entered yet. Please enter marks before generating the CO report.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
-            if (missing > 0) {
-                Alert a = new Alert(Alert.AlertType.WARNING, String.format("Cannot generate CO report. %d of %d required mark entries are still ungraded. Sample missing: %s", missing, totalRequired, sampleMissing), ButtonType.OK);
-                a.setHeaderText("Incomplete Grading"); a.showAndWait(); return; }
-            final double THRESHOLD = 0.60; Map<String,Integer> attainedCounts = new HashMap<>(); for (String co: coTotal.keySet()) attainedCounts.put(co,0);
-            for (DatabaseService.StudentData sd : students) { Map<String,Double> gotMap = studentCOObtained.get(sd.id); for (String co : coTotal.keySet()) { double denom = coTotal.get(co); if (denom <= 0) continue; double got = gotMap.getOrDefault(co,0.0); if (got/denom >= THRESHOLD) attainedCounts.merge(co,1,Integer::sum); } }
-            Map<String,Double> percentPerCO = new TreeMap<>(Comparator.comparingInt(c -> { try { return Integer.parseInt(c.replaceAll("[^0-9]", "")); } catch(Exception ex){ return Integer.MAX_VALUE; } })); for (String co: coTotal.keySet()) percentPerCO.put(co, attainedCounts.getOrDefault(co,0)*100.0 / students.size());
-            // Chart
-            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-            for (Map.Entry<String,Double> e : percentPerCO.entrySet()) dataset.addValue(e.getValue(), "CO Attainment", e.getKey());
-            JFreeChart chart = ChartFactory.createBarChart("CO Attainment", "CO", "% Students", dataset);
-            // Force y-axis 0-100%
-            CategoryPlot plot = chart.getCategoryPlot();
-            if (plot.getRangeAxis() instanceof NumberAxis na) {
-                na.setRange(0.0, 100.0);
-                na.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-            }
-            ByteArrayOutputStream chartBaos = new ByteArrayOutputStream(); ChartUtils.writeChartAsPNG(chartBaos, chart, 640, 400); byte[] chartBytes = chartBaos.toByteArray();
-            // PDF
-            File reportsDir = new File("co_reports"); if (!reportsDir.exists()) reportsDir.mkdirs();
-            String safeProgramme = selected.getProgramme().replaceAll("[^A-Za-z0-9_-]", "");
-            File outFile = new File(reportsDir, courseCode + "_" + academicYear + "_" + safeProgramme + ".pdf");
-            try (PdfWriter writer = new PdfWriter(new FileOutputStream(outFile)); PdfDocument pdf = new PdfDocument(writer); Document doc = new Document(pdf)) {
-                Paragraph title = new Paragraph(courseCode + " - " + selected.getCourseName()); title.setFontSize(16).setTextAlignment(TextAlignment.CENTER); doc.add(title);
-                doc.add(new Paragraph("Department: " + selected.getDepartment()));
-                doc.add(new Paragraph("Programme: " + selected.getProgramme()));
-                DatabaseService.FacultyInfo fi = UserSession.getCurrentFaculty();
-                if (fi != null) doc.add(new Paragraph("Faculty: " + fi.fullName + " (" + fi.shortname + ")"));
-                doc.add(new Paragraph("Academic Year: " + academicYear));
-                doc.add(new Paragraph("Generated: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
-                doc.add(new Paragraph("\n"));
-                for (Map.Entry<String,Double> e : percentPerCO.entrySet()) doc.add(new Paragraph(e.getKey() + " was successfully attained by " + String.format(Locale.US, "%.2f", e.getValue()) + "% of students"));
-                doc.add(new Paragraph("\n"));
-                Image chartImg = new Image(ImageDataFactory.create(chartBytes)).setAutoScale(true); doc.add(chartImg);
-            }
-            Alert done = new Alert(Alert.AlertType.INFORMATION, "CO report generated: " + outFile.getAbsolutePath(), ButtonType.OK); done.setHeaderText(null); done.showAndWait();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Alert err = new Alert(Alert.AlertType.ERROR, "Failed to generate CO report: " + ex.getMessage(), ButtonType.OK); err.setHeaderText(null); err.showAndWait();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("coReportDialog-view.fxml"));
+            Parent root = loader.load();
+            COReportDialogController controller = loader.getController();
+            controller.setContext(selected);
+            Stage stage = new Stage();
+            stage.setTitle("CO Report - " + selected.getCourseCode());
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open CO report: " + e.getMessage(), ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
         }
     }
 
@@ -289,151 +193,20 @@ public class FacultyDashboardController {
             alert.showAndWait();
             return;
         }
-        String courseCode = selected.getCourseCode();
-        String academicYear = selected.getAcademicYear();
-        String programme = selected.getProgramme();
         try {
-            List<DatabaseService.QuestionData> quiz1 = db.getQuizQuestions(courseCode, programme, 1,academicYear);
-            List<DatabaseService.QuestionData> quiz2 = db.getQuizQuestions(courseCode, programme, 2,academicYear);
-            List<DatabaseService.QuestionData> quiz3 = db.getQuizQuestions(courseCode, programme, 3,academicYear);
-            List<DatabaseService.QuestionData> quiz4 = db.getQuizQuestions(courseCode, programme, 4,academicYear);
-            List<DatabaseService.QuestionData> midQuestions = db.getMidQuestions(courseCode, programme, academicYear);
-            List<DatabaseService.QuestionData> finalQuestions = db.getFinalQuestions(courseCode, programme, academicYear);
-
-            List<String> missingAssessments = new ArrayList<>();
-            List<String> noPOAssessments = new ArrayList<>();
-            java.util.function.BiConsumer<String,List<DatabaseService.QuestionData>> classify = (label,list)-> {
-                if (list.isEmpty()) missingAssessments.add(label);
-                else if (list.stream().noneMatch(q-> q.po!=null && !q.po.trim().isEmpty())) noPOAssessments.add(label);
-            };
-            classify.accept("Quiz 1", quiz1);
-            classify.accept("Quiz 2", quiz2);
-            classify.accept("Quiz 3", quiz3);
-            classify.accept("Quiz 4", quiz4);
-            classify.accept("Mid", midQuestions);
-            classify.accept("Final", finalQuestions);
-
-            if (!missingAssessments.isEmpty() || !noPOAssessments.isEmpty()) {
-                StringBuilder msg = new StringBuilder();
-                if (!missingAssessments.isEmpty()) msg.append("These assessments have no questions defined: ").append(String.join(", ", missingAssessments)).append(".\n");
-                if (!noPOAssessments.isEmpty()) msg.append("These assessments have questions but none mapped to POs: ").append(String.join(", ", noPOAssessments)).append(".\n");
-                msg.append("Add & map all assessments before generating the PO report.");
-                Alert a = new Alert(Alert.AlertType.WARNING, msg.toString(), ButtonType.OK); a.setHeaderText("Incomplete Assessment Setup"); a.showAndWait();
-                return;
-            }
-
-            List<DatabaseService.QuestionData> quizQuestionsAll = new ArrayList<>();
-            quizQuestionsAll.addAll(quiz1); quizQuestionsAll.addAll(quiz2); quizQuestionsAll.addAll(quiz3); quizQuestionsAll.addAll(quiz4);
-            Map<String,Double> poTotal = new HashMap<>();
-            Map<String, Map<String,Double>> poCoTotals = new HashMap<>();
-            java.util.function.Consumer<DatabaseService.QuestionData> accumulate = q -> {
-                if (q.po == null || q.po.trim().isEmpty() || q.co == null || q.co.trim().isEmpty()) return;
-                String po = q.po.trim().toUpperCase();
-                String co = q.co.trim().toUpperCase();
-                poTotal.merge(po, q.marks, Double::sum);
-                poCoTotals.computeIfAbsent(po, k-> new HashMap<>()).merge(co, q.marks, Double::sum);
-            };
-            quizQuestionsAll.forEach(accumulate); midQuestions.forEach(accumulate); finalQuestions.forEach(accumulate);
-            if (poTotal.isEmpty()) { Alert a = new Alert(Alert.AlertType.INFORMATION, "Questions exist but none have PO mappings.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
-
-            List<DatabaseService.StudentData> students = db.getEnrolledStudents(courseCode, programme, academicYear);
-            if (students.isEmpty()) { Alert a = new Alert(Alert.AlertType.INFORMATION, "No students enrolled for this course in the selected academic year.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
-
-            Map<Integer,String> quizIdToPO = new HashMap<>(); Map<Integer,String> quizIdToCO = new HashMap<>();
-            for (DatabaseService.QuestionData qd : quizQuestionsAll) { if (qd.po!=null) quizIdToPO.put(qd.id, qd.po.trim().toUpperCase()); if (qd.co!=null) quizIdToCO.put(qd.id, qd.co.trim().toUpperCase()); }
-            Map<Integer,String> midIdToPO = new HashMap<>(); Map<Integer,String> midIdToCO = new HashMap<>();
-            for (DatabaseService.QuestionData qd : midQuestions) { if (qd.po!=null) midIdToPO.put(qd.id, qd.po.trim().toUpperCase()); if (qd.co!=null) midIdToCO.put(qd.id, qd.co.trim().toUpperCase()); }
-            Map<Integer,String> finalIdToPO = new HashMap<>(); Map<Integer,String> finalIdToCO = new HashMap<>();
-            for (DatabaseService.QuestionData qd : finalQuestions) { if (qd.po!=null) finalIdToPO.put(qd.id, qd.po.trim().toUpperCase()); if (qd.co!=null) finalIdToCO.put(qd.id, qd.co.trim().toUpperCase()); }
-
-            int totalRequired = 0; int graded = 0; List<String> sampleMissing = new ArrayList<>();
-            Map<String, Map<String, Double>> studentPoTotals = new HashMap<>();
-            Map<String, Map<String, Map<String, Double>>> studentPoCoTotals = new HashMap<>();
-            for (DatabaseService.StudentData sd : students) { studentPoTotals.put(sd.id, new HashMap<>()); studentPoCoTotals.put(sd.id, new HashMap<>()); }
-
-            // Process quizzes
-            for (int quizNum=1; quizNum<=4; quizNum++) {
-                for (DatabaseService.StudentMarksData smd : db.getStudentQuizMarks(courseCode, programme, quizNum, academicYear)) {
-                    String po = quizIdToPO.get(smd.questionId); String co = quizIdToCO.get(smd.questionId);
-                    if (po==null || co==null) continue;
-                    totalRequired++;
-                    if (smd.marksObtained != null) {
-                        graded++; double got = smd.marksObtained;
-                        studentPoTotals.get(smd.studentId).merge(po, got, Double::sum);
-                        studentPoCoTotals.get(smd.studentId).computeIfAbsent(po,k-> new HashMap<>()).merge(co, got, Double::sum);
-                    } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
-                }
-            }
-            // Mid
-            for (DatabaseService.StudentMarksData smd : db.getStudentMidMarks(courseCode, programme, academicYear)) {
-                String po = midIdToPO.get(smd.questionId); String co = midIdToCO.get(smd.questionId);
-                if (po==null || co==null) continue;
-                totalRequired++;
-                if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentPoTotals.get(smd.studentId).merge(po, got, Double::sum); studentPoCoTotals.get(smd.studentId).computeIfAbsent(po,k-> new HashMap<>()).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
-            }
-            // Final
-            for (DatabaseService.StudentMarksData smd : db.getStudentFinalMarks(courseCode, programme, academicYear)) {
-                String po = finalIdToPO.get(smd.questionId); String co = finalIdToCO.get(smd.questionId);
-                if (po==null || co==null) continue;
-                totalRequired++;
-                if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentPoTotals.get(smd.studentId).merge(po, got, Double::sum); studentPoCoTotals.get(smd.studentId).computeIfAbsent(po,k-> new HashMap<>()).merge(co, got, Double::sum); } else if (sampleMissing.size()<5) sampleMissing.add(smd.studentId+" -> Q"+smd.questionTitle);
-            }
-
-            int missing = totalRequired - graded;
-            if (totalRequired == 0) { Alert a = new Alert(Alert.AlertType.INFORMATION, "There are PO-mapped questions but no enrolled students to grade.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
-            if (graded == 0) { Alert a = new Alert(Alert.AlertType.WARNING, "No marks have been entered yet. Please enter marks before generating the PO report.", ButtonType.OK); a.setHeaderText(null); a.showAndWait(); return; }
-            if (missing > 0) { Alert a = new Alert(Alert.AlertType.WARNING, String.format("Cannot generate PO report. %d of %d required mark entries are still ungraded. Sample missing: %s", missing, totalRequired, sampleMissing), ButtonType.OK); a.setHeaderText("Incomplete Grading"); a.showAndWait(); return; }
-
-            final double CO_THRESHOLD = 0.60; final double PO_THRESHOLD = 0.40;
-            Map<String,Integer> poAttainedCounts = new HashMap<>(); for (String po : poTotal.keySet()) poAttainedCounts.put(po,0);
-            for (DatabaseService.StudentData sd : students) {
-                Map<String, Double> studentPOMap = studentPoTotals.get(sd.id);
-                Map<String, Map<String, Double>> studentPOCOMap = studentPoCoTotals.get(sd.id);
-                for (String po : poTotal.keySet()) {
-                    double poDenom = poTotal.get(po); if (poDenom <= 0) continue;
-                    Map<String,Double> coDenoms = poCoTotals.getOrDefault(po, Collections.emptyMap());
-                    boolean anyCOAttained = false;
-                    for (String co : coDenoms.keySet()) {
-                        double coDenom = coDenoms.get(co); if (coDenom <= 0) continue;
-                        double coGot = Optional.ofNullable(studentPOCOMap.get(po)).map(m-> m.getOrDefault(co,0.0)).orElse(0.0);
-                        if (coGot / coDenom >= CO_THRESHOLD) { anyCOAttained = true; break; }
-                    }
-                    if (!anyCOAttained) continue;
-                    double poGot = studentPOMap.getOrDefault(po, 0.0);
-                    if (poGot / poDenom >= PO_THRESHOLD) poAttainedCounts.merge(po,1,Integer::sum);
-                }
-            }
-            Map<String,Double> percentPerPO = new TreeMap<>(Comparator.comparingInt(p -> { try { return Integer.parseInt(p.replaceAll("[^0-9]", "")); } catch(Exception ex){ return Integer.MAX_VALUE; } }));
-            for (String po : poTotal.keySet()) percentPerPO.put(po, poAttainedCounts.getOrDefault(po,0)*100.0 / students.size());
-
-            // Chart
-            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-            for (Map.Entry<String,Double> e : percentPerPO.entrySet()) dataset.addValue(e.getValue(), "PO Attainment", e.getKey());
-            JFreeChart chart = ChartFactory.createBarChart("PO Attainment", "PO", "% Students", dataset);
-            CategoryPlot plot = chart.getCategoryPlot();
-            if (plot.getRangeAxis() instanceof NumberAxis na) { na.setRange(0.0, 100.0); na.setStandardTickUnits(NumberAxis.createIntegerTickUnits()); }
-            ByteArrayOutputStream chartBaos = new ByteArrayOutputStream(); ChartUtils.writeChartAsPNG(chartBaos, chart, 640, 400); byte[] chartBytes = chartBaos.toByteArray();
-
-            // PDF output
-            File reportsDir = new File("po_reports"); if (!reportsDir.exists()) reportsDir.mkdirs();
-            String safeProgramme = selected.getProgramme().replaceAll("[^A-Za-z0-9_-]", "");
-            File outFile = new File(reportsDir, courseCode + "_" + academicYear + "_" + safeProgramme + ".pdf");
-            try (PdfWriter writer = new PdfWriter(new FileOutputStream(outFile)); PdfDocument pdf = new PdfDocument(writer); Document doc = new Document(pdf)) {
-                Paragraph title = new Paragraph(courseCode + " - " + selected.getCourseName()); title.setFontSize(16).setTextAlignment(TextAlignment.CENTER); doc.add(title);
-                doc.add(new Paragraph("Department: " + selected.getDepartment()));
-                doc.add(new Paragraph("Programme: " + selected.getProgramme()));
-                DatabaseService.FacultyInfo fi = UserSession.getCurrentFaculty(); if (fi != null) doc.add(new Paragraph("Faculty: " + fi.fullName + " (" + fi.shortname + ")"));
-                doc.add(new Paragraph("Academic Year: " + academicYear));
-                doc.add(new Paragraph("Generated: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
-                doc.add(new Paragraph("\n"));
-                for (Map.Entry<String,Double> e : percentPerPO.entrySet()) doc.add(new Paragraph(e.getKey() + " was successfully attained by " + String.format(Locale.US, "%.2f", e.getValue()) + "% of students"));
-                doc.add(new Paragraph("\n"));
-                Image chartImg = new Image(ImageDataFactory.create(chartBytes)).setAutoScale(true); doc.add(chartImg);
-            }
-            Alert done = new Alert(Alert.AlertType.INFORMATION, "PO report generated: " + outFile.getAbsolutePath(), ButtonType.OK); done.setHeaderText(null); done.showAndWait();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Alert err = new Alert(Alert.AlertType.ERROR, "Failed to generate PO report: " + ex.getMessage(), ButtonType.OK); err.setHeaderText(null); err.showAndWait();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("poReportDialog-view.fxml"));
+            Parent root = loader.load();
+            POReportDialogController controller = loader.getController();
+            controller.setContext(selected);
+            Stage stage = new Stage();
+            stage.setTitle("PO Report - " + selected.getCourseCode());
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open PO report: " + e.getMessage(), ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
         }
     }
 

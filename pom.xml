@@ -9,7 +9,16 @@
     <version>1.0-SNAPSHOT</version>
     <name>CO_PO_Assessment</name>
 
+    <packaging>jar</packaging>
+
     <properties>
+        <app.name>CO_PO_Assessment</app.name>
+        <app.version>1.0.0</app.version>
+        <vendor.name>Islamic University of Technology</vendor.name>
+        <copyright>Copyright@2025</copyright>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
+        <lombok.version>1.18.36</lombok.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.10.2</junit.version>
         <itext.version>9.2.0</itext.version>
@@ -43,11 +52,6 @@
             <version>17.0.6</version>
         </dependency>
         <dependency>
-            <groupId>org.controlsfx</groupId>
-            <artifactId>controlsfx</artifactId>
-            <version>11.2.1</version>
-        </dependency>
-        <dependency>
             <groupId>com.dlsc.formsfx</groupId>
             <artifactId>formsfx-core</artifactId>
             <version>11.6.0</version>
@@ -73,17 +77,6 @@
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-javafx</artifactId>
             <version>12.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.hansolo</groupId>
-            <artifactId>tilesfx</artifactId>
-            <version>21.0.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -126,35 +119,96 @@
     </dependencies>
 
     <build>
+        <finalName>${app.name}-${app.version}</finalName>
+        <pluginManagement>
+            <plugins>
+
+                <plugin>
+                    <groupId>com.github.akman</groupId>
+                    <artifactId>jpackage-maven-plugin</artifactId>
+                    <version>0.1.5</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>jpackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <name>${app.name}</name>
+                        <appversion>${app.version}</appversion>
+                        <copyright>${copyright}</copyright>
+                        <vendor>${vendor.name}</vendor>
+                        <mainjar>${app.name}-${app.version}-jar-with-dependencies.jar</mainjar>
+                        <input>target/</input>
+                        <mainclass>org.example.co_po_assessment.AssessmentSystem</mainclass>
+                        <type>MSI</type>
+                        <javaoptions>--enable-preview</javaoptions>
+                        <dest>.</dest>
+                        <icon>${project.basedir}/src/main/resources/app-ico.ico</icon>
+                        <winconsole>false</winconsole>
+                        <winmenu>true</winmenu>
+                        <winshortcut>true</winshortcut>
+                    </configuration>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <source>24</source>
-                    <target>24</target>
-                    <compilerArgs>--enable-preview</compilerArgs>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.source}</target>
+                    <release>${maven.compiler.source}</release>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
+
             <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.example.co_po_assessment.AssessmentSystem</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
                 <executions>
                     <execution>
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
-                        <id>default-cli</id>
-                        <configuration>
-                            <mainClass>org.example.co_po_assessment/HelloApplication
-                            </mainClass>
-                            <launcher>app</launcher>
-                            <jlinkZipName>app</jlinkZipName>
-                            <jlinkImageName>app</jlinkImageName>
-                            <noManPages>true</noManPages>
-                            <stripDebug>true</stripDebug>
-                            <noHeaderFiles>true</noHeaderFiles>
-                        </configuration>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.akman</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>jpackage-installer</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

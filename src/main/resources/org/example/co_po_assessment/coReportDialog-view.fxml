@@ -14,7 +14,7 @@
             <children>
                 <Label fx:id="titleLabel" text="CO Report" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
                 <Label fx:id="contextLabel" text=""/>
-                <Label text="Enter a comment and possible steps for each CO, then click Save to generate the PDF including a summary table." wrapText="true"/>
+                <Label text="Enter a comment and suggestions for each CO, then click Save to generate the PDF including a summary table." wrapText="true"/>
             </children>
         </VBox>
     </top>
@@ -24,7 +24,7 @@
                 <TableColumn fx:id="colCode" text="CO" prefWidth="100.0"/>
                 <TableColumn fx:id="colPercent" text="Attainment %" prefWidth="140.0"/>
                 <TableColumn fx:id="colComment" text="Comment" prefWidth="320.0"/>
-                <TableColumn fx:id="colSteps" text="Possible Steps" prefWidth="320.0"/>
+                <TableColumn fx:id="colSteps" text="Suggestions" prefWidth="320.0"/>
             </columns>
         </TableView>
     </center>

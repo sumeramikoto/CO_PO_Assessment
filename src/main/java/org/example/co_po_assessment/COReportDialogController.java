@@ -34,6 +34,12 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+// Added for table output in PDF
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.Cell;
+// Use UnitValue for percentage width
+import com.itextpdf.layout.properties.UnitValue;
+
 public class COReportDialogController implements Initializable {
     @FXML private Label titleLabel;
     @FXML private Label contextLabel;
@@ -41,6 +47,8 @@ public class COReportDialogController implements Initializable {
     @FXML private TableColumn<Row, String> colCode;
     @FXML private TableColumn<Row, Double> colPercent;
     @FXML private TableColumn<Row, String> colComment;
+    // New column for Possible Steps
+    @FXML private TableColumn<Row, String> colSteps;
 
     private final ObservableList<Row> data = FXCollections.observableArrayList();
     private final DatabaseService db = DatabaseService.getInstance();
@@ -55,6 +63,12 @@ public class COReportDialogController implements Initializable {
             colComment.setCellValueFactory(new PropertyValueFactory<>("comment"));
             colComment.setCellFactory(TextFieldTableCell.forTableColumn());
             colComment.setOnEditCommit(evt -> evt.getRowValue().setComment(evt.getNewValue()));
+        }
+        // Setup Possible Steps column
+        if (colSteps != null) {
+            colSteps.setCellValueFactory(new PropertyValueFactory<>("steps"));
+            colSteps.setCellFactory(TextFieldTableCell.forTableColumn());
+            colSteps.setOnEditCommit(evt -> evt.getRowValue().setSteps(evt.getNewValue()));
         }
         if (table != null) table.setEditable(true);
     }
@@ -147,7 +161,7 @@ public class COReportDialogController implements Initializable {
         for (String co: coTotal.keySet()) percentPerCO.put(co, attainedCounts.getOrDefault(co,0)*100.0 / students.size());
 
         // Populate table rows, keep sorted by CO code
-        for (Map.Entry<String,Double> e : percentPerCO.entrySet()) data.add(new Row(e.getKey(), e.getValue(), ""));
+        for (Map.Entry<String,Double> e : percentPerCO.entrySet()) data.add(new Row(e.getKey(), e.getValue(), "", ""));
     }
 
     @FXML
@@ -165,7 +179,7 @@ public class COReportDialogController implements Initializable {
             ByteArrayOutputStream chartBaos = new ByteArrayOutputStream();
             ChartUtils.writeChartAsPNG(chartBaos, chart, 640, 400); byte[] chartBytes = chartBaos.toByteArray();
 
-            // Write PDF including comments
+            // Write PDF including comments and possible steps
             File reportsDir = new File("co_reports"); if (!reportsDir.exists()) reportsDir.mkdirs();
             String safeProgramme = selected.getProgramme().replaceAll("[^A-Za-z0-9_-]", "");
             File outFile = new File(reportsDir, selected.getCourseCode() + "_" + selected.getAcademicYear() + "_" + safeProgramme + ".pdf");
@@ -183,9 +197,27 @@ public class COReportDialogController implements Initializable {
                     doc.add(new Paragraph(line));
                     String comment = Optional.ofNullable(r.getComment()).orElse("").trim();
                     if (!comment.isEmpty()) doc.add(new Paragraph(" - Comment: " + comment));
+                    String stepsTxt = Optional.ofNullable(r.getSteps()).orElse("").trim();
+                    if (!stepsTxt.isEmpty()) doc.add(new Paragraph(" - Possible Steps: " + stepsTxt));
                 }
                 doc.add(new Paragraph("\n"));
                 Image chartImg = new Image(ImageDataFactory.create(chartBytes)).setAutoScale(true); doc.add(chartImg);
+                // Add summary table at the bottom
+                doc.add(new Paragraph("\n"));
+                Table tbl = new Table(new float[]{2f, 2.5f, 5f, 5f});
+                // Set table width to 100%
+                tbl.setWidth(UnitValue.createPercentValue(100));
+                tbl.addHeaderCell(new Cell().add(new Paragraph("CO")));
+                tbl.addHeaderCell(new Cell().add(new Paragraph("Attainment %")));
+                tbl.addHeaderCell(new Cell().add(new Paragraph("Comment")));
+                tbl.addHeaderCell(new Cell().add(new Paragraph("Possible Steps")));
+                for (Row r : data) {
+                    tbl.addCell(new Cell().add(new Paragraph(r.getCode())));
+                    tbl.addCell(new Cell().add(new Paragraph(String.format(Locale.US, "%.2f", r.getPercent()))));
+                    tbl.addCell(new Cell().add(new Paragraph(Optional.ofNullable(r.getComment()).orElse(""))));
+                    tbl.addCell(new Cell().add(new Paragraph(Optional.ofNullable(r.getSteps()).orElse(""))));
+                }
+                doc.add(tbl);
             }
             Alert done = new Alert(Alert.AlertType.INFORMATION, "CO report saved: " + outFile.getAbsolutePath(), ButtonType.OK);
             done.setHeaderText(null); done.showAndWait();
@@ -203,13 +235,17 @@ public class COReportDialogController implements Initializable {
         private final SimpleStringProperty code = new SimpleStringProperty();
         private final SimpleDoubleProperty percent = new SimpleDoubleProperty();
         private final SimpleStringProperty comment = new SimpleStringProperty();
-        public Row(String code, double percent, String comment) { this.code.set(code); this.percent.set(percent); this.comment.set(comment); }
+        // New property for Possible Steps
+        private final SimpleStringProperty steps = new SimpleStringProperty();
+        public Row(String code, double percent, String comment, String steps) { this.code.set(code); this.percent.set(percent); this.comment.set(comment); this.steps.set(steps); }
         public String getCode() { return code.get(); }
         public void setCode(String v) { code.set(v); }
         public double getPercent() { return percent.get(); }
         public void setPercent(double v) { percent.set(v); }
         public String getComment() { return comment.get(); }
         public void setComment(String v) { comment.set(v); }
+        public String getSteps() { return steps.get(); }
+        public void setSteps(String v) { steps.set(v); }
     }
 }
 

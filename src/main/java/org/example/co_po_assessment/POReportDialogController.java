@@ -219,14 +219,7 @@ public class POReportDialogController implements Initializable {
                 doc.add(new Paragraph("Academic Year: " + selected.getAcademicYear()));
                 doc.add(new Paragraph("Generated: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
                 doc.add(new Paragraph("\n"));
-                for (Row r : data) {
-                    doc.add(new Paragraph(r.getCode() + " attained by " + String.format(Locale.US, "%.2f", r.getPercent()) + "% of students"));
-                    String comment = Optional.ofNullable(r.getComment()).orElse("").trim();
-                    if (!comment.isEmpty()) doc.add(new Paragraph(" - Comment: " + comment));
-                    String stepsTxt = Optional.ofNullable(r.getSteps()).orElse("").trim();
-                    if (!stepsTxt.isEmpty()) doc.add(new Paragraph(" - Possible Steps: " + stepsTxt));
-                }
-                doc.add(new Paragraph("\n"));
+                // Removed per-row descriptive paragraphs; rely on the summary table below
                 Image chartImg = new Image(ImageDataFactory.create(chartBytes)).setAutoScale(true); doc.add(chartImg);
                 // Add summary table at the bottom
                 doc.add(new Paragraph("\n"));
@@ -236,7 +229,7 @@ public class POReportDialogController implements Initializable {
                 tbl.addHeaderCell(new Cell().add(new Paragraph("PO")));
                 tbl.addHeaderCell(new Cell().add(new Paragraph("Attainment %")));
                 tbl.addHeaderCell(new Cell().add(new Paragraph("Comment")));
-                tbl.addHeaderCell(new Cell().add(new Paragraph("Possible Steps")));
+                tbl.addHeaderCell(new Cell().add(new Paragraph("Suggestions")));
                 for (Row r : data) {
                     tbl.addCell(new Cell().add(new Paragraph(r.getCode())));
                     tbl.addCell(new Cell().add(new Paragraph(String.format(Locale.US, "%.2f", r.getPercent()))));

@@ -7,7 +7,7 @@ CREATE TABLE Admin (
 );
 
 CREATE TABLE Faculty (
-                         id INT PRIMARY KEY,  -- Manual ID assignment (e.g., employee ID)
+                         id VARCHAR(20) PRIMARY KEY,  -- Manual ID assignment (e.g., employee ID)
                          shortname VARCHAR(50) NOT NULL,
                          full_name VARCHAR(100) NOT NULL,
                          email VARCHAR(100) NOT NULL UNIQUE,

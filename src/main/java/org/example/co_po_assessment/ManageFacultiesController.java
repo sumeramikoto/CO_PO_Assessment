@@ -121,8 +121,8 @@ public class ManageFacultiesController implements Initializable {
      */
     public void addNewFaculty(String id, String name, String shortname, String email, String password) {
         try {
-            // Add to database
-            databaseService.insertFaculty(Integer.parseInt(id), shortname, name, email, password);
+            // Add to database (id is now VARCHAR)
+            databaseService.insertFaculty(id, shortname, name, email, password);
 
             // Add to table
             Faculty newFaculty = new Faculty(id, name, shortname, email);
@@ -132,8 +132,6 @@ public class ManageFacultiesController implements Initializable {
 
         } catch (SQLException e) {
             showErrorAlert("Database Error", "Failed to add faculty member: " + e.getMessage());
-        } catch (NumberFormatException e) {
-            showErrorAlert("Invalid Input", "Faculty ID must be a valid number.");
         }
     }
 
@@ -164,7 +162,7 @@ public class ManageFacultiesController implements Initializable {
      * Remove faculty from database
      */
     private void removeFacultyFromDatabase(Faculty faculty) throws SQLException {
-        facultyDatabaseHelper.removeFaculty(Integer.parseInt(faculty.getId()));
+        facultyDatabaseHelper.removeFaculty(faculty.getId());
     }
 
     /**

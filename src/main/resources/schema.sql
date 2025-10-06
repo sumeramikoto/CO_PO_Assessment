@@ -23,9 +23,9 @@ CREATE TABLE Course (
                         PRIMARY KEY (course_code, programme)
 );
 
--- Updated: include programme in FK to Course
+-- Updated: include programme in FK to Course; faculty_id now VARCHAR(20)
 CREATE TABLE CourseAssignment (
-                                  faculty_id INT NOT NULL,
+                                  faculty_id VARCHAR(20) NOT NULL,
                                   course_code VARCHAR(20) NOT NULL,
                                   programme VARCHAR(11) NOT NULL,
                                   academic_year VARCHAR(9) NOT NULL,

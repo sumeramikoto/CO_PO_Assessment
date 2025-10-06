@@ -24,7 +24,7 @@ public class FacultyDatabaseHelper {
 
             while (rs.next()) {
                 facultyList.add(new FacultyData(
-                    rs.getInt("id"),
+                    rs.getString("id"),
                     rs.getString("shortname"),
                     rs.getString("full_name"),
                     rs.getString("email")
@@ -34,12 +34,12 @@ public class FacultyDatabaseHelper {
         return facultyList;
     }
 
-    public void removeFaculty(int facultyId) throws SQLException {
+    public void removeFaculty(String facultyId) throws SQLException {
         String sql = "DELETE FROM Faculty WHERE id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, facultyId);
+            stmt.setString(1, facultyId);
             int rowsAffected = stmt.executeUpdate();
 
             if (rowsAffected == 0) {
@@ -50,19 +50,19 @@ public class FacultyDatabaseHelper {
 
     // Faculty data class
     public static class FacultyData {
-        public final int id;
+        public final String id;
         public final String shortname;
         public final String fullName;
         public final String email;
 
-        public FacultyData(int id, String shortname, String fullName, String email) {
+        public FacultyData(String id, String shortname, String fullName, String email) {
             this.id = id;
             this.shortname = shortname;
             this.fullName = fullName;
             this.email = email;
         }
 
-        public int getId() { return id; }
+        public String getId() { return id; }
         public String getShortname() { return shortname; }
         public String getFullName() { return fullName; }
         public String getEmail() { return email; }

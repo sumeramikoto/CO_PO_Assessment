@@ -11,7 +11,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.example.co_po_assessment.Objects.AssessmentQuestion;
-import org.example.co_po_assessment.DB_Services.DatabaseService;
+import org.example.co_po_assessment.DB_helper.DatabaseService;
 
 import java.net.URL;
 import java.util.ResourceBundle;

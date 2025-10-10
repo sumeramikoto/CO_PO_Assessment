@@ -1,6 +1,6 @@
 package org.example.co_po_assessment.utilities;
 
-import org.example.co_po_assessment.DB_Services.DatabaseService;
+import org.example.co_po_assessment.DB_helper.DatabaseService;
 
 /** Simple in-memory session holder for currently logged-in user (faculty). */
 public final class UserSession {

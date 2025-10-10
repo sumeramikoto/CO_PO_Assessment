@@ -27,7 +27,7 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.properties.TextAlignment;
-import org.example.co_po_assessment.DB_Services.DatabaseService;
+import org.example.co_po_assessment.DB_helper.DatabaseService;
 import org.example.co_po_assessment.utilities.UserSession;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;

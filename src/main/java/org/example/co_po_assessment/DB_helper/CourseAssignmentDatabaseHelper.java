@@ -1,13 +1,15 @@
 package org.example.co_po_assessment.DB_helper;
 
+import org.example.co_po_assessment.DB_Configuration.DBconfig;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CourseAssignmentDatabaseHelper {
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "sinhawiz123";
+    private static final String DB_URL = DBconfig.getUrl();
+    private static final String DB_USER = DBconfig.getUserName();
+    private static final String DB_PASSWORD = DBconfig.getPassword();
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);

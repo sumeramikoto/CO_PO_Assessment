@@ -10,7 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.example.co_po_assessment.DB_Services.DatabaseService;
+import org.example.co_po_assessment.DB_helper.DatabaseService;
 import org.example.co_po_assessment.Objects.Student;
 import org.example.co_po_assessment.DB_helper.StudentDatabaseHelper;
 

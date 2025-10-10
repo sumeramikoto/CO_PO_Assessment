@@ -31,8 +31,8 @@ module org.example.co_po_assessment {
     opens org.example.co_po_assessment.Report_controller to javafx.fxml;
     exports org.example.co_po_assessment.utilities;
     opens org.example.co_po_assessment.utilities to javafx.fxml;
-    exports org.example.co_po_assessment.DB_Services;
-    opens org.example.co_po_assessment.DB_Services to javafx.fxml;
+    exports org.example.co_po_assessment.DB_Configuration;
+    opens org.example.co_po_assessment.DB_Configuration to javafx.fxml;
     exports org.example.co_po_assessment.Objects;
     opens org.example.co_po_assessment.Objects to javafx.fxml;
 }

@@ -18,7 +18,15 @@ public class CourseAssignmentDatabaseHelper {
     // Get all course assignments (now with department & programme) – join includes programme
     public List<CourseAssignmentData> getAllCourseAssignments() throws SQLException {
         String sql = """
-            SELECT ca.course_code, c.course_name, f.full_name AS faculty_name, ca.academic_year, ca.department, ca.programme
+            SELECT ca.course_code,
+                   c.course_name,
+                   CASE WHEN f.shortname IS NOT NULL AND f.shortname <> ''
+                        THEN CONCAT(f.full_name, ' (', f.shortname, ')')
+                        ELSE f.full_name
+                   END AS faculty_name,
+                   ca.academic_year,
+                   ca.department,
+                   ca.programme
             FROM CourseAssignment ca
             JOIN Course c ON ca.course_code = c.course_code AND ca.programme = c.programme
             JOIN Faculty f ON ca.faculty_id = f.id
@@ -63,14 +71,22 @@ public class CourseAssignmentDatabaseHelper {
 
     // Get all faculty members
     public List<String> getAllFaculty() throws SQLException {
-        String sql = "SELECT id, full_name FROM Faculty ORDER BY full_name";
+        String sql = "SELECT id, full_name, shortname FROM Faculty ORDER BY full_name";
         List<String> faculty = new ArrayList<>();
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
-            while (rs.next()) { faculty.add(rs.getString("full_name")); }
+            while (rs.next()) {
+                String fullName = rs.getString("full_name");
+                String shortname = rs.getString("shortname");
+                if (shortname != null && !shortname.isBlank()) {
+                    faculty.add(fullName + " (" + shortname + ")");
+                } else {
+                    faculty.add(fullName);
+                }
+            }
         }
         return faculty;
     }

@@ -55,7 +55,8 @@ public class CourseAssignmentInputController implements Initializable {
         String beforeLast = selectedCourse.substring(0, lastSep);
         int firstSep = beforeLast.indexOf(" - ");
         String courseCode = beforeLast.substring(0, firstSep);
-        String facultyName = facultyComboBox.getValue();
+        String facultyDisplay = facultyComboBox.getValue();
+        String facultyName = extractFacultyFullName(facultyDisplay);
         String academicYear = academicYearTextField.getText().trim();
 
         try {
@@ -127,6 +128,21 @@ public class CourseAssignmentInputController implements Initializable {
         }
 
         return true;
+    }
+
+    /**
+     * Extracts the faculty full name from a display value like "Full Name (Shortname)".
+     * If no shortname is present, returns the input trimmed.
+     */
+    private String extractFacultyFullName(String displayValue) {
+        if (displayValue == null) return null;
+        String s = displayValue.trim();
+        int open = s.lastIndexOf(" (");
+        int close = s.endsWith(")") ? s.length() - 1 : -1;
+        if (open > 0 && close > open) {
+            return s.substring(0, open).trim();
+        }
+        return s;
     }
 
     /**

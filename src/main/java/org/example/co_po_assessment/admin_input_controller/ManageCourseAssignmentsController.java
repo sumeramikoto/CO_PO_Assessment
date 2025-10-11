@@ -90,6 +90,10 @@ public class ManageCourseAssignmentsController implements Initializable {
         }
     }
 
+    @FXML private void onExcelTemplateButton() {
+
+    }
+
     // Bulk import handler
     @FXML
     public void onBulkImportAssignments(ActionEvent actionEvent) {
@@ -167,11 +171,14 @@ public class ManageCourseAssignmentsController implements Initializable {
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
+                // Ensure we pass only the full name to the DB layer
+                String facultyFullName = extractFacultyFullName(selected.getFacultyName());
+
                 // Remove from database
                 databaseHelper.removeCourseAssignment(
                         selected.getCourseCode(),
                         selected.getProgramme(),
-                        selected.getFacultyName(),
+                        facultyFullName,
                         selected.getAcademicYear()
                 );
 
@@ -238,6 +245,18 @@ public class ManageCourseAssignmentsController implements Initializable {
         } catch (SQLException e) {
             showErrorAlert("Database Error", "Failed to load course assignment data: " + e.getMessage());
         }
+    }
+
+    /** Extracts the faculty full name from a display value like "Full Name (Shortname)". */
+    private String extractFacultyFullName(String displayValue) {
+        if (displayValue == null) return null;
+        String s = displayValue.trim();
+        int open = s.lastIndexOf(" (");
+        int close = s.endsWith(")") ? s.length() - 1 : -1;
+        if (open > 0 && close > open) {
+            return s.substring(0, open).trim();
+        }
+        return s;
     }
 
     /**

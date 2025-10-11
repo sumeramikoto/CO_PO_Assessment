@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package org.example.co_po_assessment.admin_input_controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +10,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import org.example.co_po_assessment.DB_Services.DatabaseService;
+import org.example.co_po_assessment.Objects.Faculty;
+import org.example.co_po_assessment.DB_helper.FacultyDatabaseHelper;
 
 import java.io.IOException;
 import java.net.URL;
@@ -61,7 +64,7 @@ public class ManageFacultiesController implements Initializable {
     public void onAddFacultyButton(ActionEvent event) {
         try {
             // Open the Faculty Info Input window
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("facultyInfoInput-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/facultyInfoInput-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load(), 345, 420);
 
             // Get the controller to handle data return

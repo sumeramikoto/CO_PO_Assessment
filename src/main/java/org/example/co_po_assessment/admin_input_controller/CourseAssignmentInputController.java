@@ -1,10 +1,11 @@
-package org.example.co_po_assessment;
+package org.example.co_po_assessment.admin_input_controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import org.example.co_po_assessment.DB_helper.CourseAssignmentDatabaseHelper;
 
 import java.net.URL;
 import java.sql.SQLException;

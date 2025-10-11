@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package org.example.co_po_assessment.admin_input_controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +10,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import org.example.co_po_assessment.Objects.Course;
+import org.example.co_po_assessment.DB_helper.CoursesDatabaseHelper;
+import org.example.co_po_assessment.faculty_input_controller.CourseInputController;
 
 import java.io.IOException;
 import java.net.URL;
@@ -65,7 +68,7 @@ public class ManageCoursesController implements Initializable {
 
     public void onAddCourseButton(ActionEvent actionEvent) {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("courseInput-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/courseInput-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load(), 500, 420);
             CourseInputController controller = fxmlLoader.getController();
             controller.setParentController(this);

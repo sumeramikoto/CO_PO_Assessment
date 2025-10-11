@@ -11,11 +11,17 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.poi.ss.usermodel.Cell;
 import org.example.co_po_assessment.Objects.CourseAssignment;
 import org.example.co_po_assessment.DB_helper.CourseAssignmentDatabaseHelper;
 import org.example.co_po_assessment.utilities.ExcelImportUtils;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -91,7 +97,107 @@ public class ManageCourseAssignmentsController implements Initializable {
     }
 
     @FXML private void onExcelTemplateButton() {
+        try {
+            // Save dialog
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Save Assignments Template");
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Workbook (*.xlsx)", "*.xlsx"));
+            chooser.setInitialFileName("AssignmentsTemplate.xlsx");
+            File target = chooser.showSaveDialog(((Stage) backButton.getScene().getWindow()));
+            if (target == null) return;
 
+            // Create workbook and sheet
+            try (XSSFWorkbook wb = new XSSFWorkbook()) {
+                XSSFSheet sheet = wb.createSheet("Assignments");
+
+                // Header style (bold)
+                Font headerFont = wb.createFont();
+                headerFont.setBold(true);
+                CellStyle headerStyle = wb.createCellStyle();
+                headerStyle.setFont(headerFont);
+
+                // Create header row
+                Row header = sheet.createRow(0);
+                String[] headers = new String[]{
+                        "Course Code", "Programme", "Faculty Shortname", "Academic Year"
+                };
+                for (int i = 0; i < headers.length; i++) {
+                    Cell c = header.createCell(i, CellType.STRING);
+                    c.setCellValue(headers[i]);
+                    c.setCellStyle(headerStyle);
+                    sheet.autoSizeColumn(i);
+                }
+
+                // Prepare data validation over rows 2..501 (1-based), i.e., indices 1..500
+                int firstDataRow = 1; // zero-based
+                int lastDataRow = 500;
+                DataValidationHelper dvh = sheet.getDataValidationHelper();
+
+                // Column A (index 0): Course Code validation: AAA 1234
+                String lettersArray = "{\"A\",\"B\",\"C\",\"D\",\"E\",\"F\",\"G\",\"H\",\"I\",\"J\",\"K\",\"L\",\"M\",\"N\",\"O\",\"P\",\"Q\",\"R\",\"S\",\"T\",\"U\",\"V\",\"W\",\"X\",\"Y\",\"Z\"}";
+                String ccFormula = "AND(LEN(A2)=8, MID(A2,4,1)=\" \", ISNUMBER(VALUE(RIGHT(A2,4))), " +
+                        "SUMPRODUCT(--ISNUMBER(MATCH(MID(LEFT(A2,3),ROW(INDIRECT(\"1:3\")),1)," + lettersArray + ",0)))=3)";
+                DataValidationConstraint ccConstraint = dvh.createCustomConstraint(ccFormula);
+                CellRangeAddressList ccRange = new CellRangeAddressList(firstDataRow, lastDataRow, 0, 0);
+                DataValidation ccValidation = dvh.createValidation(ccConstraint, ccRange);
+                ccValidation.setShowErrorBox(true);
+                ccValidation.createErrorBox("Invalid Course Code", "Use format like CSE 4107 (3 uppercase letters, space, 4 digits).");
+                sheet.addValidationData(ccValidation);
+
+                // Column B (index 1): Programme validation
+                // Accepts: BSc in XX/XXX, MSc in XX/XXX, PhD in XX/XXX (X uppercase letters)
+                String progLetters = lettersArray;
+                String bscFormula = "AND(LEFT(B2,7)=\"BSc in \", OR(LEN(B2)=9, LEN(B2)=10), " +
+                        "SUMPRODUCT(--ISNUMBER(MATCH(MID(RIGHT(B2,LEN(B2)-7),ROW(INDIRECT(\"1:\"&LEN(B2)-7)),1)," + progLetters + ",0))) = LEN(B2)-7)";
+                String mscFormula = "AND(LEFT(B2,7)=\"MSc in \", OR(LEN(B2)=9, LEN(B2)=10), " +
+                        "SUMPRODUCT(--ISNUMBER(MATCH(MID(RIGHT(B2,LEN(B2)-7),ROW(INDIRECT(\"1:\"&LEN(B2)-7)),1)," + progLetters + ",0))) = LEN(B2)-7)";
+                String phdFormula = "AND(LEFT(B2,8)=\"PhD in \", OR(LEN(B2)=10, LEN(B2)=11), " +
+                        "SUMPRODUCT(--ISNUMBER(MATCH(MID(RIGHT(B2,LEN(B2)-8),ROW(INDIRECT(\"1:\"&LEN(B2)-8)),1)," + progLetters + ",0))) = LEN(B2)-8)";
+                String progFormula = "OR(" + bscFormula + "," + mscFormula + "," + phdFormula + ")";
+                DataValidationConstraint progConstraint = dvh.createCustomConstraint(progFormula);
+                CellRangeAddressList progRange = new CellRangeAddressList(firstDataRow, lastDataRow, 1, 1);
+                DataValidation progValidation = dvh.createValidation(progConstraint, progRange);
+                progValidation.setShowErrorBox(true);
+                progValidation.createErrorBox("Invalid Programme", "Use: BSc/MSc/PhD in XX or XXX (uppercase letters only).");
+                sheet.addValidationData(progValidation);
+
+                // Column C (index 2): Faculty Shortname - require non-empty
+                String shortFormula = "LEN(C2)>0";
+                DataValidationConstraint shortConstraint = dvh.createCustomConstraint(shortFormula);
+                CellRangeAddressList shortRange = new CellRangeAddressList(firstDataRow, lastDataRow, 2, 2);
+                DataValidation shortValidation = dvh.createValidation(shortConstraint, shortRange);
+                shortValidation.setShowErrorBox(true);
+                shortValidation.createErrorBox("Missing Shortname", "Faculty Shortname is required.");
+                sheet.addValidationData(shortValidation);
+
+                // Column D (index 3): Academic Year: YYYY-YYYY and consecutive years
+                String yearFormula = "AND(LEN(D2)=9, MID(D2,5,1)=\"-\", ISNUMBER(VALUE(LEFT(D2,4))), ISNUMBER(VALUE(RIGHT(D2,4))), VALUE(RIGHT(D2,4))=VALUE(LEFT(D2,4))+1)";
+                DataValidationConstraint yearConstraint = dvh.createCustomConstraint(yearFormula);
+                CellRangeAddressList yearRange = new CellRangeAddressList(firstDataRow, lastDataRow, 3, 3);
+                DataValidation yearValidation = dvh.createValidation(yearConstraint, yearRange);
+                yearValidation.setShowErrorBox(true);
+                yearValidation.createErrorBox("Invalid Academic Year", "Use consecutive years like 2023-2024 (second year must be first + 1).");
+                sheet.addValidationData(yearValidation);
+
+                // Freeze header and autosize
+                sheet.createFreezePane(0, 1);
+                for (int i = 0; i < headers.length; i++) {
+                    sheet.autoSizeColumn(i);
+                }
+
+                // Write to file
+                // Ensure parent dirs exist
+                File parent = target.getParentFile();
+                if (parent != null && !parent.exists()) parent.mkdirs();
+                try (FileOutputStream out = new FileOutputStream(target)) {
+                    wb.write(out);
+                }
+            }
+
+            showInfoAlert("Template Created", "Excel template saved to:\n" + target.getAbsolutePath());
+        } catch (Exception e) {
+            showErrorAlert("Template Error", "Failed to create Excel template: " + e.getMessage());
+        }
     }
 
     // Bulk import handler
@@ -112,16 +218,27 @@ public class ManageCourseAssignmentsController implements Initializable {
             int rowNum = 1;
             for (Map<String, String> row : rows) {
                 rowNum++;
-                String code = ExcelImportUtils.get(row, "course_code", "course");
+                String code = ExcelImportUtils.get(row, "course_code", "course", "code");
                 String programme = ExcelImportUtils.get(row, "programme", "program");
+                String facultyShort = ExcelImportUtils.get(row, "faculty_shortname", "shortname");
                 String facultyName = ExcelImportUtils.get(row, "faculty_name", "faculty", "instructor", "teacher");
                 String ay = ExcelImportUtils.get(row, "academic_year", "year", "ay");
-                if (code == null || programme == null || facultyName == null || ay == null) {
-                    errors.add("Row " + rowNum + ": missing required fields (course_code, programme, faculty_name, academic_year)");
+                if (code == null || programme == null || ay == null || (facultyShort == null && facultyName == null)) {
+                    errors.add("Row " + rowNum + ": missing required fields (course_code, programme, faculty_[short]name, academic_year)");
                     skipped++; continue;
                 }
+                // Validate academic year from Excel too
+                if (!isValidAcademicYear(ay)) {
+                    errors.add("Row " + rowNum + ": invalid academic year '" + ay + "' (must be consecutive like 2023-2024)");
+                    skipped++; continue;
+                }
+                System.out.println(code + " " + facultyShort + " " + programme + " " + ay);
                 try {
-                    databaseHelper.assignCourse(code, programme, facultyName, ay);
+                    if (facultyShort != null && !facultyShort.isBlank()) {
+                        databaseHelper.assignCourseByShortname(code, programme, facultyShort, ay);
+                    } else {
+                        databaseHelper.assignCourse(code, programme, facultyName, ay);
+                    }
                     inserted++;
                 } catch (SQLException ex) {
                     String msg = ex.getMessage();
@@ -290,5 +407,18 @@ public class ManageCourseAssignmentsController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private boolean isValidAcademicYear(String academicYear) {
+        if (academicYear == null) return false;
+        String s = academicYear.trim();
+        if (!s.matches("\\d{4}-\\d{4}")) return false;
+        try {
+            int y1 = Integer.parseInt(s.substring(0,4));
+            int y2 = Integer.parseInt(s.substring(5,9));
+            return y2 == y1 + 1;
+        } catch (NumberFormatException ex) {
+            return false;
+        }
     }
 }

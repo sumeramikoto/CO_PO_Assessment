@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package org.example.co_po_assessment.Objects;
 
 public class AssessmentQuestion {
     private Integer id; // database primary key (question table row id)

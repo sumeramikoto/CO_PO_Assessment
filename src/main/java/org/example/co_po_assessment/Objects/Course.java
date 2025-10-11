@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package org.example.co_po_assessment.Objects;
 
 public class Course {
     private String code;

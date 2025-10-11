@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package org.example.co_po_assessment.dashboard_controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.application.Platform;
+import org.example.co_po_assessment.DashboardPanels.AssessmentSystem;
 
 import java.io.IOException;
 import java.net.URL;
@@ -38,7 +39,8 @@ public class AdminDashboardController implements Initializable {
 
     private void openWindow(String fxml, String title, int w, int h) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            String resource = fxml.startsWith("/") ? fxml : "/org/example/co_po_assessment/" + fxml;
+            FXMLLoader loader = new FXMLLoader(AdminDashboardController.class.getResource(resource));
             Scene scene = (w > 0 && h > 0) ? new Scene(loader.load(), w, h) : new Scene(loader.load());
             Stage stage = new Stage();
             stage.setTitle(title);

@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package org.example.co_po_assessment.dashboard_controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,32 +13,21 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Image;
-import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.layout.properties.TextAlignment; // corrected package name (properties)
-
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtils;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.chart.plot.CategoryPlot; // added
-import org.jfree.chart.axis.NumberAxis; // added
+import org.example.co_po_assessment.DashboardPanels.AssessmentSystem;
+import org.example.co_po_assessment.DB_Services.DatabaseService;
+import org.example.co_po_assessment.Report_controller.POReportDialogController;
+import org.example.co_po_assessment.utilities.UserSession;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook; // added for excel export
 import org.apache.poi.ss.usermodel.*; // added for excel export
 import org.apache.poi.ss.util.CellReference; // added for excel export
 import org.apache.poi.ss.util.CellRangeAddressList; // added for data validation
 import javafx.stage.FileChooser; // added for excel import
+import org.example.co_po_assessment.Report_controller.COReportDialogController;
+import org.example.co_po_assessment.faculty_input_controller.DetailedMarksController;
+import org.example.co_po_assessment.faculty_input_controller.ManageCourseQuestionsController;
+
 
 public class FacultyDashboardController {
     @FXML Button logoutButton;
@@ -112,7 +101,7 @@ public class FacultyDashboardController {
             return;
         }
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("manageCourseQuestions-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/manageCourseQuestions-view.fxml"));
             Parent root = loader.load();
             ManageCourseQuestionsController controller = loader.getController();
             controller.setCourseAssignment(selected); // pass context (future use)
@@ -138,7 +127,7 @@ public class FacultyDashboardController {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("detailedMarks-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/detailedMarks-view.fxml"));
             Parent root = loader.load();
             DetailedMarksController controller = loader.getController();
             controller.setContext(selected.getCourseCode(), selected.getProgramme(), selected.getAcademicYear());
@@ -169,7 +158,7 @@ public class FacultyDashboardController {
             return;
         }
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("coReportDialog-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/coReportDialog-view.fxml"));
             Parent root = loader.load();
             COReportDialogController controller = loader.getController();
             controller.setContext(selected);
@@ -194,7 +183,7 @@ public class FacultyDashboardController {
             return;
         }
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("poReportDialog-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/poReportDialog-view.fxml"));
             Parent root = loader.load();
             POReportDialogController controller = loader.getController();
             controller.setContext(selected);

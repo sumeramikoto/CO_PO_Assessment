@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package org.example.co_po_assessment.faculty_input_controller;
 
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;

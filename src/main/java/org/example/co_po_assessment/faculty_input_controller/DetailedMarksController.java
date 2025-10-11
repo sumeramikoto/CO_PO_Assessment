@@ -7,7 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import org.example.co_po_assessment.DB_Services.DatabaseService;
+import org.example.co_po_assessment.DB_helper.DatabaseService;
 
 import java.sql.SQLException;
 import java.util.*;

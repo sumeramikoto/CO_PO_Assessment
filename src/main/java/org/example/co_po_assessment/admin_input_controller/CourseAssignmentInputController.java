@@ -51,10 +51,10 @@ public class CourseAssignmentInputController implements Initializable {
         String selectedCourse = courseComboBox.getValue();
         // Robust parsing: pattern ends with " - DEPT - PROGRAMME"; programme after last delimiter; code before first delimiter
         int lastSep = selectedCourse.lastIndexOf(" - ");
-        String programme = selectedCourse.substring(lastSep + 3);
+        String programme = selectedCourse.substring(lastSep + 3).trim();
         String beforeLast = selectedCourse.substring(0, lastSep);
         int firstSep = beforeLast.indexOf(" - ");
-        String courseCode = beforeLast.substring(0, firstSep);
+        String courseCode = beforeLast.substring(0, firstSep).trim();
         String facultyDisplay = facultyComboBox.getValue();
         String facultyName = extractFacultyFullName(facultyDisplay);
         String academicYear = academicYearTextField.getText().trim();
@@ -119,7 +119,7 @@ public class CourseAssignmentInputController implements Initializable {
         if (academicYear.isEmpty()) {
             errors.append("Academic year is required.\n");
         } else if (!isValidAcademicYear(academicYear)) {
-            errors.append("Academic year must be in format YYYY-YYYY (e.g., 2024-2025).\n");
+            errors.append("Academic year must be consecutive in format YYYY-YYYY (e.g., 2023-2024).\n");
         }
 
         if (errors.length() > 0) {
@@ -146,10 +146,17 @@ public class CourseAssignmentInputController implements Initializable {
     }
 
     /**
-     * Validate academic year format
+     * Validate academic year format and consecutive years
      */
     private boolean isValidAcademicYear(String academicYear) {
-        return academicYear.matches("\\d{4}-\\d{4}");
+        if (!academicYear.matches("\\d{4}-\\d{4}")) return false;
+        try {
+            int y1 = Integer.parseInt(academicYear.substring(0, 4));
+            int y2 = Integer.parseInt(academicYear.substring(5, 9));
+            return y2 == y1 + 1;
+        } catch (NumberFormatException ex) {
+            return false;
+        }
     }
 
     /**

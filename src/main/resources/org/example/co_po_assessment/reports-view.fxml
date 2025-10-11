@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.ReportsController" prefWidth="500" prefHeight="400">
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.Report_controller.ReportsController" prefWidth="500" prefHeight="400">
     <top>
         <HBox spacing="10" BorderPane.alignment="CENTER_LEFT">
             <children>

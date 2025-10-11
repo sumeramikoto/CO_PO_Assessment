@@ -6,7 +6,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.example.co_po_assessment.DetailedMarksController"
+      fx:controller="org.example.co_po_assessment.faculty_input_controller.DetailedMarksController"
       spacing="10">
     <padding>
         <Insets top="10" right="10" bottom="10" left="10"/>

@@ -2,164 +2,8 @@
 <dataSource name="SPL2">
   <database-model serializer="dbm" dbms="MYSQL" family-id="MYSQL" format-version="4.53">
     <root id="1">
-      <DefaultCasing>lower/lower</DefaultCasing>
       <DefaultEngine>InnoDB</DefaultEngine>
       <DefaultTmpEngine>InnoDB</DefaultTmpEngine>
-      <Grants>|root||SPL2USER|69spl123|ALTER|G
-|root||root|localhost|ALTER|G
-|root||SPL2USER|69spl123|ALTER ROUTINE|G
-|root||root|localhost|ALTER ROUTINE|G
-|root||SPL2USER|69spl123|APPLICATION_PASSWORD_ADMIN|G
-|root||root|localhost|APPLICATION_PASSWORD_ADMIN|G
-|root||SPL2USER|69spl123|AUDIT_ABORT_EXEMPT|G
-|root||mysql.infoschema|localhost|AUDIT_ABORT_EXEMPT|G
-|root||mysql.session|localhost|AUDIT_ABORT_EXEMPT|G
-|root||mysql.sys|localhost|AUDIT_ABORT_EXEMPT|G
-|root||root|localhost|AUDIT_ABORT_EXEMPT|G
-|root||SPL2USER|69spl123|AUDIT_ADMIN|G
-|root||root|localhost|AUDIT_ADMIN|G
-|root||SPL2USER|69spl123|AUTHENTICATION_POLICY_ADMIN|G
-|root||mysql.session|localhost|AUTHENTICATION_POLICY_ADMIN|G
-|root||root|localhost|AUTHENTICATION_POLICY_ADMIN|G
-|root||SPL2USER|69spl123|BACKUP_ADMIN|G
-|root||mysql.session|localhost|BACKUP_ADMIN|G
-|root||root|localhost|BACKUP_ADMIN|G
-|root||SPL2USER|69spl123|BINLOG_ADMIN|G
-|root||root|localhost|BINLOG_ADMIN|G
-|root||SPL2USER|69spl123|BINLOG_ENCRYPTION_ADMIN|G
-|root||root|localhost|BINLOG_ENCRYPTION_ADMIN|G
-|root||SPL2USER|69spl123|CLONE_ADMIN|G
-|root||mysql.session|localhost|CLONE_ADMIN|G
-|root||root|localhost|CLONE_ADMIN|G
-|root||SPL2USER|69spl123|CONNECTION_ADMIN|G
-|root||mysql.session|localhost|CONNECTION_ADMIN|G
-|root||root|localhost|CONNECTION_ADMIN|G
-|root||SPL2USER|69spl123|CREATE|G
-|root||root|localhost|CREATE|G
-|root||SPL2USER|69spl123|CREATE ROLE|G
-|root||root|localhost|CREATE ROLE|G
-|root||SPL2USER|69spl123|CREATE ROUTINE|G
-|root||root|localhost|CREATE ROUTINE|G
-|root||SPL2USER|69spl123|CREATE TABLESPACE|G
-|root||root|localhost|CREATE TABLESPACE|G
-|root||SPL2USER|69spl123|CREATE TEMPORARY TABLES|G
-|root||root|localhost|CREATE TEMPORARY TABLES|G
-|root||SPL2USER|69spl123|CREATE USER|G
-|root||root|localhost|CREATE USER|G
-|root||SPL2USER|69spl123|CREATE VIEW|G
-|root||root|localhost|CREATE VIEW|G
-|root||SPL2USER|69spl123|DELETE|G
-|root||root|localhost|DELETE|G
-|root||SPL2USER|69spl123|DROP|G
-|root||root|localhost|DROP|G
-|root||SPL2USER|69spl123|DROP ROLE|G
-|root||root|localhost|DROP ROLE|G
-|root||SPL2USER|69spl123|ENCRYPTION_KEY_ADMIN|G
-|root||root|localhost|ENCRYPTION_KEY_ADMIN|G
-|root||SPL2USER|69spl123|EVENT|G
-|root||root|localhost|EVENT|G
-|root||SPL2USER|69spl123|EXECUTE|G
-|root||root|localhost|EXECUTE|G
-|root||SPL2USER|69spl123|FILE|G
-|root||root|localhost|FILE|G
-|root||SPL2USER|69spl123|FIREWALL_EXEMPT|G
-|root||mysql.infoschema|localhost|FIREWALL_EXEMPT|G
-|root||mysql.session|localhost|FIREWALL_EXEMPT|G
-|root||mysql.sys|localhost|FIREWALL_EXEMPT|G
-|root||root|localhost|FIREWALL_EXEMPT|G
-|root||SPL2USER|69spl123|FLUSH_OPTIMIZER_COSTS|G
-|root||root|localhost|FLUSH_OPTIMIZER_COSTS|G
-|root||SPL2USER|69spl123|FLUSH_STATUS|G
-|root||root|localhost|FLUSH_STATUS|G
-|root||SPL2USER|69spl123|FLUSH_TABLES|G
-|root||root|localhost|FLUSH_TABLES|G
-|root||SPL2USER|69spl123|FLUSH_USER_RESOURCES|G
-|root||root|localhost|FLUSH_USER_RESOURCES|G
-|root||SPL2USER|69spl123|GROUP_REPLICATION_ADMIN|G
-|root||root|localhost|GROUP_REPLICATION_ADMIN|G
-|root||SPL2USER|69spl123|GROUP_REPLICATION_STREAM|G
-|root||root|localhost|GROUP_REPLICATION_STREAM|G
-|root||SPL2USER|69spl123|INDEX|G
-|root||root|localhost|INDEX|G
-|root||SPL2USER|69spl123|INNODB_REDO_LOG_ARCHIVE|G
-|root||root|localhost|INNODB_REDO_LOG_ARCHIVE|G
-|root||SPL2USER|69spl123|INNODB_REDO_LOG_ENABLE|G
-|root||root|localhost|INNODB_REDO_LOG_ENABLE|G
-|root||SPL2USER|69spl123|INSERT|G
-|root||root|localhost|INSERT|G
-|root||SPL2USER|69spl123|LOCK TABLES|G
-|root||root|localhost|LOCK TABLES|G
-|root||SPL2USER|69spl123|PASSWORDLESS_USER_ADMIN|G
-|root||root|localhost|PASSWORDLESS_USER_ADMIN|G
-|root||SPL2USER|69spl123|PERSIST_RO_VARIABLES_ADMIN|G
-|root||mysql.session|localhost|PERSIST_RO_VARIABLES_ADMIN|G
-|root||root|localhost|PERSIST_RO_VARIABLES_ADMIN|G
-|root||SPL2USER|69spl123|PROCESS|G
-|root||root|localhost|PROCESS|G
-|root||SPL2USER|69spl123|REFERENCES|G
-|root||root|localhost|REFERENCES|G
-|root||SPL2USER|69spl123|RELOAD|G
-|root||root|localhost|RELOAD|G
-|root||SPL2USER|69spl123|REPLICATION CLIENT|G
-|root||root|localhost|REPLICATION CLIENT|G
-|root||SPL2USER|69spl123|REPLICATION SLAVE|G
-|root||root|localhost|REPLICATION SLAVE|G
-|root||SPL2USER|69spl123|REPLICATION_APPLIER|G
-|root||root|localhost|REPLICATION_APPLIER|G
-|root||SPL2USER|69spl123|REPLICATION_SLAVE_ADMIN|G
-|root||root|localhost|REPLICATION_SLAVE_ADMIN|G
-|root||SPL2USER|69spl123|RESOURCE_GROUP_ADMIN|G
-|root||root|localhost|RESOURCE_GROUP_ADMIN|G
-|root||SPL2USER|69spl123|RESOURCE_GROUP_USER|G
-|root||root|localhost|RESOURCE_GROUP_USER|G
-|root||SPL2USER|69spl123|ROLE_ADMIN|G
-|root||root|localhost|ROLE_ADMIN|G
-|root||SPL2USER|69spl123|SELECT|G
-|root||mysql.infoschema|localhost|SELECT|G
-|root||root|localhost|SELECT|G
-|root||SPL2USER|69spl123|SENSITIVE_VARIABLES_OBSERVER|G
-|root||root|localhost|SENSITIVE_VARIABLES_OBSERVER|G
-|root||SPL2USER|69spl123|SERVICE_CONNECTION_ADMIN|G
-|root||root|localhost|SERVICE_CONNECTION_ADMIN|G
-|root||SPL2USER|69spl123|SESSION_VARIABLES_ADMIN|G
-|root||mysql.session|localhost|SESSION_VARIABLES_ADMIN|G
-|root||root|localhost|SESSION_VARIABLES_ADMIN|G
-|root||SPL2USER|69spl123|SET_USER_ID|G
-|root||root|localhost|SET_USER_ID|G
-|root||SPL2USER|69spl123|SHOW DATABASES|G
-|root||root|localhost|SHOW DATABASES|G
-|root||SPL2USER|69spl123|SHOW VIEW|G
-|root||root|localhost|SHOW VIEW|G
-|root||SPL2USER|69spl123|SHOW_ROUTINE|G
-|root||root|localhost|SHOW_ROUTINE|G
-|root||SPL2USER|69spl123|SHUTDOWN|G
-|root||mysql.session|localhost|SHUTDOWN|G
-|root||root|localhost|SHUTDOWN|G
-|root||SPL2USER|69spl123|SUPER|G
-|root||mysql.session|localhost|SUPER|G
-|root||root|localhost|SUPER|G
-|root||SPL2USER|69spl123|SYSTEM_USER|G
-|root||mysql.infoschema|localhost|SYSTEM_USER|G
-|root||mysql.session|localhost|SYSTEM_USER|G
-|root||mysql.sys|localhost|SYSTEM_USER|G
-|root||root|localhost|SYSTEM_USER|G
-|root||SPL2USER|69spl123|SYSTEM_VARIABLES_ADMIN|G
-|root||mysql.session|localhost|SYSTEM_VARIABLES_ADMIN|G
-|root||root|localhost|SYSTEM_VARIABLES_ADMIN|G
-|root||SPL2USER|69spl123|TABLE_ENCRYPTION_ADMIN|G
-|root||root|localhost|TABLE_ENCRYPTION_ADMIN|G
-|root||SPL2USER|69spl123|TELEMETRY_LOG_ADMIN|G
-|root||root|localhost|TELEMETRY_LOG_ADMIN|G
-|root||SPL2USER|69spl123|TRIGGER|G
-|root||root|localhost|TRIGGER|G
-|root||SPL2USER|69spl123|UPDATE|G
-|root||root|localhost|UPDATE|G
-|root||SPL2USER|69spl123|XA_RECOVER_ADMIN|G
-|root||root|localhost|XA_RECOVER_ADMIN|G
-|root||SPL2USER|69spl123|grant option|G
-|root||root|localhost|grant option|G
-performance_schema|schema||mysql.session|localhost|SELECT|G
-sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <ServerVersion>8.0.41</ServerVersion>
     </root>
     <collation id="2" parent="1" name="armscii8_general_ci">
@@ -1200,585 +1044,617 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <Definer>root@localhost</Definer>
       <SourceTextLength>877</SourceTextLength>
     </view>
-    <index id="324" parent="304" name="PRIMARY">
+    <column id="324" parent="304" name="id">
+      <AutoIncrement>1</AutoIncrement>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="325" parent="304" name="email">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>varchar(100)|0s</StoredType>
+    </column>
+    <column id="326" parent="304" name="password">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>varchar(100)|0s</StoredType>
+    </column>
+    <index id="327" parent="304" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="325" parent="304" name="email">
+    <index id="328" parent="304" name="email">
       <ColNames>email</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="326" parent="304" name="PRIMARY">
+    <key id="329" parent="304" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="327" parent="304" name="email">
+    <key id="330" parent="304" name="email">
       <UnderlyingIndexName>email</UnderlyingIndexName>
     </key>
-    <index id="328" parent="305" name="PRIMARY">
+    <index id="331" parent="305" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="329" parent="305" name="PRIMARY">
+    <key id="332" parent="305" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <index id="330" parent="306" name="PRIMARY">
-      <ColNames>course_code</ColNames>
-      <Type>btree</Type>
-      <Unique>1</Unique>
-    </index>
-    <key id="331" parent="306" name="PRIMARY">
-      <NameSurrogate>1</NameSurrogate>
-      <Primary>1</Primary>
-      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
-    </key>
-    <foreign-key id="332" parent="307" name="courseassignment_ibfk_1">
-      <ColNames>faculty_id</ColNames>
-      <RefColNames>id</RefColNames>
-      <RefTableName>faculty</RefTableName>
-    </foreign-key>
-    <foreign-key id="333" parent="307" name="courseassignment_ibfk_2">
-      <ColNames>course_code</ColNames>
-      <RefColNames>course_code</RefColNames>
-      <RefTableName>course</RefTableName>
-    </foreign-key>
-    <index id="334" parent="307" name="course_code">
+    <index id="333" parent="306" name="PRIMARY">
       <ColNames>course_code
-academic_year
-department
 programme</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="335" parent="307" name="faculty_id">
+    <key id="334" parent="306" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
+    </key>
+    <foreign-key id="335" parent="307" name="courseassignment_ibfk_1">
+      <ColNames>faculty_id</ColNames>
+      <RefColNames>id</RefColNames>
+      <RefTableName>faculty</RefTableName>
+    </foreign-key>
+    <foreign-key id="336" parent="307" name="courseassignment_ibfk_2">
+      <ColNames>course_code
+programme</ColNames>
+      <RefColNames>course_code
+programme</RefColNames>
+      <RefTableName>course</RefTableName>
+    </foreign-key>
+    <index id="337" parent="307" name="course_code">
+      <ColNames>course_code
+programme
+academic_year
+department</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <index id="338" parent="307" name="faculty_id">
       <ColNames>faculty_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="336" parent="307" name="course_code">
+    <key id="339" parent="307" name="course_code">
       <UnderlyingIndexName>course_code</UnderlyingIndexName>
     </key>
-    <foreign-key id="337" parent="308" name="enrollment_ibfk_1">
+    <foreign-key id="340" parent="308" name="enrollment_ibfk_1">
       <ColNames>student_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>student</RefTableName>
     </foreign-key>
-    <foreign-key id="338" parent="308" name="enrollment_ibfk_2">
-      <ColNames>course_id</ColNames>
-      <RefColNames>course_code</RefColNames>
+    <foreign-key id="341" parent="308" name="enrollment_ibfk_2">
+      <ColNames>course_id
+programme</ColNames>
+      <RefColNames>course_code
+programme</RefColNames>
       <RefTableName>course</RefTableName>
     </foreign-key>
-    <index id="339" parent="308" name="student_id">
+    <index id="342" parent="308" name="student_id">
       <ColNames>student_id
 course_id
+programme
 academic_year</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="340" parent="308" name="course_id">
-      <ColNames>course_id</ColNames>
+    <index id="343" parent="308" name="course_id">
+      <ColNames>course_id
+programme</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="341" parent="308" name="student_id">
+    <key id="344" parent="308" name="student_id">
       <UnderlyingIndexName>student_id</UnderlyingIndexName>
     </key>
-    <index id="342" parent="309" name="PRIMARY">
+    <index id="345" parent="309" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="343" parent="309" name="email">
+    <index id="346" parent="309" name="email">
       <ColNames>email</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="344" parent="309" name="PRIMARY">
+    <key id="347" parent="309" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="345" parent="309" name="email">
+    <key id="348" parent="309" name="email">
       <UnderlyingIndexName>email</UnderlyingIndexName>
     </key>
-    <foreign-key id="346" parent="310" name="final_ibfk_1">
-      <ColNames>course_id</ColNames>
-      <RefColNames>course_code</RefColNames>
+    <foreign-key id="349" parent="310" name="final_ibfk_1">
+      <ColNames>course_id
+programme</ColNames>
+      <RefColNames>course_code
+programme</RefColNames>
       <RefTableName>course</RefTableName>
     </foreign-key>
-    <index id="347" parent="310" name="PRIMARY">
+    <index id="350" parent="310" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="348" parent="310" name="course_id">
-      <ColNames>course_id</ColNames>
+    <index id="351" parent="310" name="course_id">
+      <ColNames>course_id
+programme</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="349" parent="310" name="PRIMARY">
+    <key id="352" parent="310" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="350" parent="310" name="course_id">
+    <key id="353" parent="310" name="course_id">
       <UnderlyingIndexName>course_id</UnderlyingIndexName>
     </key>
-    <foreign-key id="351" parent="311" name="finalquestion_ibfk_1">
+    <foreign-key id="354" parent="311" name="finalquestion_ibfk_1">
       <ColNames>final_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>final</RefTableName>
     </foreign-key>
-    <foreign-key id="352" parent="311" name="finalquestion_ibfk_2">
+    <foreign-key id="355" parent="311" name="finalquestion_ibfk_2">
       <ColNames>co_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>co</RefTableName>
     </foreign-key>
-    <foreign-key id="353" parent="311" name="finalquestion_ibfk_3">
+    <foreign-key id="356" parent="311" name="finalquestion_ibfk_3">
       <ColNames>po_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>po</RefTableName>
     </foreign-key>
-    <index id="354" parent="311" name="PRIMARY">
+    <index id="357" parent="311" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="355" parent="311" name="final_id">
+    <index id="358" parent="311" name="final_id">
       <ColNames>final_id
 title</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="356" parent="311" name="co_id">
+    <index id="359" parent="311" name="co_id">
       <ColNames>co_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="357" parent="311" name="po_id">
+    <index id="360" parent="311" name="po_id">
       <ColNames>po_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="358" parent="311" name="PRIMARY">
+    <key id="361" parent="311" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="359" parent="311" name="final_id">
+    <key id="362" parent="311" name="final_id">
       <UnderlyingIndexName>final_id</UnderlyingIndexName>
     </key>
-    <foreign-key id="360" parent="312" name="mid_ibfk_1">
-      <ColNames>course_id</ColNames>
-      <RefColNames>course_code</RefColNames>
+    <foreign-key id="363" parent="312" name="mid_ibfk_1">
+      <ColNames>course_id
+programme</ColNames>
+      <RefColNames>course_code
+programme</RefColNames>
       <RefTableName>course</RefTableName>
     </foreign-key>
-    <index id="361" parent="312" name="PRIMARY">
+    <index id="364" parent="312" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="362" parent="312" name="course_id">
-      <ColNames>course_id</ColNames>
+    <index id="365" parent="312" name="course_id">
+      <ColNames>course_id
+programme</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="363" parent="312" name="PRIMARY">
+    <key id="366" parent="312" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="364" parent="312" name="course_id">
+    <key id="367" parent="312" name="course_id">
       <UnderlyingIndexName>course_id</UnderlyingIndexName>
     </key>
-    <foreign-key id="365" parent="313" name="midquestion_ibfk_1">
+    <foreign-key id="368" parent="313" name="midquestion_ibfk_1">
       <ColNames>mid_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>mid</RefTableName>
     </foreign-key>
-    <foreign-key id="366" parent="313" name="midquestion_ibfk_2">
+    <foreign-key id="369" parent="313" name="midquestion_ibfk_2">
       <ColNames>co_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>co</RefTableName>
     </foreign-key>
-    <foreign-key id="367" parent="313" name="midquestion_ibfk_3">
+    <foreign-key id="370" parent="313" name="midquestion_ibfk_3">
       <ColNames>po_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>po</RefTableName>
     </foreign-key>
-    <index id="368" parent="313" name="PRIMARY">
+    <index id="371" parent="313" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="369" parent="313" name="mid_id">
+    <index id="372" parent="313" name="mid_id">
       <ColNames>mid_id
 title</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="370" parent="313" name="co_id">
+    <index id="373" parent="313" name="co_id">
       <ColNames>co_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="371" parent="313" name="po_id">
+    <index id="374" parent="313" name="po_id">
       <ColNames>po_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="372" parent="313" name="PRIMARY">
+    <key id="375" parent="313" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="373" parent="313" name="mid_id">
+    <key id="376" parent="313" name="mid_id">
       <UnderlyingIndexName>mid_id</UnderlyingIndexName>
     </key>
-    <index id="374" parent="314" name="PRIMARY">
+    <index id="377" parent="314" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="375" parent="314" name="po_number">
+    <index id="378" parent="314" name="po_number">
       <ColNames>po_number</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="376" parent="314" name="PRIMARY">
+    <key id="379" parent="314" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="377" parent="314" name="po_number">
+    <key id="380" parent="314" name="po_number">
       <UnderlyingIndexName>po_number</UnderlyingIndexName>
     </key>
-    <check id="378" parent="315" name="quiz_chk_1">
+    <check id="381" parent="315" name="quiz_chk_1">
       <NameSurrogate>1</NameSurrogate>
       <Predicate>`quiz_number` between 1 and 4</Predicate>
     </check>
-    <foreign-key id="379" parent="315" name="quiz_ibfk_1">
-      <ColNames>course_id</ColNames>
-      <RefColNames>course_code</RefColNames>
+    <foreign-key id="382" parent="315" name="quiz_ibfk_1">
+      <ColNames>course_id
+programme</ColNames>
+      <RefColNames>course_code
+programme</RefColNames>
       <RefTableName>course</RefTableName>
     </foreign-key>
-    <index id="380" parent="315" name="PRIMARY">
+    <index id="383" parent="315" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="381" parent="315" name="course_id">
+    <index id="384" parent="315" name="course_id">
       <ColNames>course_id
+programme
 quiz_number</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="382" parent="315" name="PRIMARY">
+    <key id="385" parent="315" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="383" parent="315" name="course_id">
+    <key id="386" parent="315" name="course_id">
       <UnderlyingIndexName>course_id</UnderlyingIndexName>
     </key>
-    <foreign-key id="384" parent="316" name="quizquestion_ibfk_1">
+    <foreign-key id="387" parent="316" name="quizquestion_ibfk_1">
       <ColNames>quiz_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>quiz</RefTableName>
     </foreign-key>
-    <foreign-key id="385" parent="316" name="quizquestion_ibfk_2">
+    <foreign-key id="388" parent="316" name="quizquestion_ibfk_2">
       <ColNames>co_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>co</RefTableName>
     </foreign-key>
-    <foreign-key id="386" parent="316" name="quizquestion_ibfk_3">
+    <foreign-key id="389" parent="316" name="quizquestion_ibfk_3">
       <ColNames>po_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>po</RefTableName>
     </foreign-key>
-    <index id="387" parent="316" name="PRIMARY">
+    <index id="390" parent="316" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="388" parent="316" name="quiz_id">
+    <index id="391" parent="316" name="quiz_id">
       <ColNames>quiz_id
 title</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="389" parent="316" name="co_id">
+    <index id="392" parent="316" name="co_id">
       <ColNames>co_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="390" parent="316" name="po_id">
+    <index id="393" parent="316" name="po_id">
       <ColNames>po_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="391" parent="316" name="PRIMARY">
+    <key id="394" parent="316" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="392" parent="316" name="quiz_id">
+    <key id="395" parent="316" name="quiz_id">
       <UnderlyingIndexName>quiz_id</UnderlyingIndexName>
     </key>
-    <index id="393" parent="317" name="PRIMARY">
+    <index id="396" parent="317" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="394" parent="317" name="email">
+    <index id="397" parent="317" name="email">
       <ColNames>email</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="395" parent="317" name="PRIMARY">
+    <key id="398" parent="317" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="396" parent="317" name="email">
+    <key id="399" parent="317" name="email">
       <UnderlyingIndexName>email</UnderlyingIndexName>
     </key>
-    <foreign-key id="397" parent="318" name="studentfinalmarks_ibfk_1">
+    <foreign-key id="400" parent="318" name="studentfinalmarks_ibfk_1">
       <ColNames>student_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>student</RefTableName>
     </foreign-key>
-    <foreign-key id="398" parent="318" name="studentfinalmarks_ibfk_2">
+    <foreign-key id="401" parent="318" name="studentfinalmarks_ibfk_2">
       <ColNames>final_question_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>finalquestion</RefTableName>
     </foreign-key>
-    <index id="399" parent="318" name="PRIMARY">
+    <index id="402" parent="318" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="400" parent="318" name="student_id">
+    <index id="403" parent="318" name="student_id">
       <ColNames>student_id
 final_question_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="401" parent="318" name="final_question_id">
+    <index id="404" parent="318" name="final_question_id">
       <ColNames>final_question_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="402" parent="318" name="PRIMARY">
+    <key id="405" parent="318" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="403" parent="318" name="student_id">
+    <key id="406" parent="318" name="student_id">
       <UnderlyingIndexName>student_id</UnderlyingIndexName>
     </key>
-    <foreign-key id="404" parent="319" name="studentmidmarks_ibfk_1">
+    <foreign-key id="407" parent="319" name="studentmidmarks_ibfk_1">
       <ColNames>student_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>student</RefTableName>
     </foreign-key>
-    <foreign-key id="405" parent="319" name="studentmidmarks_ibfk_2">
+    <foreign-key id="408" parent="319" name="studentmidmarks_ibfk_2">
       <ColNames>mid_question_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>midquestion</RefTableName>
     </foreign-key>
-    <index id="406" parent="319" name="PRIMARY">
+    <index id="409" parent="319" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="407" parent="319" name="student_id">
+    <index id="410" parent="319" name="student_id">
       <ColNames>student_id
 mid_question_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="408" parent="319" name="mid_question_id">
+    <index id="411" parent="319" name="mid_question_id">
       <ColNames>mid_question_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="409" parent="319" name="PRIMARY">
+    <key id="412" parent="319" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="410" parent="319" name="student_id">
+    <key id="413" parent="319" name="student_id">
       <UnderlyingIndexName>student_id</UnderlyingIndexName>
     </key>
-    <foreign-key id="411" parent="320" name="studentquizmarks_ibfk_1">
+    <foreign-key id="414" parent="320" name="studentquizmarks_ibfk_1">
       <ColNames>student_id</ColNames>
       <RefColNames>id</RefColNames>
       <RefTableName>student</RefTableName>
     </foreign-key>
-    <foreign-key id="412" parent="320" name="studentquizmarks_ibfk_2">
+    <foreign-key id="415" parent="320" name="studentquizmarks_ibfk_2">
       <ColNames>quiz_question_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>quizquestion</RefTableName>
     </foreign-key>
-    <index id="413" parent="320" name="PRIMARY">
+    <index id="416" parent="320" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="414" parent="320" name="student_id">
+    <index id="417" parent="320" name="student_id">
       <ColNames>student_id
 quiz_question_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="415" parent="320" name="quiz_question_id">
+    <index id="418" parent="320" name="quiz_question_id">
       <ColNames>quiz_question_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="416" parent="320" name="PRIMARY">
+    <key id="419" parent="320" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="417" parent="320" name="student_id">
+    <key id="420" parent="320" name="student_id">
       <UnderlyingIndexName>student_id</UnderlyingIndexName>
     </key>
-    <column id="418" parent="321" name="student_id">
+    <column id="421" parent="321" name="student_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar(9)|0s</StoredType>
     </column>
-    <column id="419" parent="321" name="student_name">
+    <column id="422" parent="321" name="student_name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="420" parent="321" name="course_id">
+    <column id="423" parent="321" name="course_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="421" parent="321" name="course_name">
+    <column id="424" parent="321" name="course_name">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="422" parent="321" name="question_title">
+    <column id="425" parent="321" name="question_title">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="423" parent="321" name="max_marks">
+    <column id="426" parent="321" name="max_marks">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StoredType>decimal(5,2 digit)|0s</StoredType>
     </column>
-    <column id="424" parent="321" name="marks_obtained">
+    <column id="427" parent="321" name="marks_obtained">
       <Position>7</Position>
       <StoredType>decimal(5,2 digit)|0s</StoredType>
     </column>
-    <column id="425" parent="321" name="co_number">
+    <column id="428" parent="321" name="co_number">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StoredType>varchar(10)|0s</StoredType>
     </column>
-    <column id="426" parent="321" name="po_number">
+    <column id="429" parent="321" name="po_number">
       <NotNull>1</NotNull>
       <Position>9</Position>
       <StoredType>varchar(10)|0s</StoredType>
     </column>
-    <column id="427" parent="322" name="student_id">
+    <column id="430" parent="322" name="student_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar(9)|0s</StoredType>
     </column>
-    <column id="428" parent="322" name="student_name">
+    <column id="431" parent="322" name="student_name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="429" parent="322" name="course_id">
+    <column id="432" parent="322" name="course_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="430" parent="322" name="course_name">
+    <column id="433" parent="322" name="course_name">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="431" parent="322" name="question_title">
+    <column id="434" parent="322" name="question_title">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="432" parent="322" name="max_marks">
+    <column id="435" parent="322" name="max_marks">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StoredType>decimal(5,2 digit)|0s</StoredType>
     </column>
-    <column id="433" parent="322" name="marks_obtained">
+    <column id="436" parent="322" name="marks_obtained">
       <Position>7</Position>
       <StoredType>decimal(5,2 digit)|0s</StoredType>
     </column>
-    <column id="434" parent="322" name="co_number">
+    <column id="437" parent="322" name="co_number">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StoredType>varchar(10)|0s</StoredType>
     </column>
-    <column id="435" parent="322" name="po_number">
+    <column id="438" parent="322" name="po_number">
       <NotNull>1</NotNull>
       <Position>9</Position>
       <StoredType>varchar(10)|0s</StoredType>
     </column>
-    <column id="436" parent="323" name="student_id">
+    <column id="439" parent="323" name="student_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar(9)|0s</StoredType>
     </column>
-    <column id="437" parent="323" name="student_name">
+    <column id="440" parent="323" name="student_name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="438" parent="323" name="course_id">
+    <column id="441" parent="323" name="course_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="439" parent="323" name="course_name">
+    <column id="442" parent="323" name="course_name">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="440" parent="323" name="quiz_number">
+    <column id="443" parent="323" name="quiz_number">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="441" parent="323" name="question_title">
+    <column id="444" parent="323" name="question_title">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="442" parent="323" name="max_marks">
+    <column id="445" parent="323" name="max_marks">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StoredType>decimal(5,2 digit)|0s</StoredType>
     </column>
-    <column id="443" parent="323" name="marks_obtained">
+    <column id="446" parent="323" name="marks_obtained">
       <Position>8</Position>
       <StoredType>decimal(5,2 digit)|0s</StoredType>
     </column>
-    <column id="444" parent="323" name="co_number">
+    <column id="447" parent="323" name="co_number">
       <NotNull>1</NotNull>
       <Position>9</Position>
       <StoredType>varchar(10)|0s</StoredType>
     </column>
-    <column id="445" parent="323" name="po_number">
+    <column id="448" parent="323" name="po_number">
       <NotNull>1</NotNull>
       <Position>10</Position>
       <StoredType>varchar(10)|0s</StoredType>

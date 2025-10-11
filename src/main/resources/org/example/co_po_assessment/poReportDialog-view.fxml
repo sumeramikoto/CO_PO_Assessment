@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.co_po_assessment.POReportDialogController"
+            fx:controller="org.example.co_po_assessment.Report_controller.POReportDialogController"
             prefWidth="900.0" prefHeight="540.0">
     <top>
         <VBox spacing="6.0" BorderPane.alignment="CENTER_LEFT" style="-fx-padding: 12;">

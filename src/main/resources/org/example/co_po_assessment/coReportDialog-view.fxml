@@ -7,7 +7,7 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.co_po_assessment.COReportDialogController"
+            fx:controller="org.example.co_po_assessment.Report_controller.COReportDialogController"
             prefWidth="900.0" prefHeight="540.0">
     <top>
         <VBox spacing="6.0" BorderPane.alignment="CENTER_LEFT" style="-fx-padding: 12;">

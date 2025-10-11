@@ -39,6 +39,24 @@ public class FacultyInfoInputController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Set up the form labels and initial state
         headLabel.setText("Add Faculty Information");
+
+        // Input constraints as-you-type
+        if (idTextField != null) {
+            idTextField.setTextFormatter(new TextFormatter<>(change -> {
+                String next = change.getControlNewText();
+                if (next.matches("\\d{0,9}")) return change; // allow up to 9 digits
+                return null;
+            }));
+        }
+        if (shortnameTextField != null) {
+            shortnameTextField.setTextFormatter(new TextFormatter<>(change -> {
+                String text = change.getText();
+                if (text != null) change.setText(text.toUpperCase());
+                String next = change.getControlNewText().toUpperCase();
+                if (next.matches("[A-Z]{0,4}")) return change; // allow only A-Z up to 4 chars
+                return null;
+            }));
+        }
     }
 
     /**
@@ -94,12 +112,12 @@ public class FacultyInfoInputController implements Initializable {
     private boolean validateInputs() {
         StringBuilder errors = new StringBuilder();
 
-        // Validate ID (now VARCHAR - allow alphanumeric & dashes/underscores)
+        // Validate ID: exactly 9 digits
         String rawId = idTextField.getText().trim();
         if (rawId.isEmpty()) {
             errors.append("Faculty ID is required.\n");
-        } else if (!rawId.matches("[A-Za-z0-9_-]{1,32}")) {
-            errors.append("Faculty ID may contain letters, digits, '-' or '_' (max 32 chars).\n");
+        } else if (!rawId.matches("\\d{9}")) {
+            errors.append("Faculty ID must be exactly 9 digits.\n");
         }
 
         // Validate name
@@ -107,23 +125,27 @@ public class FacultyInfoInputController implements Initializable {
             errors.append("Full name is required.\n");
         }
 
-        // Validate shortname
-        if (shortnameTextField.getText().trim().isEmpty()) {
-            errors.append("Short name is required.\n");
+        // Validate shortname: 2-4 uppercase letters
+        String shortname = shortnameTextField.getText().trim();
+        if (shortname.isEmpty()) {
+            errors.append("Shortname is required.\n");
+        } else if (!shortname.matches("[A-Z]{2,4}")) {
+            errors.append("Shortname must be 2 to 4 uppercase letters (A-Z).\n");
         }
 
-        // Validate email
+        // Validate email: yourname@institution.edu
         String email = emailTextField.getText().trim();
         if (email.isEmpty()) {
             errors.append("Email is required.\n");
-        } else if (!isValidEmail(email)) {
-            errors.append("Please enter a valid email address.\n");
+        } else if (!isValidEduEmail(email)) {
+            errors.append("Email must look like yourname@institution.edu.\n");
         }
 
         // Validate password
-        if (passwordField.getText().isEmpty()) {
+        String pwd = passwordField.getText();
+        if (pwd == null || pwd.isEmpty()) {
             errors.append("Password is required.\n");
-        } else if (passwordField.getText().length() < 6) {
+        } else if (pwd.length() < 6) {
             errors.append("Password must be at least 6 characters long.\n");
         }
 
@@ -136,10 +158,10 @@ public class FacultyInfoInputController implements Initializable {
     }
 
     /**
-     * Simple email validation
+     * EDU email validation
      */
-    private boolean isValidEmail(String email) {
-        return email.contains("@") && email.contains(".") && email.length() > 5;
+    private boolean isValidEduEmail(String email) {
+        return email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.edu$");
     }
 
     /**

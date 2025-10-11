@@ -5,8 +5,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane prefHeight="458.0" prefWidth="685.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.admin_input_controller.ManageFacultiesController">
+<AnchorPane prefHeight="458.0" prefWidth="685.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.admin_input_controller.ManageFacultiesController">
    <children>
       <TableView fx:id="facultyTableView" layoutX="-1.0" layoutY="70.0" prefHeight="318.0" prefWidth="685.0">
         <columns>
@@ -16,9 +15,10 @@
             <TableColumn fx:id="emailColumn" prefWidth="271.0" text="Email" />
         </columns>
       </TableView>
-      <Button fx:id="addFacultyButton" layoutX="45.0" layoutY="411.0" mnemonicParsing="false" onAction="#onAddFacultyButton" text="Add Faculty" />
-      <Button fx:id="bulkImportButton" layoutX="177.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBulkImportFaculty" text="Bulk Upload (Excel)" />
-      <Button fx:id="removeFacultyButton" layoutX="356.0" layoutY="411.0" mnemonicParsing="false" onAction="#onRemoveFacultyButton" text="Remove Faculty" />
-      <Button fx:id="backButton" layoutX="535.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
+      <Button fx:id="addFacultyButton" layoutX="23.0" layoutY="411.0" mnemonicParsing="false" onAction="#onAddFacultyButton" text="Add Faculty" />
+      <Button fx:id="bulkImportButton" layoutX="275.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBulkImportFaculty" text="Bulk Import (Excel)" />
+      <Button fx:id="removeFacultyButton" layoutX="440.0" layoutY="411.0" mnemonicParsing="false" onAction="#onRemoveFacultyButton" text="Remove Faculty" />
+      <Button fx:id="backButton" layoutX="580.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
+      <Button fx:id="excelTemplateButton" layoutX="126.0" layoutY="411.0" mnemonicParsing="false" onAction="#onExcelTemplateButton" prefHeight="26.0" prefWidth="133.0" text="Get Excel Template" />
    </children>
 </AnchorPane>

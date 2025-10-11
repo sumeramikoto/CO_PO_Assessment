@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.poi.ss.usermodel.Cell;
 import org.example.co_po_assessment.DB_helper.DatabaseService;
 import org.example.co_po_assessment.Objects.Faculty;
 import org.example.co_po_assessment.DB_helper.FacultyDatabaseHelper;
@@ -21,6 +22,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.xssf.usermodel.XSSFDataValidation;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileOutputStream;
 
 public class ManageFacultiesController implements Initializable {
     @FXML
@@ -121,6 +129,113 @@ public class ManageFacultiesController implements Initializable {
         currentStage.close();
     }
 
+    @FXML private void onExcelTemplateButton() {
+        // Let user choose where to save the template
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Save Faculty Excel Template");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Workbook", "*.xlsx"));
+        chooser.setInitialFileName("FacultyTemplate.xlsx");
+        File file = chooser.showSaveDialog(((Stage) backButton.getScene().getWindow()));
+        if (file == null) return;
+        if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
+            file = new File(file.getParentFile(), file.getName() + ".xlsx");
+        }
+
+        // Create workbook and sheet
+        try (Workbook wb = new XSSFWorkbook()) {
+            Sheet sheet = wb.createSheet("Faculties");
+
+            // Header row
+            String[] headers = {"Faculty ID", "Faculty Name", "Shortname", "Email", "Password"};
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+
+            // Freeze header
+            sheet.createFreezePane(0, 1);
+
+            // Define a reasonable input range (rows 2..1000)
+            int firstDataRow = 1; // zero-based (row 2 visually)
+            int lastDataRow = 999; // row 1000 visually
+
+            // Format Faculty ID column as text to preserve leading zeros
+            CellStyle textStyle = wb.createCellStyle();
+            DataFormat df = wb.createDataFormat();
+            textStyle.setDataFormat(df.getFormat("@"));
+            for (int r = firstDataRow; r <= lastDataRow; r++) {
+                Row row = sheet.getRow(r);
+                if (row == null) row = sheet.createRow(r);
+                Cell cell = row.createCell(0);
+                cell.setCellStyle(textStyle);
+            }
+
+            // Auto-size columns after header is set
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // Data validation helper
+            XSSFDataValidationHelper helper = new XSSFDataValidationHelper((XSSFSheet) sheet);
+
+            // Faculty ID: exactly 9 digits
+            String idFormula = "AND(LEN(A2)=9,ISNUMBER(--A2))";
+            CellRangeAddressList idRange = new CellRangeAddressList(firstDataRow, lastDataRow, 0, 0);
+            DataValidationConstraint idConstraint = helper.createCustomConstraint(idFormula);
+            DataValidation idValidation = helper.createValidation(idConstraint, idRange);
+            idValidation.setShowErrorBox(true);
+            idValidation.createErrorBox("Invalid Faculty ID", "Faculty ID must be exactly 9 digits (e.g., 012345678).");
+            ((XSSFDataValidation) idValidation).setSuppressDropDownArrow(true);
+            sheet.addValidationData(idValidation);
+
+            // Name: required (length >= 1)
+            DataValidationConstraint nameConstraint = helper.createTextLengthConstraint(DataValidationConstraint.OperatorType.GREATER_OR_EQUAL, "1", null);
+            CellRangeAddressList nameRange = new CellRangeAddressList(firstDataRow, lastDataRow, 1, 1);
+            DataValidation nameValidation = helper.createValidation(nameConstraint, nameRange);
+            nameValidation.setShowErrorBox(true);
+            nameValidation.createErrorBox("Name Required", "Name cannot be empty.");
+            sheet.addValidationData(nameValidation);
+
+            // Shortname: 2-4 uppercase letters A-Z only
+            String shortFormula = "AND(LEN(C2)>=2, LEN(C2)<=4, SUMPRODUCT(--(CODE(MID(C2,ROW(INDIRECT(\"1:\"&LEN(C2))),1))<65) + --(CODE(MID(C2,ROW(INDIRECT(\"1:\"&LEN(C2))),1))>90))=0)";
+            CellRangeAddressList shortRange = new CellRangeAddressList(firstDataRow, lastDataRow, 2, 2);
+            DataValidationConstraint shortConstraint = helper.createCustomConstraint(shortFormula);
+            DataValidation shortValidation = helper.createValidation(shortConstraint, shortRange);
+            shortValidation.setShowErrorBox(true);
+            shortValidation.createErrorBox("Invalid Shortname", "Shortname must be 2 to 4 uppercase letters (A-Z).");
+            ((XSSFDataValidation) shortValidation).setSuppressDropDownArrow(true);
+            sheet.addValidationData(shortValidation);
+
+            // Email: basic EDU email validation
+            String emailFormula = "IFERROR(AND(ISNUMBER(SEARCH(\"@\",D2)), RIGHT(D2,4)=\".edu\", LEN(LEFT(D2,SEARCH(\"@\",D2)-1))>0, LEN(MID(D2, SEARCH(\"@\",D2)+1, LEN(D2)-SEARCH(\"@\",D2)-4))>0), FALSE)";
+            CellRangeAddressList emailRange = new CellRangeAddressList(firstDataRow, lastDataRow, 3, 3);
+            DataValidationConstraint emailConstraint = helper.createCustomConstraint(emailFormula);
+            DataValidation emailValidation = helper.createValidation(emailConstraint, emailRange);
+            emailValidation.setShowErrorBox(true);
+            emailValidation.createErrorBox("Invalid Email", "Email must look like yourname@institution.edu");
+            ((XSSFDataValidation) emailValidation).setSuppressDropDownArrow(true);
+            sheet.addValidationData(emailValidation);
+
+            // Password: length >= 6
+            DataValidationConstraint passConstraint = helper.createTextLengthConstraint(DataValidationConstraint.OperatorType.GREATER_OR_EQUAL, "6", null);
+            CellRangeAddressList passRange = new CellRangeAddressList(firstDataRow, lastDataRow, 4, 4);
+            DataValidation passValidation = helper.createValidation(passConstraint, passRange);
+            passValidation.setShowErrorBox(true);
+            passValidation.createErrorBox("Invalid Password", "Password must be at least 6 characters long.");
+            sheet.addValidationData(passValidation);
+
+            // Write file
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                wb.write(fos);
+            }
+
+            showInfoAlert("Template Saved", "Faculty Excel template saved to:\n" + file.getAbsolutePath());
+        } catch (IOException ex) {
+            showErrorAlert("Save Failed", "Could not create/save Excel template: " + ex.getMessage());
+        }
+    }
+
     // Bulk import handler
     @FXML
     public void onBulkImportFaculty(ActionEvent event) {
@@ -141,7 +256,7 @@ public class ManageFacultiesController implements Initializable {
                 rowNum++;
                 String id = orFirst(ExcelImportUtils.get(row, "id", "faculty_id"));
                 String shortname = ExcelImportUtils.get(row, "shortname", "short_name");
-                String fullName = ExcelImportUtils.get(row, "full_name", "name");
+                String fullName = ExcelImportUtils.get(row, "full_name", "name", "faculty_name");
                 String email = ExcelImportUtils.get(row, "email");
                 String password = ExcelImportUtils.get(row, "password");
                 if (id == null || fullName == null || email == null) {

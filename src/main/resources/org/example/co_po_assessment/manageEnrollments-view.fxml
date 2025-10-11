@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.co_po_assessment.admin_input_controller.ManageEnrollmentsController"
-            prefWidth="840" prefHeight="520">
+<BorderPane prefHeight="520" prefWidth="840" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.admin_input_controller.ManageEnrollmentsController">
     <top>
         <VBox spacing="6" BorderPane.alignment="CENTER_LEFT">
-            <padding><Insets top="10" left="10" right="10" bottom="10"/></padding>
+            <padding><Insets bottom="10" left="10" right="10" top="10" /></padding>
             <children>
-                <Label text="Manage Enrollments" style="-fx-font-size:20; -fx-font-weight:bold;" />
-                <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label style="-fx-font-size:20; -fx-font-weight:bold;" text="Manage Enrollments" />
+                <HBox alignment="CENTER_LEFT" spacing="10">
                     <children>
                         <Label text="Batch:" />
                         <ComboBox fx:id="batchFilterCombo" prefWidth="110" />
@@ -20,20 +24,20 @@
                         <ComboBox fx:id="departmentFilterCombo" prefWidth="110" />
                         <Label text="Programme:" />
                         <ComboBox fx:id="programmeFilterCombo" prefWidth="110" />
-                        <Button fx:id="refreshButton" text="Refresh" onAction="#onRefresh" />
-                        <Button fx:id="clearFiltersButton" text="Clear Filters" onAction="#onClearFilters" />
+                        <Button fx:id="refreshButton" onAction="#onRefresh" text="Refresh" />
+                        <Button fx:id="clearFiltersButton" onAction="#onClearFilters" text="Clear Filters" />
                     </children>
                 </HBox>
-                <HBox spacing="10" alignment="CENTER_LEFT">
+                <HBox alignment="CENTER_LEFT" spacing="10">
                     <children>
                         <Label text="Course:" />
                         <ComboBox fx:id="courseCombo" prefWidth="240" />
                         <Label text="Academic Year:" />
                         <ComboBox fx:id="academicYearCombo" prefWidth="140" />
-                        <Button fx:id="enrollButton" text="Enroll Selected" onAction="#onEnrollSelected" />
-                        <Button fx:id="unenrollButton" text="Unenroll Selected" onAction="#onUnenrollSelected" />
-                        <Button fx:id="bulkImportEnrollmentsButton" text="Bulk Upload (Excel)" onAction="#onBulkImportEnrollments" />
-                        <Button fx:id="closeButton" text="Close" onAction="#onClose" />
+                        <Button fx:id="enrollButton" onAction="#onEnrollSelected" text="Enroll Selected" />
+                        <Button fx:id="unenrollButton" onAction="#onUnenrollSelected" text="Unenroll Selected" />
+                        <Button fx:id="excelTemplateButton" onAction="#onExcelTemplateButton" text="Get Excel Template" />
+                        <Button fx:id="importExcelButton" onAction="#onExcelImport" text="Import Excel Enrollments" />
                     </children>
                 </HBox>
             </children>
@@ -42,11 +46,11 @@
     <center>
         <TableView fx:id="studentTableView" BorderPane.alignment="CENTER">
             <columns>
-                <TableColumn fx:id="idColumn" text="ID" prefWidth="120" />
-                <TableColumn fx:id="nameColumn" text="Name" prefWidth="240" />
-                <TableColumn fx:id="batchColumn" text="Batch" prefWidth="70" />
-                <TableColumn fx:id="departmentColumn" text="Department" prefWidth="140" />
-                <TableColumn fx:id="programmeColumn" text="Programme" prefWidth="140" />
+                <TableColumn fx:id="idColumn" prefWidth="120" text="ID" />
+                <TableColumn fx:id="nameColumn" prefWidth="240" text="Name" />
+                <TableColumn fx:id="batchColumn" prefWidth="70" text="Batch" />
+                <TableColumn fx:id="departmentColumn" prefWidth="140" text="Department" />
+                <TableColumn fx:id="programmeColumn" prefWidth="140" text="Programme" />
             </columns>
         </TableView>
     </center>

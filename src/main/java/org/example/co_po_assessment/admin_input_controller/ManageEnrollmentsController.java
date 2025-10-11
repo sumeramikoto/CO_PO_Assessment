@@ -11,9 +11,14 @@ import org.example.co_po_assessment.DB_helper.StudentDatabaseHelper;
 import org.example.co_po_assessment.utilities.ExcelImportUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.util.CellRangeAddressList;
 
 public class ManageEnrollmentsController {
     @FXML private TableView<StudentDatabaseHelper.StudentData> studentTableView;
@@ -34,6 +39,8 @@ public class ManageEnrollmentsController {
     @FXML private Button enrollButton;
     @FXML private Button closeButton;
     @FXML private Button unenrollButton; // new button for unenrollment
+    @FXML private Button excelTemplateButton;
+    @FXML private Button importExcelButton;
 
     private final StudentDatabaseHelper studentDb = new StudentDatabaseHelper();
     private final DatabaseService db = DatabaseService.getInstance();
@@ -172,8 +179,127 @@ public class ManageEnrollmentsController {
         }
     }
 
+    @FXML private void onExcelTemplateButton() {
+        // Create an Excel workbook with headers and validations
+        try (Workbook wb = new XSSFWorkbook()) {
+            Sheet sheet = wb.createSheet("Enrollments");
+
+            // Header style
+            Font headerFont = wb.createFont();
+            headerFont.setBold(true);
+            CellStyle headerStyle = wb.createCellStyle();
+            headerStyle.setFont(headerFont);
+
+            // Create header row
+            Row header = sheet.createRow(0);
+            String[] headers = new String[]{"Student ID", "Course Code", "Programme", "Academic Year"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = header.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+                sheet.autoSizeColumn(i);
+            }
+
+            // Freeze header row
+            sheet.createFreezePane(0, 1);
+
+            // Set reasonable column widths
+            int[] widths = new int[]{14, 14, 18, 14}; // approx characters
+            for (int i = 0; i < widths.length; i++) {
+                sheet.setColumnWidth(i, widths[i] * 256);
+            }
+
+            // Data validation for rows 2..1001 (0-based rows 1..1000)
+            int firstDataRow = 1;
+            int lastDataRow = 1000;
+            DataValidationHelper dvh = sheet.getDataValidationHelper();
+
+            // A: Student ID -> 9-digit whole number between 100000000 and 999999999
+            CellRangeAddressList idRange = new CellRangeAddressList(firstDataRow, lastDataRow, 0, 0);
+            DataValidationConstraint idConstraint = dvh.createIntegerConstraint(DataValidationConstraint.OperatorType.BETWEEN, "100000000", "999999999");
+            DataValidation idValidation = dvh.createValidation(idConstraint, idRange);
+            idValidation.setErrorStyle(DataValidation.ErrorStyle.STOP);
+            idValidation.createErrorBox("Invalid Student ID", "Student ID must be a 9-digit number (e.g., 220042101).");
+            idValidation.createPromptBox("Student ID", "Enter a 9-digit number (no spaces or letters).");
+            idValidation.setShowErrorBox(true);
+            idValidation.setShowPromptBox(true);
+            sheet.addValidationData(idValidation);
+
+            // B: Course Code -> custom formula: 3 uppercase letters, space, 4 digits
+            String courseFormula = "AND(LEN(B2)=8, CODE(MID(B2,1,1))>=65, CODE(MID(B2,1,1))<=90, " +
+                    "CODE(MID(B2,2,1))>=65, CODE(MID(B2,2,1))<=90, CODE(MID(B2,3,1))>=65, CODE(MID(B2,3,1))<=90, " +
+                    "MID(B2,4,1)=\" \", ISNUMBER(--MID(B2,5,4)))";
+            CellRangeAddressList courseRange = new CellRangeAddressList(firstDataRow, lastDataRow, 1, 1);
+            DataValidationConstraint courseConstraint = dvh.createCustomConstraint(courseFormula);
+            DataValidation courseValidation = dvh.createValidation(courseConstraint, courseRange);
+            courseValidation.setErrorStyle(DataValidation.ErrorStyle.STOP);
+            courseValidation.createErrorBox("Invalid Course Code", "Format must be three uppercase letters, space, and four digits (e.g., CSE 4107).");
+            courseValidation.createPromptBox("Course Code", "Example: CSE 4107");
+            courseValidation.setShowErrorBox(true);
+            courseValidation.setShowPromptBox(true);
+            // Some Excel versions require this to avoid 'List of values' warning for custom validations
+            courseValidation.setSuppressDropDownArrow(true);
+            sheet.addValidationData(courseValidation);
+
+            // C: Programme -> "BSc in XX/XXX" or "MSc in XX/XXX" or "PhD in XX/XXX"
+            // Build custom formula checking prefixes and 2-3 trailing uppercase letters
+            String prog2Letters = "AND(LEN(C2)=9, CODE(MID(C2,8,1))>=65, CODE(MID(C2,8,1))<=90, CODE(MID(C2,9,1))>=65, CODE(MID(C2,9,1))<=90)";
+            String prog3Letters = "AND(LEN(C2)=10, CODE(MID(C2,8,1))>=65, CODE(MID(C2,8,1))<=90, CODE(MID(C2,9,1))>=65, CODE(MID(C2,9,1))<=90, CODE(MID(C2,10,1))>=65, CODE(MID(C2,10,1))<=90)";
+            String progSuffixOK = "OR(" + prog2Letters + "," + prog3Letters + ")";
+            String progFormula = "OR(" +
+                    "AND(LEFT(C2,7)=\"BSc in \"," + progSuffixOK + ")," +
+                    "AND(LEFT(C2,7)=\"MSc in \"," + progSuffixOK + ")," +
+                    "AND(LEFT(C2,7)=\"PhD in \"," + progSuffixOK + ")" +
+                    ")";
+            CellRangeAddressList progRange = new CellRangeAddressList(firstDataRow, lastDataRow, 2, 2);
+            DataValidationConstraint progConstraint = dvh.createCustomConstraint(progFormula);
+            DataValidation progValidation = dvh.createValidation(progConstraint, progRange);
+            progValidation.setErrorStyle(DataValidation.ErrorStyle.STOP);
+            progValidation.createErrorBox("Invalid Programme", "Must be: BSc in XX/XXX, MSc in XX/XXX, or PhD in XX/XXX (e.g., BSc in CSE, MSc in CE).");
+            progValidation.createPromptBox("Programme", "Examples: BSc in CE, MSc in CSE, PhD in EE");
+            progValidation.setShowErrorBox(true);
+            progValidation.setShowPromptBox(true);
+            progValidation.setSuppressDropDownArrow(true);
+            sheet.addValidationData(progValidation);
+
+            // D: Academic Year -> YYYY-YYYY where second = first + 1
+            String yearFormula = "AND(LEN(D2)=9, MID(D2,5,1)=\"-\", ISNUMBER(--LEFT(D2,4)), ISNUMBER(--RIGHT(D2,4)), VALUE(RIGHT(D2,4)) = VALUE(LEFT(D2,4)) + 1)";
+            CellRangeAddressList yearRange = new CellRangeAddressList(firstDataRow, lastDataRow, 3, 3);
+            DataValidationConstraint yearConstraint = dvh.createCustomConstraint(yearFormula);
+            DataValidation yearValidation = dvh.createValidation(yearConstraint, yearRange);
+            yearValidation.setErrorStyle(DataValidation.ErrorStyle.STOP);
+            yearValidation.createErrorBox("Invalid Academic Year", "Format must be YYYY-YYYY and the second year must be the first year + 1 (e.g., 2023-2024).");
+            yearValidation.createPromptBox("Academic Year", "Example: 2023-2024");
+            yearValidation.setShowErrorBox(true);
+            yearValidation.setShowPromptBox(true);
+            yearValidation.setSuppressDropDownArrow(true);
+            sheet.addValidationData(yearValidation);
+
+            // Save dialog
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Save Enrollments Template");
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Workbook (*.xlsx)", "*.xlsx"));
+            chooser.setInitialFileName("EnrollmentsTemplate.xlsx");
+            File out = chooser.showSaveDialog(studentTableView.getScene().getWindow());
+            if (out == null) return;
+
+            // Ensure .xlsx extension
+            String path = out.getAbsolutePath();
+            if (!path.toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
+                out = new File(path + ".xlsx");
+            }
+
+            try (FileOutputStream fos = new FileOutputStream(out)) {
+                wb.write(fos);
+            }
+            showInfo("Template Saved", "Excel template saved to: " + out.getAbsolutePath());
+        } catch (Exception ex) {
+            showError("Template Error", ex.getMessage());
+        }
+    }
+
     // Bulk import enrollments from Excel
-    @FXML private void onBulkImportEnrollments() {
+    @FXML private void onExcelImport() {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select Enrollments Excel File");
         chooser.getExtensionFilters().addAll(

@@ -18,7 +18,15 @@ public class CourseAssignmentDatabaseHelper {
     // Get all course assignments (now with department & programme) – join includes programme
     public List<CourseAssignmentData> getAllCourseAssignments() throws SQLException {
         String sql = """
-            SELECT ca.course_code, c.course_name, f.full_name AS faculty_name, ca.academic_year, ca.department, ca.programme
+            SELECT ca.course_code,
+                   c.course_name,
+                   CASE WHEN f.shortname IS NOT NULL AND f.shortname <> ''
+                        THEN CONCAT(f.full_name, ' (', f.shortname, ')')
+                        ELSE f.full_name
+                   END AS faculty_name,
+                   ca.academic_year,
+                   ca.department,
+                   ca.programme
             FROM CourseAssignment ca
             JOIN Course c ON ca.course_code = c.course_code AND ca.programme = c.programme
             JOIN Faculty f ON ca.faculty_id = f.id
@@ -63,20 +71,42 @@ public class CourseAssignmentDatabaseHelper {
 
     // Get all faculty members
     public List<String> getAllFaculty() throws SQLException {
-        String sql = "SELECT id, full_name FROM Faculty ORDER BY full_name";
+        String sql = "SELECT id, full_name, shortname FROM Faculty ORDER BY full_name";
         List<String> faculty = new ArrayList<>();
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
-            while (rs.next()) { faculty.add(rs.getString("full_name")); }
+            while (rs.next()) {
+                String fullName = rs.getString("full_name");
+                String shortname = rs.getString("shortname");
+                if (shortname != null && !shortname.isBlank()) {
+                    faculty.add(fullName + " (" + shortname + ")");
+                } else {
+                    faculty.add(fullName);
+                }
+            }
         }
         return faculty;
     }
 
-    // Assign course to faculty (copy department & programme from Course table)
+    private boolean isValidAcademicYear(String academicYear) {
+        if (academicYear == null) return false;
+        String s = academicYear.trim();
+        if (!s.matches("\\d{4}-\\d{4}")) return false;
+        try {
+            int y1 = Integer.parseInt(s.substring(0, 4));
+            int y2 = Integer.parseInt(s.substring(5, 9));
+            return y2 == y1 + 1;
+        } catch (NumberFormatException ex) { return false; }
+    }
+
+    // Assign course to faculty (copy department & programme from Course table) by full name
     public void assignCourse(String courseCode, String programme, String facultyName, String academicYear) throws SQLException {
+        if (!isValidAcademicYear(academicYear)) {
+            throw new SQLException("INVALID_ACADEMIC_YEAR: Academic year must be consecutive like 2023-2024");
+        }
         try (Connection conn = getConnection()) {
             ensureNewUniqueConstraint(conn);
             // Pre-check duplicate for same composite (course_code, programme, academic_year, department)
@@ -96,6 +126,41 @@ public class CourseAssignmentDatabaseHelper {
                 stmt.setString(2, courseCode);
                 stmt.setString(3, programme);
                 stmt.setString(4, facultyName);
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected == 0) throw new SQLException("Faculty or Course not found for assignment");
+            }
+        } catch (SQLException ex) {
+            if ("DUPLICATE_COURSE_YEAR".equals(ex.getMessage())) {
+                throw new SQLException("This course is already assigned for the selected academic year with the same department & programme.");
+            }
+            throw ex;
+        }
+    }
+
+    // Assign course to faculty (copy department & programme from Course table) by shortname
+    public void assignCourseByShortname(String courseCode, String programme, String facultyShortname, String academicYear) throws SQLException {
+        if (!isValidAcademicYear(academicYear)) {
+            throw new SQLException("INVALID_ACADEMIC_YEAR: Academic year must be consecutive like 2023-2024");
+        }
+        try (Connection conn = getConnection()) {
+            ensureNewUniqueConstraint(conn);
+            // Pre-check duplicate for same composite (course_code, programme, academic_year, department)
+            String dupCheck = "SELECT 1 FROM CourseAssignment ca JOIN Course c ON ca.course_code=c.course_code AND ca.programme=c.programme WHERE ca.course_code=? AND ca.programme=? AND ca.academic_year=? AND ca.department=c.department LIMIT 1";
+            try (PreparedStatement dps = conn.prepareStatement(dupCheck)) {
+                dps.setString(1, courseCode); dps.setString(2, programme); dps.setString(3, academicYear);
+                try (ResultSet rs = dps.executeQuery()) { if (rs.next()) throw new SQLException("DUPLICATE_COURSE_YEAR"); }
+            }
+            String sql = """
+            INSERT INTO CourseAssignment (faculty_id, course_code, programme, academic_year, department)
+            SELECT f.id, c.course_code, c.programme, ?, c.department
+            FROM Faculty f JOIN Course c ON c.course_code = ? AND c.programme = ?
+            WHERE f.shortname = ?
+            """;
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, academicYear);
+                stmt.setString(2, courseCode);
+                stmt.setString(3, programme);
+                stmt.setString(4, facultyShortname);
                 int rowsAffected = stmt.executeUpdate();
                 if (rowsAffected == 0) throw new SQLException("Faculty or Course not found for assignment");
             }

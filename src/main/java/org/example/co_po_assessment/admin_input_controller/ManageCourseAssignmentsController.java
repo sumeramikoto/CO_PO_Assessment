@@ -232,7 +232,6 @@ public class ManageCourseAssignmentsController implements Initializable {
                     errors.add("Row " + rowNum + ": invalid academic year '" + ay + "' (must be consecutive like 2023-2024)");
                     skipped++; continue;
                 }
-                System.out.println(code + " " + facultyShort + " " + programme + " " + ay);
                 try {
                     if (facultyShort != null && !facultyShort.isBlank()) {
                         databaseHelper.assignCourseByShortname(code, programme, facultyShort, ay);

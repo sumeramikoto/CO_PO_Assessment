@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package org.example.co_po_assessment.DashboardPanels;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -10,6 +10,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import org.example.co_po_assessment.DB_Services.DatabaseService;
+import org.example.co_po_assessment.utilities.UserSession;
 
 public class AssessmentSystem extends Application {
 

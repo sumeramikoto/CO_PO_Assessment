@@ -9,16 +9,18 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.co_po_assessment.DB_helper.DatabaseService;
 import org.example.co_po_assessment.Objects.Faculty;
 import org.example.co_po_assessment.DB_helper.FacultyDatabaseHelper;
+import org.example.co_po_assessment.utilities.ExcelImportUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ManageFacultiesController implements Initializable {
     @FXML
@@ -119,6 +121,68 @@ public class ManageFacultiesController implements Initializable {
         currentStage.close();
     }
 
+    // Bulk import handler
+    @FXML
+    public void onBulkImportFaculty(ActionEvent event) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select Faculty Excel File");
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Excel Files", "*.xlsx", "*.xls"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+        File file = chooser.showOpenDialog(((Stage) backButton.getScene().getWindow()));
+        if (file == null) return;
+        List<String> errors = new ArrayList<>();
+        int inserted = 0, skipped = 0;
+        try {
+            List<Map<String, String>> rows = ExcelImportUtils.readSheetAsMaps(file);
+            int rowNum = 1; // header was row 1 visually
+            for (Map<String, String> row : rows) {
+                rowNum++;
+                String id = orFirst(ExcelImportUtils.get(row, "id", "faculty_id"));
+                String shortname = ExcelImportUtils.get(row, "shortname", "short_name");
+                String fullName = ExcelImportUtils.get(row, "full_name", "name");
+                String email = ExcelImportUtils.get(row, "email");
+                String password = ExcelImportUtils.get(row, "password");
+                if (id == null || fullName == null || email == null) {
+                    errors.add("Row " + rowNum + ": missing required fields (id, full_name/name, email)");
+                    skipped++;
+                    continue;
+                }
+                if (password == null) password = generateDefaultPassword(fullName, id);
+                try {
+                    databaseService.insertFaculty(id, nullToEmpty(shortname), fullName, email, password);
+                    inserted++;
+                } catch (SQLException ex) {
+                    String msg = ex.getMessage();
+                    if (msg != null && msg.toLowerCase().contains("duplicate")) {
+                        errors.add("Row " + rowNum + ": duplicate (" + id + ")");
+                    } else {
+                        errors.add("Row " + rowNum + ": " + ex.getMessage());
+                    }
+                    skipped++;
+                }
+            }
+        } catch (IOException e) {
+            showErrorAlert("Import Failed", "Unable to read Excel file: " + e.getMessage());
+            return;
+        }
+        // Refresh
+        loadFacultyData();
+        // Summary
+        StringBuilder sb = new StringBuilder();
+        sb.append("Imported ").append(inserted).append(" rows. Skipped ").append(skipped).append(".");
+        if (!errors.isEmpty()) {
+            sb.append("\n\nIssues:\n");
+            for (int i = 0; i < Math.min(10, errors.size()); i++) sb.append("- ").append(errors.get(i)).append('\n');
+            if (errors.size() > 10) sb.append("... and ").append(errors.size() - 10).append(" more");
+        }
+        showInfoAlert("Faculty Import", sb.toString());
+    }
+
+    private String generateDefaultPassword(String fullName, String id) { return (fullName.split("\\s+")[0] + "@" + id).toLowerCase(Locale.ROOT); }
+    private String nullToEmpty(String s) { return s == null ? "" : s; }
+
     /**
      * Method to be called by FacultyInfoInputController when new faculty is added
      */
@@ -200,4 +264,6 @@ public class ManageFacultiesController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    private String orFirst(String s) { return s; }
 }

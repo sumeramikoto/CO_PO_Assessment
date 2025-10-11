@@ -7,7 +7,7 @@ CREATE TABLE Admin (
 );
 
 CREATE TABLE Faculty (
-                         id INT PRIMARY KEY,  -- Manual ID assignment (e.g., employee ID)
+                         id VARCHAR(20) PRIMARY KEY,  -- Manual ID assignment (e.g., employee ID)
                          shortname VARCHAR(50) NOT NULL,
                          full_name VARCHAR(100) NOT NULL,
                          email VARCHAR(100) NOT NULL UNIQUE,
@@ -23,9 +23,9 @@ CREATE TABLE Course (
                         PRIMARY KEY (course_code, programme)
 );
 
--- Updated: include programme in FK to Course
+-- Updated: include programme in FK to Course; faculty_id now VARCHAR(20)
 CREATE TABLE CourseAssignment (
-                                  faculty_id INT NOT NULL,
+                                  faculty_id VARCHAR(20) NOT NULL,
                                   course_code VARCHAR(20) NOT NULL,
                                   programme VARCHAR(11) NOT NULL,
                                   academic_year VARCHAR(9) NOT NULL,

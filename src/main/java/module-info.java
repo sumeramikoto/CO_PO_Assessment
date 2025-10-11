@@ -17,6 +17,24 @@ module org.example.co_po_assessment {
 
     opens org.example.co_po_assessment to javafx.fxml;
     exports org.example.co_po_assessment;
+    exports org.example.co_po_assessment.faculty_input_controller;
+    opens org.example.co_po_assessment.faculty_input_controller to javafx.fxml;
+    exports org.example.co_po_assessment.DashboardPanels;
+    opens org.example.co_po_assessment.DashboardPanels to javafx.fxml;
+    exports org.example.co_po_assessment.DB_helper;
+    opens org.example.co_po_assessment.DB_helper to javafx.fxml;
+    exports org.example.co_po_assessment.dashboard_controller;
+    opens org.example.co_po_assessment.dashboard_controller to javafx.fxml;
+    exports org.example.co_po_assessment.admin_input_controller;
+    opens org.example.co_po_assessment.admin_input_controller to javafx.fxml;
+    exports org.example.co_po_assessment.Report_controller;
+    opens org.example.co_po_assessment.Report_controller to javafx.fxml;
+    exports org.example.co_po_assessment.utilities;
+    opens org.example.co_po_assessment.utilities to javafx.fxml;
+    exports org.example.co_po_assessment.DB_Configuration;
+    opens org.example.co_po_assessment.DB_Configuration to javafx.fxml;
+    exports org.example.co_po_assessment.Objects;
+    opens org.example.co_po_assessment.Objects to javafx.fxml;
 }
 
 //    opens org.example.co_po_assessment to javafx.fxml;

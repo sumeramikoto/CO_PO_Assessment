@@ -8,9 +8,9 @@ public class DatabaseService {
     // ------------------------------------------------------------------
     // Basic singleton + connection
     // ------------------------------------------------------------------
-    private static final String DB_URL = "jdbc:mysql://u2pt07.h.filess.io:3307/SPL2_stiffstiff";
-    private static final String DB_USER = "SPL2_stiffstiff";
-    private static final String DB_PASSWORD = "44f45683637f5c4f3cba0ad2eb7966589c4c0a2f";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
+    private static final String DB_USER = "user";
+    private static final String DB_PASSWORD = "pass";
     private static DatabaseService instance;
 
     private DatabaseService() {
@@ -94,10 +94,10 @@ public class DatabaseService {
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1, courseCode); ps.setString(2, courseName); ps.setDouble(3, credits); ps.setString(4, department); ps.setString(5, programme); ps.executeUpdate(); }
     }
     public void insertCourse(String courseCode, String courseName, double credits) throws SQLException { insertCourse(courseCode, courseName, credits, "CSE", "BSc"); }
-    public void insertFaculty(int id, String shortname, String fullName, String email, String password) throws SQLException {
+    public void insertFaculty(String id, String shortname, String fullName, String email, String password) throws SQLException {
         if (!PasswordUtils.isHashed(password)) password = PasswordUtils.hash(password);
         String sql = "INSERT INTO Faculty (id, shortname, full_name, email, password) VALUES (?,?,?,?,?)";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setInt(1, id); ps.setString(2, shortname); ps.setString(3, fullName); ps.setString(4, email); ps.setString(5, password); ps.executeUpdate(); }
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1, id); ps.setString(2, shortname); ps.setString(3, fullName); ps.setString(4, email); ps.setString(5, password); ps.executeUpdate(); }
     }
     public void insertStudent(String id, int batch, String name, String email, String department, String programme) throws SQLException {
         String sql = "INSERT INTO Student (id,batch,name,email,department,programme) VALUES (?,?,?,?,?,?)";
@@ -108,7 +108,7 @@ public class DatabaseService {
         String sql = "INSERT INTO Admin (email,password) VALUES (?,?)";
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,email); ps.setString(2,password); ps.executeUpdate(); }
     }
-    public void assignCourseToFaculty(int facultyId, String courseCode, String academicYear) throws SQLException {
+    public void assignCourseToFaculty(String facultyId, String courseCode, String academicYear) throws SQLException {
         String fetch = "SELECT department, programme FROM Course WHERE course_code=?";
         String ins = "INSERT INTO CourseAssignment (faculty_id, course_code, academic_year, department, programme) VALUES (?,?,?,?,?)";
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(fetch)) {
@@ -117,15 +117,15 @@ public class DatabaseService {
                 if (!rs.next()) throw new SQLException("Course not found");
                 String dept = rs.getString(1); String prog = rs.getString(2);
                 try (PreparedStatement insPs = c.prepareStatement(ins)) {
-                    insPs.setInt(1, facultyId); insPs.setString(2, courseCode); insPs.setString(3, academicYear);
+                    insPs.setString(1, facultyId); insPs.setString(2, courseCode); insPs.setString(3, academicYear);
                     insPs.setString(4, dept); insPs.setString(5, prog); insPs.executeUpdate();
                 }
             }
         }
     }
-    public void assignCourseToFaculty(int facultyId, String courseCode, String academicYear, String department, String programme) throws SQLException {
+    public void assignCourseToFaculty(String facultyId, String courseCode, String academicYear, String department, String programme) throws SQLException {
         String ins = "INSERT INTO CourseAssignment (faculty_id, course_code, academic_year, department, programme) VALUES (?,?,?,?,?)";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(ins)) { ps.setInt(1,facultyId); ps.setString(2,courseCode); ps.setString(3,academicYear); ps.setString(4,department); ps.setString(5,programme); ps.executeUpdate(); }
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(ins)) { ps.setString(1,facultyId); ps.setString(2,courseCode); ps.setString(3,academicYear); ps.setString(4,department); ps.setString(5,programme); ps.executeUpdate(); }
     }
 
     // ------------------------------------------------------------------
@@ -445,18 +445,18 @@ public class DatabaseService {
     public static class CourseData { public final String courseCode, courseName, department, programme, instructorName; public final double credits; public CourseData(String courseCode,String courseName,double credits,String department,String programme,String instructorName){this.courseCode=courseCode;this.courseName=courseName;this.credits=credits;this.department=department;this.programme=programme;this.instructorName=instructorName;} }
     public static class StudentMarksData { public final String studentId, studentName, questionTitle; public final int questionId; public final double maxMarks; public final Double marksObtained; public StudentMarksData(String sid,String sname,int qid,String qTitle,double max,Double obtained){this.studentId=sid;this.studentName=sname;this.questionId=qid;this.questionTitle=qTitle;this.maxMarks=max;this.marksObtained=obtained;} }
     public static class StudentPerformanceData { public final String studentId, studentName, assessmentType, questionTitle, coNumber, poNumber; public final int batch, assessmentNumber; public final double maxMarks, marksObtained; public StudentPerformanceData(String sid,String sname,int batch,String at,int an,String qt,double max,double got,String co,String po){this.studentId=sid;this.studentName=sname;this.batch=batch;this.assessmentType=at;this.assessmentNumber=an;this.questionTitle=qt;this.maxMarks=max;this.marksObtained=got;this.coNumber=co;this.poNumber=po;} }
-    public static class FacultyInfo { public final int id; public final String shortname, fullName, email; public FacultyInfo(int id,String shortname,String fullName,String email){this.id=id;this.shortname=shortname;this.fullName=fullName;this.email=email;} public int getId(){return id;} public String getShortname(){return shortname;} public String getFullName(){return fullName;} public String getEmail(){return email;} }
+    public static class FacultyInfo { public final String id; public final String shortname, fullName, email; public FacultyInfo(String id,String shortname,String fullName,String email){this.id=id;this.shortname=shortname;this.fullName=fullName;this.email=email;} public String getId(){return id;} public String getShortname(){return shortname;} public String getFullName(){return fullName;} public String getEmail(){return email;} }
     public static class FacultyCourseAssignment { public final String courseCode, courseName, academicYear, department, programme; public FacultyCourseAssignment(String courseCode,String courseName,String academicYear,String department,String programme){this.courseCode=courseCode;this.courseName=courseName;this.academicYear=academicYear;this.department=department;this.programme=programme;} public String getCourseCode(){return courseCode;} public String getCourseName(){return courseName;} public String getAcademicYear(){return academicYear;} public String getDepartment(){return department;} public String getProgramme(){return programme;} }
 
     public FacultyInfo getFacultyInfo(String email) throws SQLException {
         String sql = "SELECT id, shortname, full_name, email FROM Faculty WHERE email=?";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,email); try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return new FacultyInfo(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4)); }}
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,email); try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return new FacultyInfo(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)); }}
         return null;
     }
-    public List<FacultyCourseAssignment> getAssignmentsForFaculty(int facultyId) throws SQLException {
+    public List<FacultyCourseAssignment> getAssignmentsForFaculty(String facultyId) throws SQLException {
         String sql = "SELECT DISTINCT ca.course_code,c.course_name,ca.academic_year,ca.department,ca.programme FROM CourseAssignment ca JOIN Course c ON ca.course_code=c.course_code WHERE ca.faculty_id=? ORDER BY ca.academic_year DESC, ca.course_code";
         List<FacultyCourseAssignment> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setInt(1,facultyId); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new FacultyCourseAssignment(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5))); }}
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,facultyId); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new FacultyCourseAssignment(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5))); }}
         return list;
     }
     public List<String> getCoursesDetailed() throws SQLException {

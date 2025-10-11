@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.TextFieldTableCell?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.co_po_assessment.COReportDialogController"
+            prefWidth="900.0" prefHeight="540.0">
+    <top>
+        <VBox spacing="6.0" BorderPane.alignment="CENTER_LEFT" style="-fx-padding: 12;">
+            <children>
+                <Label fx:id="titleLabel" text="CO Report" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                <Label fx:id="contextLabel" text=""/>
+                <Label text="Enter a comment and suggestions for each CO, then click Save to generate the PDF including a summary table." wrapText="true"/>
+            </children>
+        </VBox>
+    </top>
+    <center>
+        <TableView fx:id="table" editable="true" BorderPane.alignment="CENTER" prefHeight="400.0">
+            <columns>
+                <TableColumn fx:id="colCode" text="CO" prefWidth="100.0"/>
+                <TableColumn fx:id="colPercent" text="Attainment %" prefWidth="140.0"/>
+                <TableColumn fx:id="colComment" text="Comment" prefWidth="320.0"/>
+                <TableColumn fx:id="colSteps" text="Suggestions" prefWidth="320.0"/>
+            </columns>
+        </TableView>
+    </center>
+    <bottom>
+        <HBox spacing="8.0" BorderPane.alignment="CENTER_RIGHT" style="-fx-padding: 10;">
+            <children>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Cancel" onAction="#onCancel"/>
+                <Button text="Save" onAction="#onSave" defaultButton="true"/>
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

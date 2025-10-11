@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CoursesDatabaseHelper {
-    private static final String DB_URL = "jdbc:mysql://u2pt07.h.filess.io:3307/SPL2_stiffstiff";
-    private static final String DB_USER = "SPL2_stiffstiff";
-    private static final String DB_PASSWORD = "44f45683637f5c4f3cba0ad2eb7966589c4c0a2f";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
+    private static final String DB_USER = "user";
+    private static final String DB_PASSWORD = "pass";
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);

@@ -94,15 +94,12 @@ public class FacultyInfoInputController implements Initializable {
     private boolean validateInputs() {
         StringBuilder errors = new StringBuilder();
 
-        // Validate ID
-        if (idTextField.getText().trim().isEmpty()) {
+        // Validate ID (now VARCHAR - allow alphanumeric & dashes/underscores)
+        String rawId = idTextField.getText().trim();
+        if (rawId.isEmpty()) {
             errors.append("Faculty ID is required.\n");
-        } else {
-            try {
-                Integer.parseInt(idTextField.getText().trim());
-            } catch (NumberFormatException e) {
-                errors.append("Faculty ID must be a valid number.\n");
-            }
+        } else if (!rawId.matches("[A-Za-z0-9_-]{1,32}")) {
+            errors.append("Faculty ID may contain letters, digits, '-' or '_' (max 32 chars).\n");
         }
 
         // Validate name

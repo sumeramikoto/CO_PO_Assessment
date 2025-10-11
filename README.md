@@ -8,7 +8,7 @@ The CO-PO Assessment System is a comprehensive educational management platform d
 
 ### Authentication & User Management
 - **Multi-user Login**: Separate authentication for administrators and faculty members
-- **Secure Password Storage**: Implements password hashing using jBCrypt for enhanced security
+- **Secure Password Storage**: Implements password hashing using SHA-256 for enhanced security
 - **User Session Management**: Maintains active sessions for authenticated users
 
 ### Administrator Dashboard
@@ -35,7 +35,7 @@ The CO-PO Assessment System is a comprehensive educational management platform d
 - **Frontend**: JavaFX (UI components, FXML for layouts)
 - **Backend**: Java
 - **Database**: MySQL
-- **Authentication**: jBCrypt for password hashing
+- **Authentication**: SHA-256 for password hashing
 - **Reporting**: iText PDF for report generation
 - **Data Visualization**: JFreeChart for charts and graphs
 - **Excel Integration**: Apache POI for Excel file handling
@@ -43,6 +43,7 @@ The CO-PO Assessment System is a comprehensive educational management platform d
 ## System Requirements
 
 - Java Development Kit (JDK) 17 or higher
+- JavaFX 17 or higher
 - MySQL 8.0 or higher
 - Maven for dependency management
 

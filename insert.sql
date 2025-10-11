@@ -1,9 +1,9 @@
 INSERT INTO Faculty (id, shortname, full_name, email, password) VALUES
-(1001, 'Dr. Rahman', 'Dr. Mohammad Rahman', 'rahman@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
-(1002, 'Dr. Ahmed', 'Dr. Fatima Ahmed', 'ahmed@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
-(1003, 'Dr. Hassan', 'Dr. Ali Hassan', 'hassan@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
-(1004, 'Dr. Khan', 'Dr. Shariar Khan', 'khan@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
-(1005, 'Dr. Islam', 'Dr. Nazmul Islam', 'islam@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=');
+('1001', 'Dr. Rahman', 'Dr. Mohammad Rahman', 'rahman@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
+('1002', 'Dr. Ahmed', 'Dr. Fatima Ahmed', 'ahmed@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
+('1003', 'Dr. Hassan', 'Dr. Ali Hassan', 'hassan@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
+('1004', 'Dr. Khan', 'Dr. Shariar Khan', 'khan@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg='),
+('1005', 'Dr. Islam', 'Dr. Nazmul Islam', 'islam@iut-dhaka.edu', 'sha256$XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=');
 
 -- Insert sample course data
 -- Updated to include department and programme columns
@@ -13,16 +13,16 @@ INSERT INTO Course (course_code, course_name, credits, department, programme) VA
 ('4433', 'Computer Networks', 3.0, 'CSE', 'SWE'),
 ('4434', 'Operating Systems', 3.0, 'CSE', 'SWE'),
 ('4435', 'Data Structures and Algorithms', 3.0, 'CSE', 'SWE'),
-(4501, 'Operating Systems', 3.0, 'CSE', 'CSE');
+('4501', 'Operating Systems', 3.0, 'CSE', 'CSE');
 
 -- Insert course assignments (linking faculty to courses)
 -- Updated to include department and programme columns
 INSERT INTO CourseAssignment (faculty_id, course_code, academic_year, department, programme) VALUES
-(1001, '4431', '2024-2025', 'CSE', 'SWE'),
-(1002, '4432', '2024-2025', 'CSE', 'SWE'),
-(1003, '4433', '2024-2025', 'CSE', 'SWE'),
-(1004, '4434', '2024-2025', 'CSE', 'SWE'),
-(1005, '4435', '2024-2025', 'CSE', 'SWE');
+('1001', '4431', '2024-2025', 'CSE', 'SWE'),
+('1002', '4432', '2024-2025', 'CSE', 'SWE'),
+('1003', '4433', '2024-2025', 'CSE', 'SWE'),
+('1004', '4434', '2024-2025', 'CSE', 'SWE'),
+('1005', '4435', '2024-2025', 'CSE', 'SWE');
 
 -- Insert CO and PO data (idempotent suggestion: wrap with INSERT IGNORE if rerunning)
 INSERT INTO CO (co_number) VALUES ('CO1'), ('CO2'), ('CO3'), ('CO4'), ('CO5'), ('CO6'), ('CO7'), ('CO8'), ('CO9'), ('CO10'), ('CO11'), ('CO12'), ('CO13'), ('CO14'), ('CO15'), ('CO16'), ('CO17'), ('CO18'), ('CO19'), ('CO20');

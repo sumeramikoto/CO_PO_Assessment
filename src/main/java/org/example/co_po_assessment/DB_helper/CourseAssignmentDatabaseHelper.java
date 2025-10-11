@@ -134,7 +134,9 @@ public class CourseAssignmentDatabaseHelper {
         try (PreparedStatement ps = conn.prepareStatement(idxSql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 String cols = rs.getString(2);
-                if ("course_code,programme,academic_year,department".equalsIgnoreCase(cols) || "course_code,academic_year,department,programme".equalsIgnoreCase(cols)) { hasNew = true; }
+                if ("course_code,programme,academic_year,department".equalsIgnoreCase(cols) || "course_code,academic_year,department,programme".equalsIgnoreCase(cols)) {
+
+                    hasNew = true; }
             }
         }
         if (hasNew) return;

@@ -5,12 +5,14 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 import org.example.co_po_assessment.DB_helper.DatabaseService;
 import org.example.co_po_assessment.DB_helper.StudentDatabaseHelper;
+import org.example.co_po_assessment.utilities.ExcelImportUtils;
 
+import java.io.File;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ManageEnrollmentsController {
@@ -170,6 +172,63 @@ public class ManageEnrollmentsController {
         }
     }
 
+    // Bulk import enrollments from Excel
+    @FXML private void onBulkImportEnrollments() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select Enrollments Excel File");
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Excel Files", "*.xlsx", "*.xls"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+        File file = chooser.showOpenDialog(studentTableView.getScene().getWindow());
+        if (file == null) return;
+        List<Map<String, String>> rows;
+        try { rows = ExcelImportUtils.readSheetAsMaps(file); } catch (Exception ex) { showError("Import Failed", ex.getMessage()); return; }
+        if (rows.isEmpty()) { showWarn("Import", "No data rows found in the sheet."); return; }
+        // Determine defaults from UI if present
+        String selectedCourse = courseCombo.getValue();
+        String selectedYear = academicYearCombo.getValue();
+        String defaultCourseCode = null, defaultProgramme = null;
+        if (selectedCourse != null && !selectedCourse.isBlank()) {
+            String[] parts = selectedCourse.split(" - ");
+            defaultCourseCode = parts[0];
+            defaultProgramme = parts.length >= 4 ? parts[3] : null;
+        }
+        // Group by (course, programme, year)
+        Map<String, List<String>> group = new LinkedHashMap<>(); // key: code|prog|year -> studentIds
+        List<String> issues = new ArrayList<>();
+        int rowNum = 1;
+        for (Map<String, String> row : rows) {
+            rowNum++;
+            String sid = ExcelImportUtils.get(row, "student_id", "id");
+            String code = orElse(ExcelImportUtils.get(row, "course_code", "course"), defaultCourseCode);
+            String prog = orElse(ExcelImportUtils.get(row, "programme", "program"), defaultProgramme);
+            String year = orElse(ExcelImportUtils.get(row, "academic_year", "year", "ay"), selectedYear);
+            if (sid == null || code == null || prog == null || year == null) {
+                issues.add("Row " + rowNum + ": missing student_id/course_code/programme/academic_year");
+                continue;
+            }
+            String key = code + "|" + prog + "|" + year;
+            group.computeIfAbsent(key, k -> new ArrayList<>()).add(sid);
+        }
+        int groups = 0; int total = 0;
+        for (Map.Entry<String, List<String>> e : group.entrySet()) {
+            String[] parts = e.getKey().split("\\|");
+            String code = parts[0]; String prog = parts[1]; String year = parts[2];
+            List<String> ids = e.getValue();
+            try { db.enrollStudents(code, prog, year, ids); total += ids.size(); groups++; }
+            catch (SQLException ex) { issues.add("Group (" + code + "," + prog + "," + year + "): " + ex.getMessage()); }
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("Processed ").append(groups).append(" course-year groups. Total rows: ").append(total).append(".");
+        if (!issues.isEmpty()) {
+            sb.append("\n\nIssues:\n");
+            for (int i=0;i<Math.min(10, issues.size()); i++) sb.append("- ").append(issues.get(i)).append('\n');
+            if (issues.size() > 10) sb.append("... and ").append(issues.size()-10).append(" more");
+        }
+        showInfo("Enrollment Import", sb.toString());
+    }
+
     @FXML private void onClose() { closeButton.getScene().getWindow().hide(); }
 
     private void showError(String title, String msg) {
@@ -181,4 +240,6 @@ public class ManageEnrollmentsController {
     private void showInfo(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
+
+    private static String orElse(String v, String def) { return v == null || v.isBlank() ? def : v; }
 }

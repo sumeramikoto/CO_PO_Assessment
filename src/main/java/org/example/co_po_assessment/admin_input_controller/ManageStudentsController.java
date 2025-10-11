@@ -9,16 +9,18 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.Scene;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.co_po_assessment.DB_helper.DatabaseService;
 import org.example.co_po_assessment.Objects.Student;
 import org.example.co_po_assessment.DB_helper.StudentDatabaseHelper;
+import org.example.co_po_assessment.utilities.ExcelImportUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ManageStudentsController implements Initializable {
     @FXML
@@ -83,6 +85,63 @@ public class ManageStudentsController implements Initializable {
         } catch (IOException e) {
             showErrorAlert("Navigation Error", "Failed to open Add Student window: " + e.getMessage());
         }
+    }
+
+    @FXML
+    public void onBulkImportStudents(ActionEvent actionEvent) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select Students Excel File");
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Excel Files", "*.xlsx", "*.xls"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+        File file = chooser.showOpenDialog(((Stage) backButton.getScene().getWindow()));
+        if (file == null) return;
+        DatabaseService databaseService = DatabaseService.getInstance();
+        List<String> errors = new ArrayList<>();
+        int inserted = 0, skipped = 0;
+        try {
+            List<Map<String, String>> rows = ExcelImportUtils.readSheetAsMaps(file);
+            int rowNum = 1;
+            for (Map<String, String> row : rows) {
+                rowNum++;
+                String id = ExcelImportUtils.get(row, "id", "student_id");
+                String name = ExcelImportUtils.get(row, "name", "full_name");
+                String batchStr = ExcelImportUtils.get(row, "batch", "year");
+                String email = ExcelImportUtils.get(row, "email");
+                String dept = ExcelImportUtils.get(row, "department", "dept");
+                String prog = ExcelImportUtils.get(row, "programme", "program");
+                if (id == null || name == null || batchStr == null || dept == null || prog == null) {
+                    errors.add("Row " + rowNum + ": missing required fields (id, name, batch, department, programme)");
+                    skipped++; continue;
+                }
+                int batch;
+                try { batch = Integer.parseInt(batchStr); } catch (NumberFormatException nfe) {
+                    errors.add("Row " + rowNum + ": invalid batch '" + batchStr + "'");
+                    skipped++; continue;
+                }
+                try {
+                    databaseService.insertStudent(id, batch, name, email == null ? "" : email, dept, prog);
+                    inserted++;
+                } catch (SQLException ex) {
+                    String msg = ex.getMessage();
+                    if (msg != null && msg.toLowerCase().contains("duplicate")) errors.add("Row " + rowNum + ": duplicate (" + id + ")");
+                    else errors.add("Row " + rowNum + ": " + msg);
+                    skipped++;
+                }
+            }
+        } catch (IOException e) {
+            showErrorAlert("Import Failed", "Unable to read Excel file: " + e.getMessage());
+            return;
+        }
+        loadStudentData();
+        StringBuilder sb = new StringBuilder("Imported ").append(inserted).append(" rows. Skipped ").append(skipped).append(".");
+        if (!errors.isEmpty()) {
+            sb.append("\n\nIssues:\n");
+            for (int i=0;i<Math.min(10, errors.size());i++) sb.append("- ").append(errors.get(i)).append('\n');
+            if (errors.size() > 10) sb.append("... and ").append(errors.size() - 10).append(" more");
+        }
+        showInfoAlert("Student Import", sb.toString());
     }
 
     public void onRemoveStudentButton(ActionEvent actionEvent) {

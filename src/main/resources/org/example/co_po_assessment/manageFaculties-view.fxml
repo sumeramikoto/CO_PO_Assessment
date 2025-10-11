@@ -16,8 +16,9 @@
             <TableColumn fx:id="emailColumn" prefWidth="271.0" text="Email" />
         </columns>
       </TableView>
-      <Button fx:id="addFacultyButton" layoutX="117.0" layoutY="411.0" mnemonicParsing="false" onAction="#onAddFacultyButton" text="Add Faculty" />
-      <Button fx:id="removeFacultyButton" layoutX="286.0" layoutY="411.0" mnemonicParsing="false" onAction="#onRemoveFacultyButton" text="Remove Faculty" />
-      <Button fx:id="backButton" layoutX="487.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
+      <Button fx:id="addFacultyButton" layoutX="45.0" layoutY="411.0" mnemonicParsing="false" onAction="#onAddFacultyButton" text="Add Faculty" />
+      <Button fx:id="bulkImportButton" layoutX="177.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBulkImportFaculty" text="Bulk Upload (Excel)" />
+      <Button fx:id="removeFacultyButton" layoutX="356.0" layoutY="411.0" mnemonicParsing="false" onAction="#onRemoveFacultyButton" text="Remove Faculty" />
+      <Button fx:id="backButton" layoutX="535.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
    </children>
 </AnchorPane>

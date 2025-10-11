@@ -30,6 +30,9 @@
         <Button fx:id="addCourseButton" mnemonicParsing="false"
                 onAction="#onAddCourseButton" text="Add Course"
                 prefWidth="120.0" prefHeight="36.0" />
+        <Button fx:id="bulkImportCoursesButton" mnemonicParsing="false"
+                onAction="#onBulkImportCourses" text="Bulk Upload (Excel)"
+                prefWidth="160.0" prefHeight="36.0" />
         <Button fx:id="removeCourseButton" mnemonicParsing="false"
                 onAction="#onRemoveCourseButton" text="Remove Course"
                 prefWidth="120.0" prefHeight="36.0" />

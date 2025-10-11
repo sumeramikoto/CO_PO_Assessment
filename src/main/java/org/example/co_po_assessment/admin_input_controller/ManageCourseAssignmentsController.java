@@ -9,15 +9,17 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.co_po_assessment.Objects.CourseAssignment;
 import org.example.co_po_assessment.DB_helper.CourseAssignmentDatabaseHelper;
+import org.example.co_po_assessment.utilities.ExcelImportUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ManageCourseAssignmentsController implements Initializable {
     @FXML
@@ -86,6 +88,60 @@ public class ManageCourseAssignmentsController implements Initializable {
         } catch (IOException e) {
             showErrorAlert("Navigation Error", "Failed to open Assign Course window: " + e.getMessage());
         }
+    }
+
+    // Bulk import handler
+    @FXML
+    public void onBulkImportAssignments(ActionEvent actionEvent) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select Assignments Excel File");
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Excel Files", "*.xlsx", "*.xls"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+        File file = chooser.showOpenDialog(((Stage) backButton.getScene().getWindow()));
+        if (file == null) return;
+        List<String> errors = new ArrayList<>();
+        int inserted = 0, skipped = 0;
+        try {
+            List<Map<String, String>> rows = ExcelImportUtils.readSheetAsMaps(file);
+            int rowNum = 1;
+            for (Map<String, String> row : rows) {
+                rowNum++;
+                String code = ExcelImportUtils.get(row, "course_code", "course");
+                String programme = ExcelImportUtils.get(row, "programme", "program");
+                String facultyName = ExcelImportUtils.get(row, "faculty_name", "faculty", "instructor", "teacher");
+                String ay = ExcelImportUtils.get(row, "academic_year", "year", "ay");
+                if (code == null || programme == null || facultyName == null || ay == null) {
+                    errors.add("Row " + rowNum + ": missing required fields (course_code, programme, faculty_name, academic_year)");
+                    skipped++; continue;
+                }
+                try {
+                    databaseHelper.assignCourse(code, programme, facultyName, ay);
+                    inserted++;
+                } catch (SQLException ex) {
+                    String msg = ex.getMessage();
+                    if (msg != null && (msg.contains("already assigned") || msg.contains("DUPLICATE_COURSE_YEAR") || msg.toLowerCase().contains("duplicate"))) {
+                        errors.add("Row " + rowNum + ": duplicate for (" + code + ", " + programme + ", " + ay + ")");
+                    } else {
+                        errors.add("Row " + rowNum + ": " + msg);
+                    }
+                    skipped++;
+                }
+            }
+        } catch (IOException e) {
+            showErrorAlert("Import Failed", "Unable to read Excel file: " + e.getMessage());
+            return;
+        }
+        loadCourseAssignmentData();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Imported ").append(inserted).append(" rows. Skipped ").append(skipped).append(".");
+        if (!errors.isEmpty()) {
+            sb.append("\n\nIssues:\n");
+            for (int i=0;i<Math.min(10, errors.size()); i++) sb.append("- ").append(errors.get(i)).append('\n');
+            if (errors.size() > 10) sb.append("... and ").append(errors.size()-10).append(" more");
+        }
+        showInfoAlert("Assignments Import", sb.toString());
     }
 
     public void onRemoveCourseButton(ActionEvent actionEvent) {

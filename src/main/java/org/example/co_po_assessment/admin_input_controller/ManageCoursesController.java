@@ -9,16 +9,18 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.co_po_assessment.Objects.Course;
 import org.example.co_po_assessment.DB_helper.CoursesDatabaseHelper;
 import org.example.co_po_assessment.faculty_input_controller.CourseInputController;
+import org.example.co_po_assessment.utilities.ExcelImportUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ManageCoursesController implements Initializable {
     @FXML
@@ -116,6 +118,63 @@ public class ManageCoursesController implements Initializable {
     public void onBackButton(ActionEvent actionEvent) {
         Stage currentStage = (Stage) backButton.getScene().getWindow();
         currentStage.close();
+    }
+
+    // Bulk import handler
+    @FXML
+    public void onBulkImportCourses(ActionEvent actionEvent) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select Courses Excel File");
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Excel Files", "*.xlsx", "*.xls"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+        File file = chooser.showOpenDialog(((Stage) backButton.getScene().getWindow()));
+        if (file == null) return;
+        List<String> errors = new ArrayList<>();
+        int inserted = 0, skipped = 0;
+        try {
+            List<Map<String, String>> rows = ExcelImportUtils.readSheetAsMaps(file);
+            int rowNum = 1;
+            for (Map<String, String> row : rows) {
+                rowNum++;
+                String code = ExcelImportUtils.get(row, "course_code", "code");
+                String name = ExcelImportUtils.get(row, "course_name", "name", "title");
+                String creditsStr = ExcelImportUtils.get(row, "credits", "credit");
+                String dept = ExcelImportUtils.get(row, "department", "dept");
+                String prog = ExcelImportUtils.get(row, "programme", "program", "program_name");
+                if (code == null || name == null || creditsStr == null || dept == null || prog == null) {
+                    errors.add("Row " + rowNum + ": missing required fields (course_code, course_name, credits, department, programme)");
+                    skipped++;
+                    continue;
+                }
+                double credits;
+                try { credits = Double.parseDouble(creditsStr); } catch (NumberFormatException nfe) {
+                    errors.add("Row " + rowNum + ": invalid credits '" + creditsStr + "'");
+                    skipped++; continue;
+                }
+                try {
+                    databaseHelper.addCourse(code, name, credits, dept, prog);
+                    inserted++;
+                } catch (SQLException ex) {
+                    String msg = ex.getMessage();
+                    if (msg != null && msg.toLowerCase().contains("duplicate")) errors.add("Row " + rowNum + ": duplicate (" + code + ", " + prog + ")");
+                    else errors.add("Row " + rowNum + ": " + msg);
+                    skipped++;
+                }
+            }
+        } catch (IOException e) {
+            showErrorAlert("Import Failed", "Unable to read Excel file: " + e.getMessage());
+            return;
+        }
+        loadCourseData();
+        StringBuilder sb = new StringBuilder("Imported ").append(inserted).append(" rows. Skipped ").append(skipped).append(".");
+        if (!errors.isEmpty()) {
+            sb.append("\n\nIssues:\n");
+            for (int i=0;i<Math.min(10, errors.size());i++) sb.append("- ").append(errors.get(i)).append('\n');
+            if (errors.size() > 10) sb.append("... and ").append(errors.size() - 10).append(" more");
+        }
+        showInfoAlert("Course Import", sb.toString());
     }
 
     // Updated to include department & programme

@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package org.example.co_po_assessment.utilities;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

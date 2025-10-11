@@ -1,4 +1,4 @@
-package org.example.co_po_assessment;
+package org.example.co_po_assessment.DB_helper;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -6,8 +6,8 @@ import java.util.List;
 
 public class CoursesDatabaseHelper {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/SPL2";
-    private static final String DB_USER = "user";
-    private static final String DB_PASSWORD = "pass";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "sinhawiz123";
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);

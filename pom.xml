@@ -141,7 +141,7 @@
                         <vendor>${vendor.name}</vendor>
                         <mainjar>${app.name}-${app.version}-jar-with-dependencies.jar</mainjar>
                         <input>target/</input>
-                        <mainclass>org.example.co_po_assessment.AssessmentSystem</mainclass>
+                        <mainclass>org.example.co_po_assessment.DashboardPanels.AssessmentSystem</mainclass>
                         <type>MSI</type>
                         <javaoptions>--enable-preview</javaoptions>
                         <dest>.</dest>
@@ -181,7 +181,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.example.co_po_assessment.AssessmentSystem</mainClass>
+                            <mainClass>org.example.co_po_assessment.DashboardPanels.AssessmentSystem</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

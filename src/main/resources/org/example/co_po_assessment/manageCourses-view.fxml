@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.geometry.Insets?>
 
-<AnchorPane prefHeight="540.0" prefWidth="772.0" xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.admin_input_controller.ManageCoursesController">
+<AnchorPane prefHeight="540.0" prefWidth="772.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.admin_input_controller.ManageCoursesController">
 
-    <TableView fx:id="courseTableView" AnchorPane.topAnchor="82.0" AnchorPane.leftAnchor="0.0"
-               AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="60.0">
+    <TableView fx:id="courseTableView" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="82.0">
         <columns>
             <TableColumn fx:id="courseCodeColumn" prefWidth="150.0" text="Course Code" />
             <TableColumn fx:id="courseNameColumn" prefWidth="300.0" text="Course Name" />
@@ -22,22 +20,14 @@
         </columns>
     </TableView>
 
-    <HBox spacing="20.0" alignment="CENTER" AnchorPane.bottomAnchor="10.0"
-          AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+    <HBox alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
         <padding>
-            <Insets top="10.0" bottom="10.0"/>
+            <Insets bottom="10.0" top="10.0" />
         </padding>
-        <Button fx:id="addCourseButton" mnemonicParsing="false"
-                onAction="#onAddCourseButton" text="Add Course"
-                prefWidth="120.0" prefHeight="36.0" />
-        <Button fx:id="bulkImportCoursesButton" mnemonicParsing="false"
-                onAction="#onBulkImportCourses" text="Bulk Upload (Excel)"
-                prefWidth="160.0" prefHeight="36.0" />
-        <Button fx:id="removeCourseButton" mnemonicParsing="false"
-                onAction="#onRemoveCourseButton" text="Remove Course"
-                prefWidth="120.0" prefHeight="36.0" />
-        <Button fx:id="backButton" mnemonicParsing="false"
-                onAction="#onBackButton" text="Go Back"
-                prefWidth="120.0" prefHeight="36.0" />
+        <Button fx:id="addCourseButton" mnemonicParsing="false" onAction="#onAddCourseButton" prefHeight="36.0" prefWidth="120.0" text="Add Course" />
+      <Button fx:id="excelTemplateButton" mnemonicParsing="false" onAction="#onExcelTemplateButton" prefHeight="36.0" prefWidth="160.0" text="Get Excel Template" />
+        <Button fx:id="bulkImportCoursesButton" mnemonicParsing="false" onAction="#onBulkImportCourses" prefHeight="36.0" prefWidth="160.0" text="Bulk Import (Excel)" />
+        <Button fx:id="removeCourseButton" mnemonicParsing="false" onAction="#onRemoveCourseButton" prefHeight="36.0" prefWidth="120.0" text="Remove Course" />
+        <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackButton" prefHeight="36.0" prefWidth="120.0" text="Go Back" />
     </HBox>
 </AnchorPane>

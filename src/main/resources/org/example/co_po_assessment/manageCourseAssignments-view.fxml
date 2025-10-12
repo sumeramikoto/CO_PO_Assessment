@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.co_po_assessment.admin_input_controller.ManageCourseAssignmentsController">
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.admin_input_controller.ManageCourseAssignmentsController">
 
-    <TableView fx:id="courseTableView" AnchorPane.topAnchor="70.0" AnchorPane.leftAnchor="0.0"
-               AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="60.0">
+    <TableView fx:id="courseTableView" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="70.0">
         <columns>
             <TableColumn fx:id="courseCodeColumn" prefWidth="117.0" text="Course Code" />
             <TableColumn fx:id="courseNameColumn" prefWidth="329.0" text="Course Name" />
@@ -22,23 +20,15 @@
         </columns>
     </TableView>
 
-    <HBox spacing="20.0" alignment="CENTER" AnchorPane.bottomAnchor="10.0"
-          AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+    <HBox alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
         <padding>
-            <Insets top="10.0" bottom="10.0"/>
+            <Insets bottom="10.0" top="10.0" />
         </padding>
-        <Button fx:id="assignCourseButton" mnemonicParsing="false"
-                onAction="#onAssignCourseButton" text="Assign Course"
-                prefWidth="120.0" />
-        <Button fx:id="bulkImportAssignmentsButton" mnemonicParsing="false"
-                onAction="#onBulkImportAssignments" text="Bulk Upload (Excel)"
-                prefWidth="160.0" />
-        <Button fx:id="removeCourseButton" mnemonicParsing="false"
-                onAction="#onRemoveCourseButton" text="Remove Course"
-                prefWidth="120.0" />
-        <Button fx:id="backButton" mnemonicParsing="false"
-                onAction="#onBackButton" text="Go Back"
-                prefWidth="120.0" />
+        <Button fx:id="assignCourseButton" mnemonicParsing="false" onAction="#onAssignCourseButton" prefWidth="120.0" text="Assign Course" />
+      <Button fx:id="excelTemplateButton" mnemonicParsing="false" onAction="#onExcelTemplateButton" text="Get Excel Template" />
+        <Button fx:id="bulkImportAssignmentsButton" mnemonicParsing="false" onAction="#onBulkImportAssignments" prefWidth="160.0" text="Bulk Import (Excel)" />
+        <Button fx:id="removeCourseButton" mnemonicParsing="false" onAction="#onRemoveCourseButton" prefWidth="120.0" text="Remove Course" />
+        <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackButton" prefWidth="120.0" text="Go Back" />
     </HBox>
 
 </AnchorPane>

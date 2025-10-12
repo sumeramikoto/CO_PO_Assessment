@@ -15,8 +15,16 @@ import org.example.co_po_assessment.DB_helper.DatabaseService;
 import org.example.co_po_assessment.Objects.Student;
 import org.example.co_po_assessment.DB_helper.StudentDatabaseHelper;
 import org.example.co_po_assessment.utilities.ExcelImportUtils;
+import org.apache.poi.ss.usermodel.Cell;
+
+// added imports for Apache POI
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.ss.usermodel.DataValidationConstraint.OperatorType;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -84,6 +92,155 @@ public class ManageStudentsController implements Initializable {
 
         } catch (IOException e) {
             showErrorAlert("Navigation Error", "Failed to open Add Student window: " + e.getMessage());
+        }
+    }
+
+    @FXML private void onExcelTemplateButton() {
+        // Create an Excel workbook with headers and validations, then prompt user to save
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Students");
+
+            // Header style
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+
+            // Create header row
+            Row header = sheet.createRow(0);
+            String[] headers = new String[]{
+                "Student ID", "Name", "Batch", "Email", "Department", "Programme"
+            };
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = header.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+                sheet.autoSizeColumn(i);
+            }
+
+            // Set reasonable column widths
+            for (int i = 0; i < headers.length; i++) {
+                int width;
+                switch (i) {
+                    case 0: width = 15; break; // ID
+                    case 1: width = 25; break; // Name
+                    case 2: width = 10; break; // Batch
+                    case 3: width = 30; break; // Email
+                    case 4: width = 12; break; // Department
+                    case 5: width = 25; break; // Programme
+                    default: width = 20;
+                }
+                sheet.setColumnWidth(i, width * 256);
+            }
+
+            // Data validations for rows starting at row index 1 (Excel row 2)
+            int firstDataRowIndex = 1; // zero-based index (row 2 visually)
+            int lastDataRowIndex = 1000; // generous limit
+            DataValidationHelper dvHelper = sheet.getDataValidationHelper();
+
+            // Student ID: 9-digit number (100000000..999999999)
+            CellRangeAddressList idRange = new CellRangeAddressList(firstDataRowIndex, lastDataRowIndex, 0, 0);
+            DataValidationConstraint idConstraint = dvHelper.createIntegerConstraint(OperatorType.BETWEEN, "100000000", "999999999");
+            DataValidation idValidation = dvHelper.createValidation(idConstraint, idRange);
+            idValidation.setShowErrorBox(true);
+            idValidation.createErrorBox("Invalid Student ID", "Student ID must be a 9-digit number (e.g., 220042101).");
+            sheet.addValidationData(idValidation);
+
+            // Name: required (length >= 1)
+            CellRangeAddressList nameRange = new CellRangeAddressList(firstDataRowIndex, lastDataRowIndex, 1, 1);
+            DataValidationConstraint nameConstraint = dvHelper.createTextLengthConstraint(OperatorType.GREATER_OR_EQUAL, "1", null);
+            DataValidation nameValidation = dvHelper.createValidation(nameConstraint, nameRange);
+            nameValidation.setShowErrorBox(true);
+            nameValidation.createErrorBox("Invalid Name", "Name is required.");
+            sheet.addValidationData(nameValidation);
+
+            // Batch: exactly 2 digits -> integer between 10 and 99
+            CellRangeAddressList batchRange = new CellRangeAddressList(firstDataRowIndex, lastDataRowIndex, 2, 2);
+            DataValidationConstraint batchConstraint = dvHelper.createIntegerConstraint(OperatorType.BETWEEN, "10", "99");
+            DataValidation batchValidation = dvHelper.createValidation(batchConstraint, batchRange);
+            batchValidation.setShowErrorBox(true);
+            batchValidation.createErrorBox("Invalid Batch", "Batch must be a 2-digit number (10-99), e.g., 22.");
+            sheet.addValidationData(batchValidation);
+
+            // Email: contains '@' and ends with .edu (relative to top-left cell, D2)
+            String emailFormula = "AND(ISNUMBER(SEARCH(\"@\",D2)),RIGHT(D2,4)=\".edu\")";
+            CellRangeAddressList emailRange = new CellRangeAddressList(firstDataRowIndex, lastDataRowIndex, 3, 3);
+            DataValidationConstraint emailConstraint = dvHelper.createCustomConstraint(emailFormula);
+            DataValidation emailValidation = dvHelper.createValidation(emailConstraint, emailRange);
+            emailValidation.setShowErrorBox(true);
+            emailValidation.createErrorBox("Invalid Email", "Email must be like yourname@institution.edu and end with .edu");
+            sheet.addValidationData(emailValidation);
+
+            // Department: exactly 3 uppercase letters (relative to E2)
+
+            String deptFormula =
+                    "AND(" +
+                            "LEN(E2)=3," +
+                            "CODE(LEFT(E2,1))>=65, CODE(LEFT(E2,1))<=90," +
+                            "CODE(MID(E2,2,1))>=65, CODE(MID(E2,2,1))<=90," +
+                            "CODE(MID(E2,3,1))>=65, CODE(MID(E2,3,1))<=90" +
+                            ")";
+            CellRangeAddressList deptRange = new CellRangeAddressList(firstDataRowIndex, lastDataRowIndex, 4, 4);
+            DataValidationConstraint deptConstraint = dvHelper.createCustomConstraint(deptFormula);
+            DataValidation deptValidation = dvHelper.createValidation(deptConstraint, deptRange);
+            deptValidation.setShowErrorBox(true);
+            deptValidation.createErrorBox("Invalid Department", "Department must be 3 uppercase letters, e.g., CSE");
+            sheet.addValidationData(deptValidation);
+
+            // Programme: (BSc|MSc|PhD) in [A-Z]{2,3} (relative to F2)
+            String programmeFormula =
+                    "OR(" +
+                            // BSc in XX or XXX
+                            "AND(LEFT(F2,7)=\"BSc in \", OR(LEN(F2)=9, LEN(F2)=10)," +
+                            "CODE(MID(F2,8,1))>=65, CODE(MID(F2,8,1))<=90," +
+                            "CODE(MID(F2,9,1))>=65, CODE(MID(F2,9,1))<=90," +
+                            "IF(LEN(F2)=10, AND(CODE(MID(F2,10,1))>=65, CODE(MID(F2,10,1))<=90), TRUE)" +
+                            ")," +
+                            // MSc in XX or XXX
+                            "AND(LEFT(F2,7)=\"MSc in \", OR(LEN(F2)=9, LEN(F2)=10)," +
+                            "CODE(MID(F2,8,1))>=65, CODE(MID(F2,8,1))<=90," +
+                            "CODE(MID(F2,9,1))>=65, CODE(MID(F2,9,1))<=90," +
+                            "IF(LEN(F2)=10, AND(CODE(MID(F2,10,1))>=65, CODE(MID(F2,10,1))<=90), TRUE)" +
+                            ")," +
+                            // PhD in XX or XXX
+                            "AND(LEFT(F2,7)=\"PhD in \", OR(LEN(F2)=9, LEN(F2)=10)," +
+                            "CODE(MID(F2,8,1))>=65, CODE(MID(F2,8,1))<=90," +
+                            "CODE(MID(F2,9,1))>=65, CODE(MID(F2,9,1))<=90," +
+                            "IF(LEN(F2)=10, AND(CODE(MID(F2,10,1))>=65, CODE(MID(F2,10,1))<=90), TRUE)" +
+                            ")" +
+                            ")";
+//            String programmeFormula =
+//                "AND(OR(LEFT(F2,3)=\"BSc\",LEFT(F2,3)=\"MSc\",LEFT(F2,3)=\"PhD\")," +
+//                "MID(F2,4,4)=\" in \"," +
+//                "OR(LEN(RIGHT(F2,LEN(F2)-7))=2,LEN(RIGHT(F2,LEN(F2)-7))=3)," +
+//                "RIGHT(F2,LEN(F2)-7)=UPPER(RIGHT(F2,LEN(F2)-7))," +
+//                "LEN(RIGHT(F2,LEN(F2)-7))=SUMPRODUCT(--(MID(RIGHT(F2,LEN(F2)-7),ROW(INDIRECT(\"1:\"&LEN(RIGHT(F2,LEN(F2)-7)))),1)>\"=A\"),--(MID(RIGHT(F2,LEN(F2)-7),ROW(INDIRECT(\"1:\"&LEN(RIGHT(F2,LEN(F2)-7)))),1)<\"=Z\")))";
+            CellRangeAddressList programmeRange = new CellRangeAddressList(firstDataRowIndex, lastDataRowIndex, 5, 5);
+            DataValidationConstraint programmeConstraint = dvHelper.createCustomConstraint(programmeFormula);
+            DataValidation programmeValidation = dvHelper.createValidation(programmeConstraint, programmeRange);
+            programmeValidation.setShowErrorBox(true);
+            programmeValidation.createErrorBox("Invalid Programme", "Programme must be 'BSc in XX/XXX', 'MSc in XX/XXX', or 'PhD in XX/XXX'");
+            sheet.addValidationData(programmeValidation);
+
+            // Freeze header row
+            sheet.createFreezePane(0, 1);
+
+            // Prompt user to save the file
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Save Students Excel Template");
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Workbook (*.xlsx)", "*.xlsx"));
+            chooser.setInitialFileName("StudentsTemplate.xlsx");
+            File saveTo = chooser.showSaveDialog(((Stage) backButton.getScene().getWindow()));
+            if (saveTo == null) return;
+            try (FileOutputStream fos = new FileOutputStream(saveTo)) {
+                workbook.write(fos);
+            }
+
+            showInfoAlert("Template Generated", "Excel template saved to: " + saveTo.getAbsolutePath());
+        } catch (IOException ex) {
+            showErrorAlert("Template Error", "Failed to generate Excel template: " + ex.getMessage());
+        } catch (Exception ex) {
+            showErrorAlert("Template Error", "Unexpected error: " + ex.getMessage());
         }
     }
 

@@ -2,6 +2,8 @@ package org.example.co_po_assessment.admin_input_controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ManageCourseAssignmentsController implements Initializable {
     @FXML
@@ -48,8 +51,20 @@ public class ManageCourseAssignmentsController implements Initializable {
     Button removeCourseButton;
     @FXML
     Button backButton;
+    @FXML
+    private Button excelTemplateButton; // to satisfy fx:id
+    @FXML
+    private Button bulkImportAssignmentsButton; // to satisfy fx:id
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ComboBox<String> yearFilter;
+    @FXML
+    private ComboBox<String> programmeFilter;
 
     private ObservableList<CourseAssignment> courseAssignmentList;
+    private FilteredList<CourseAssignment> filteredAssignments;
+    private SortedList<CourseAssignment> sortedAssignments;
     private CourseAssignmentDatabaseHelper databaseHelper;
 
     @Override
@@ -68,12 +83,51 @@ public class ManageCourseAssignmentsController implements Initializable {
             programmeColumn.setCellValueFactory(new PropertyValueFactory<>("programme"));
         }
 
-        // Initialize course assignment list
+        // Initialize list + filtering
         courseAssignmentList = FXCollections.observableArrayList();
-        courseTableView.setItems(courseAssignmentList);
+        filteredAssignments = new FilteredList<>(courseAssignmentList, a -> true);
+        sortedAssignments = new SortedList<>(filteredAssignments);
+        sortedAssignments.comparatorProperty().bind(courseTableView.comparatorProperty());
+        courseTableView.setItems(sortedAssignments);
+
+        // Wire filters
+        if (searchField != null) searchField.textProperty().addListener((o, old, v) -> applyFilters());
+        if (yearFilter != null) yearFilter.valueProperty().addListener((o, old, v) -> applyFilters());
+        if (programmeFilter != null) programmeFilter.valueProperty().addListener((o, old, v) -> applyFilters());
 
         // Load existing course assignment data
         loadCourseAssignmentData();
+    }
+
+    private void applyFilters() {
+        final String q = searchField == null || searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase(Locale.ROOT);
+        final String yearSel = yearFilter == null ? null : yearFilter.getValue();
+        final boolean filterYear = yearSel != null && !yearSel.isBlank() && !yearSel.equalsIgnoreCase("All Years");
+        final String progSel = programmeFilter == null ? null : programmeFilter.getValue();
+        final boolean filterProg = progSel != null && !progSel.isBlank() && !progSel.equalsIgnoreCase("All Programmes");
+        filteredAssignments.setPredicate(a -> {
+            if (filterYear && (a.getAcademicYear() == null || !a.getAcademicYear().equals(yearSel))) return false;
+            if (filterProg && (a.getProgramme() == null || !a.getProgramme().equals(progSel))) return false;
+            if (q.isEmpty()) return true;
+            String code = Optional.ofNullable(a.getCourseCode()).orElse("").toLowerCase(Locale.ROOT);
+            String name = Optional.ofNullable(a.getCourseName()).orElse("").toLowerCase(Locale.ROOT);
+            return code.contains(q) || name.contains(q);
+        });
+    }
+
+    private void refreshFilterOptions() {
+        if (yearFilter != null) {
+            Set<String> years = courseAssignmentList.stream().map(CourseAssignment::getAcademicYear).filter(Objects::nonNull).collect(Collectors.toCollection(TreeSet::new));
+            List<String> y = new ArrayList<>(); y.add("All Years"); y.addAll(years);
+            yearFilter.setItems(FXCollections.observableArrayList(y));
+            if (yearFilter.getValue() == null || !y.contains(yearFilter.getValue())) yearFilter.setValue("All Years");
+        }
+        if (programmeFilter != null) {
+            Set<String> progs = courseAssignmentList.stream().map(CourseAssignment::getProgramme).filter(Objects::nonNull).collect(Collectors.toCollection(TreeSet::new));
+            List<String> p = new ArrayList<>(); p.add("All Programmes"); p.addAll(progs);
+            programmeFilter.setItems(FXCollections.observableArrayList(p));
+            if (programmeFilter.getValue() == null || !p.contains(programmeFilter.getValue())) programmeFilter.setValue("All Programmes");
+        }
     }
 
     public void onAssignCourseButton(ActionEvent actionEvent) {
@@ -300,6 +354,8 @@ public class ManageCourseAssignmentsController implements Initializable {
 
                 // Remove from table
                 courseAssignmentList.remove(selected);
+                refreshFilterOptions();
+                applyFilters();
 
                 showInfoAlert("Success", "Course assignment removed successfully.");
 
@@ -357,6 +413,8 @@ public class ManageCourseAssignmentsController implements Initializable {
                         a.getProgramme()
                 ));
             }
+            refreshFilterOptions();
+            applyFilters();
 
         } catch (SQLException e) {
             showErrorAlert("Database Error", "Failed to load course assignment data: " + e.getMessage());

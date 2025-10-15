@@ -50,6 +50,10 @@ public class ManageFacultiesController implements Initializable {
     @FXML
     Button backButton;
     @FXML
+    private Button excelTemplateButton; // satisfy fx:id
+    @FXML
+    private Button bulkImportButton; // satisfy fx:id
+    @FXML
     private TextField searchField;
 
     private ObservableList<Faculty> facultyList;

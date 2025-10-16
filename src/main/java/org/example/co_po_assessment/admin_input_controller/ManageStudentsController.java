@@ -18,6 +18,7 @@ import org.example.co_po_assessment.Objects.Student;
 import org.example.co_po_assessment.DB_helper.StudentDatabaseHelper;
 import org.example.co_po_assessment.utilities.ExcelImportUtils;
 import org.apache.poi.ss.usermodel.Cell;
+import org.example.co_po_assessment.utilities.WindowUtils;
 
 // added imports for Apache POI
 import org.apache.poi.ss.usermodel.*;
@@ -137,7 +138,7 @@ public class ManageStudentsController implements Initializable {
 
             Stage stage = new Stage();
             stage.setTitle("Add Student Information");
-            stage.setScene(scene);
+            WindowUtils.setSceneAndMaximize(stage, scene);
             stage.showAndWait(); // Wait for the window to close before continuing
 
         } catch (IOException e) {
@@ -259,17 +260,11 @@ public class ManageStudentsController implements Initializable {
                             "IF(LEN(F2)=10, AND(CODE(MID(F2,10,1))>=65, CODE(MID(F2,10,1))<=90), TRUE)" +
                             ")" +
                             ")";
-//            String programmeFormula =
-//                "AND(OR(LEFT(F2,3)=\"BSc\",LEFT(F2,3)=\"MSc\",LEFT(F2,3)=\"PhD\")," +
-//                "MID(F2,4,4)=\" in \"," +
-//                "OR(LEN(RIGHT(F2,LEN(F2)-7))=2,LEN(RIGHT(F2,LEN(F2)-7))=3)," +
-//                "RIGHT(F2,LEN(F2)-7)=UPPER(RIGHT(F2,LEN(F2)-7))," +
-//                "LEN(RIGHT(F2,LEN(F2)-7))=SUMPRODUCT(--(MID(RIGHT(F2,LEN(F2)-7),ROW(INDIRECT(\"1:\"&LEN(RIGHT(F2,LEN(F2)-7)))),1)>\"=A\"),--(MID(RIGHT(F2,LEN(F2)-7),ROW(INDIRECT(\"1:\"&LEN(RIGHT(F2,LEN(F2)-7)))),1)<\"=Z\")))";
             CellRangeAddressList programmeRange = new CellRangeAddressList(firstDataRowIndex, lastDataRowIndex, 5, 5);
             DataValidationConstraint programmeConstraint = dvHelper.createCustomConstraint(programmeFormula);
             DataValidation programmeValidation = dvHelper.createValidation(programmeConstraint, programmeRange);
             programmeValidation.setShowErrorBox(true);
-            programmeValidation.createErrorBox("Invalid Programme", "Programme must be 'BSc in XX/XXX', 'MSc in XX/XXX', or 'PhD in XX/XXX'");
+            programmeValidation.createErrorBox("Invalid Programme", "Programme must be like 'BSc in XX/XXX', 'MSc in XX/XXX', or 'PhD in XX/XXX'");
             sheet.addValidationData(programmeValidation);
 
             // Freeze header row

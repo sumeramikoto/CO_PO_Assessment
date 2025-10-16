@@ -11,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.application.Platform;
 import org.example.co_po_assessment.DashboardPanels.AssessmentSystem;
+import org.example.co_po_assessment.utilities.WindowUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -44,7 +45,7 @@ public class AdminDashboardController implements Initializable {
             Scene scene = (w > 0 && h > 0) ? new Scene(loader.load(), w, h) : new Scene(loader.load());
             Stage stage = new Stage();
             stage.setTitle(title);
-            stage.setScene(scene);
+            WindowUtils.setSceneAndMaximize(stage, scene);
             stage.show();
         } catch (IOException e) { showErrorAlert("Navigation Error", "Failed to open " + title + ": " + e.getMessage()); }
     }

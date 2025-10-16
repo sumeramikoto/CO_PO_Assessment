@@ -2,6 +2,8 @@ package org.example.co_po_assessment.admin_input_controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -47,8 +49,16 @@ public class ManageFacultiesController implements Initializable {
     Button removeFacultyButton;
     @FXML
     Button backButton;
+    @FXML
+    private Button excelTemplateButton; // satisfy fx:id
+    @FXML
+    private Button bulkImportButton; // satisfy fx:id
+    @FXML
+    private TextField searchField;
 
     private ObservableList<Faculty> facultyList;
+    private FilteredList<Faculty> filteredFaculty;
+    private SortedList<Faculty> sortedFaculty;
     private DatabaseService databaseService;
     private FacultyDatabaseHelper facultyDatabaseHelper;
 
@@ -63,12 +73,31 @@ public class ManageFacultiesController implements Initializable {
         shortnameColumn.setCellValueFactory(new PropertyValueFactory<>("shortname"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
 
-        // Initialize faculty list
+        // Initialize faculty list and filtering
         facultyList = FXCollections.observableArrayList();
-        facultyTableView.setItems(facultyList);
+        filteredFaculty = new FilteredList<>(facultyList, f -> true);
+        sortedFaculty = new SortedList<>(filteredFaculty);
+        sortedFaculty.comparatorProperty().bind(facultyTableView.comparatorProperty());
+        facultyTableView.setItems(sortedFaculty);
+
+        // Hook up search
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, old, val) -> applyFacultyFilter());
+        }
 
         // Load existing faculty data
         loadFacultyData();
+    }
+
+    private void applyFacultyFilter() {
+        final String query = searchField == null ? null : searchField.getText();
+        final String q = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        filteredFaculty.setPredicate(f -> {
+            if (q.isEmpty()) return true;
+            String id = Optional.ofNullable(f.getId()).orElse("").toLowerCase(Locale.ROOT);
+            String name = Optional.ofNullable(f.getName()).orElse("").toLowerCase(Locale.ROOT);
+            return id.contains(q) || name.contains(q);
+        });
     }
 
     public void onAddFacultyButton(ActionEvent event) {
@@ -334,6 +363,8 @@ public class ManageFacultiesController implements Initializable {
                     faculty.getEmail()
                 ));
             }
+            // Re-apply filter in case query exists
+            applyFacultyFilter();
 
         } catch (SQLException e) {
             showErrorAlert("Database Error", "Failed to load faculty data: " + e.getMessage());

@@ -2,6 +2,8 @@ package org.example.co_po_assessment.admin_input_controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,6 +18,7 @@ import org.example.co_po_assessment.Objects.Student;
 import org.example.co_po_assessment.DB_helper.StudentDatabaseHelper;
 import org.example.co_po_assessment.utilities.ExcelImportUtils;
 import org.apache.poi.ss.usermodel.Cell;
+import org.example.co_po_assessment.utilities.WindowUtils;
 
 // added imports for Apache POI
 import org.apache.poi.ss.usermodel.*;
@@ -29,6 +32,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ManageStudentsController implements Initializable {
     @FXML
@@ -51,8 +55,14 @@ public class ManageStudentsController implements Initializable {
     Button removeStudentButton;
     @FXML
     Button backButton;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ComboBox<String> batchFilter;
 
     private ObservableList<Student> studentList;
+    private FilteredList<Student> filteredStudents;
+    private SortedList<Student> sortedStudents;
     private StudentDatabaseHelper studentDatabaseHelper;
 
     @Override
@@ -67,12 +77,53 @@ public class ManageStudentsController implements Initializable {
         programmeColumn.setCellValueFactory(new PropertyValueFactory<>("programme"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
 
-        // Initialize student list
+        // Initialize student list and filtering
         studentList = FXCollections.observableArrayList();
-        studentTableView.setItems(studentList);
+        filteredStudents = new FilteredList<>(studentList, s -> true);
+        sortedStudents = new SortedList<>(filteredStudents);
+        sortedStudents.comparatorProperty().bind(studentTableView.comparatorProperty());
+        studentTableView.setItems(sortedStudents);
+
+        // Wire filters
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, old, val) -> applyStudentFilter());
+        }
+        if (batchFilter != null) {
+            batchFilter.valueProperty().addListener((obs, old, val) -> applyStudentFilter());
+        }
 
         // Load existing student data
         loadStudentData();
+    }
+
+    private void applyStudentFilter() {
+        final String q = searchField == null || searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase(Locale.ROOT);
+        final String batchSel = batchFilter == null ? null : batchFilter.getValue();
+        final boolean filterByBatch = batchSel != null && !batchSel.isBlank() && !batchSel.equalsIgnoreCase("All Batches");
+        filteredStudents.setPredicate(s -> {
+            // batch filter
+            if (filterByBatch && (s.getBatch() == null || !s.getBatch().equals(batchSel))) return false;
+            if (q.isEmpty()) return true;
+            String id = Optional.ofNullable(s.getId()).orElse("").toLowerCase(Locale.ROOT);
+            String name = Optional.ofNullable(s.getName()).orElse("").toLowerCase(Locale.ROOT);
+            return id.contains(q) || name.contains(q);
+        });
+    }
+
+    private void refreshBatchFilterOptions() {
+        if (batchFilter == null) return;
+        // Collect unique batches from current studentList
+        Set<String> batches = studentList.stream()
+                .map(Student::getBatch)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(TreeSet::new));
+        List<String> items = new ArrayList<>();
+        items.add("All Batches");
+        items.addAll(batches);
+        batchFilter.setItems(FXCollections.observableArrayList(items));
+        if (batchFilter.getValue() == null || !items.contains(batchFilter.getValue())) {
+            batchFilter.setValue("All Batches");
+        }
     }
 
     public void onAddStudentButton(ActionEvent actionEvent) {
@@ -87,7 +138,7 @@ public class ManageStudentsController implements Initializable {
 
             Stage stage = new Stage();
             stage.setTitle("Add Student Information");
-            stage.setScene(scene);
+            WindowUtils.setSceneAndMaximize(stage, scene);
             stage.showAndWait(); // Wait for the window to close before continuing
 
         } catch (IOException e) {
@@ -209,17 +260,11 @@ public class ManageStudentsController implements Initializable {
                             "IF(LEN(F2)=10, AND(CODE(MID(F2,10,1))>=65, CODE(MID(F2,10,1))<=90), TRUE)" +
                             ")" +
                             ")";
-//            String programmeFormula =
-//                "AND(OR(LEFT(F2,3)=\"BSc\",LEFT(F2,3)=\"MSc\",LEFT(F2,3)=\"PhD\")," +
-//                "MID(F2,4,4)=\" in \"," +
-//                "OR(LEN(RIGHT(F2,LEN(F2)-7))=2,LEN(RIGHT(F2,LEN(F2)-7))=3)," +
-//                "RIGHT(F2,LEN(F2)-7)=UPPER(RIGHT(F2,LEN(F2)-7))," +
-//                "LEN(RIGHT(F2,LEN(F2)-7))=SUMPRODUCT(--(MID(RIGHT(F2,LEN(F2)-7),ROW(INDIRECT(\"1:\"&LEN(RIGHT(F2,LEN(F2)-7)))),1)>\"=A\"),--(MID(RIGHT(F2,LEN(F2)-7),ROW(INDIRECT(\"1:\"&LEN(RIGHT(F2,LEN(F2)-7)))),1)<\"=Z\")))";
             CellRangeAddressList programmeRange = new CellRangeAddressList(firstDataRowIndex, lastDataRowIndex, 5, 5);
             DataValidationConstraint programmeConstraint = dvHelper.createCustomConstraint(programmeFormula);
             DataValidation programmeValidation = dvHelper.createValidation(programmeConstraint, programmeRange);
             programmeValidation.setShowErrorBox(true);
-            programmeValidation.createErrorBox("Invalid Programme", "Programme must be 'BSc in XX/XXX', 'MSc in XX/XXX', or 'PhD in XX/XXX'");
+            programmeValidation.createErrorBox("Invalid Programme", "Programme must be like 'BSc in XX/XXX', 'MSc in XX/XXX', or 'PhD in XX/XXX'");
             sheet.addValidationData(programmeValidation);
 
             // Freeze header row
@@ -325,6 +370,10 @@ public class ManageStudentsController implements Initializable {
                 // Remove from table
                 studentList.remove(selectedStudent);
 
+                // Update filters
+                refreshBatchFilterOptions();
+                applyStudentFilter();
+
                 showInfoAlert("Success", "Student removed successfully.");
 
             } catch (SQLException e) {
@@ -358,6 +407,8 @@ public class ManageStudentsController implements Initializable {
                     student.getEmail()
                 ));
             }
+            refreshBatchFilterOptions();
+            applyStudentFilter();
 
         } catch (SQLException e) {
             showErrorAlert("Database Error", "Failed to load student data: " + e.getMessage());
@@ -409,6 +460,10 @@ public class ManageStudentsController implements Initializable {
             // Add to table
             Student newStudent = new Student(id, name, batch, department, programme, email);
             studentList.add(newStudent);
+
+            // Update filters
+            refreshBatchFilterOptions();
+            applyStudentFilter();
 
             showInfoAlert("Success", "Student added successfully.");
 

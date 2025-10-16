@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.example.co_po_assessment.utilities.WindowUtils;
 
 import java.io.IOException;
 
@@ -13,7 +14,7 @@ public class AdminDashboardView extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(AdminDashboardView.class.getResource("/org/example/co_po_assessment/adminDashboard-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Admin Dashboard");
-        stage.setScene(scene);
+        WindowUtils.setSceneAndMaximize(stage, scene);
         stage.show();
     }
 }

@@ -16,6 +16,7 @@ import org.example.co_po_assessment.Objects.Course;
 import org.example.co_po_assessment.DB_helper.CoursesDatabaseHelper;
 import org.example.co_po_assessment.faculty_input_controller.CourseInputController;
 import org.example.co_po_assessment.utilities.ExcelImportUtils;
+import org.example.co_po_assessment.utilities.WindowUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -83,7 +84,7 @@ public class ManageCoursesController implements Initializable {
             controller.setParentController(this);
             Stage stage = new Stage();
             stage.setTitle("Add New Course");
-            stage.setScene(scene);
+            WindowUtils.setSceneAndMaximize(stage, scene);
             stage.showAndWait();
         } catch (IOException e) {
             showErrorAlert("Navigation Error", "Failed to open Add Course window: " + e.getMessage());
@@ -230,26 +231,32 @@ public class ManageCoursesController implements Initializable {
                     "IF(LEN(E2)=10, AND(CODE(MID(E2,10,1))>=65, CODE(MID(E2,10,1))<=90), TRUE)" +
                     ")," +
                     // PhD in XX or XXX
-                    "AND(LEFT(E2,7)=\"PhD in \", OR(LEN(E2)=9, LEN(E2)=10)," +
-                    "CODE(MID(E2,8,1))>=65, CODE(MID(E2,8,1))<=90," +
+                    "AND(LEFT(E2,8)=\"PhD in \", OR(LEN(E2)=10, LEN(E2)=11)," +
                     "CODE(MID(E2,9,1))>=65, CODE(MID(E2,9,1))<=90," +
-                    "IF(LEN(E2)=10, AND(CODE(MID(E2,10,1))>=65, CODE(MID(E2,10,1))<=90), TRUE)" +
+                    "CODE(MID(E2,10,1))>=65, CODE(MID(E2,10,1))<=90," +
+                    "IF(LEN(E2)=11, AND(CODE(MID(E2,11,1))>=65, CODE(MID(E2,11,1))<=90), TRUE)" +
                     ")" +
                     ")";
             DataValidationConstraint progC = dvh.createCustomConstraint(progFormula);
             CellRangeAddressList progRange = new CellRangeAddressList(firstRow, lastRow, 4, 4);
             DataValidation progDV = dvh.createValidation(progC, progRange);
             progDV.setShowErrorBox(true);
-            progDV.createErrorBox("Invalid Programme", "Use: BSc/MSc/PhD in followed by 2 or 3 uppercase letters (e.g., BSc in CSE, BSc in CE).");
+            progDV.createErrorBox("Invalid Programme", "Programme must be like 'BSc in CSE' or 'MSc in EEE'.");
             sheet.addValidationData(progDV);
 
-            // Save workbook
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                wb.write(fos);
+            // Save
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Courses Template");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Workbook", "*.xlsx"));
+            fileChooser.setInitialFileName("CoursesTemplate.xlsx");
+            File out = fileChooser.showSaveDialog(stage);
+            if (out != null) {
+                if (!out.getName().toLowerCase().endsWith(".xlsx")) out = new File(out.getParentFile(), out.getName() + ".xlsx");
+                try (FileOutputStream fos = new FileOutputStream(out)) { wb.write(fos); }
+                showInfoAlert("Template Saved", "Template saved to: " + out.getAbsolutePath());
             }
-            showInfoAlert("Template Created", "Saved Excel template to:\n" + file.getAbsolutePath());
         } catch (IOException e) {
-            showErrorAlert("Save Failed", "Unable to create Excel template: " + e.getMessage());
+            showErrorAlert("Template Error", "Failed to create template: " + e.getMessage());
         }
     }
 

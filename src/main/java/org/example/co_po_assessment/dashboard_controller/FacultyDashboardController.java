@@ -27,6 +27,7 @@ import javafx.stage.FileChooser; // added for excel import
 import org.example.co_po_assessment.Report_controller.COReportDialogController;
 import org.example.co_po_assessment.faculty_input_controller.DetailedMarksController;
 import org.example.co_po_assessment.faculty_input_controller.ManageCourseQuestionsController;
+import org.example.co_po_assessment.utilities.WindowUtils;
 
 
 public class FacultyDashboardController {
@@ -107,7 +108,7 @@ public class FacultyDashboardController {
             controller.setCourseAssignment(selected); // pass context (future use)
             Stage stage = new Stage();
             stage.setTitle("Manage Questions - " + selected.getCourseCode());
-            stage.setScene(new Scene(root));
+            WindowUtils.setSceneAndMaximize(stage, new Scene(root));
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,7 +135,7 @@ public class FacultyDashboardController {
 
             Stage stage = new Stage();
             stage.setTitle("Student Marks - " + selected.getCourseCode() + " (" + selected.getAcademicYear() + ")");
-            stage.setScene(new Scene(root));
+            WindowUtils.setSceneAndMaximize(stage, new Scene(root));
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -164,7 +165,7 @@ public class FacultyDashboardController {
             controller.setContext(selected);
             Stage stage = new Stage();
             stage.setTitle("CO Report - " + selected.getCourseCode());
-            stage.setScene(new Scene(root));
+            WindowUtils.setSceneAndMaximize(stage, new Scene(root));
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -189,7 +190,7 @@ public class FacultyDashboardController {
             controller.setContext(selected);
             Stage stage = new Stage();
             stage.setTitle("PO Report - " + selected.getCourseCode());
-            stage.setScene(new Scene(root));
+            WindowUtils.setSceneAndMaximize(stage, new Scene(root));
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();

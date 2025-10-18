@@ -25,6 +25,7 @@
             <Button fx:id="viewReportsButton" layoutX="578.0" layoutY="30.0" mnemonicParsing="false" onAction="#onViewReportsButton" prefHeight="59.0" prefWidth="138.0" text="View Reports" />
             <Button fx:id="manageCoursesButton" layoutX="14.0" layoutY="115.0" mnemonicParsing="false" onAction="#onManageCoursesButton" prefHeight="59.0" prefWidth="138.0" text="Manage Courses" />
             <Button fx:id="manageEnrollmentsButton" layoutX="180.0" layoutY="115.0" mnemonicParsing="false" onAction="#onManageEnrollmentsButton" prefHeight="59.0" prefWidth="152.0" text="Manage Enrollments" />
+            <Button fx:id="poReportButton" layoutX="348.0" layoutY="115.0" mnemonicParsing="false" onAction="#onPoReportButton" prefHeight="59.0" prefWidth="138.0" text="PO report" />
          </children></AnchorPane>
   </items>
 </SplitPane>

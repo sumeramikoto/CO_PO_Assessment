@@ -19,6 +19,7 @@ import org.example.co_po_assessment.utilities.WindowUtils;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class AdminPOReportSelectorController implements Initializable {
@@ -28,6 +29,9 @@ public class AdminPOReportSelectorController implements Initializable {
     @FXML private ComboBox<String> course1Combo;
     @FXML private ComboBox<String> course2Combo;
     @FXML private ComboBox<String> course3Combo;
+    // New threshold fields
+    @FXML private TextField poThresholdField;
+    @FXML private TextField cohortThresholdField; // interpreted as CO threshold (%)
 
     @FXML private TableView<StudentRow> studentsTable;
     @FXML private TableColumn<StudentRow, String> colId;
@@ -63,13 +67,32 @@ public class AdminPOReportSelectorController implements Initializable {
             setStatus("Failed to load filters: " + ex.getMessage());
         }
 
-        // Listeners to reload courses/students
+        // Numeric-only text formatters (0-100)
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String newText = change.getControlNewText();
+            if (newText.isEmpty()) return change; // allow clearing
+            if (!newText.matches("\\d{1,3}")) return null; // only up to 3 digits
+            try {
+                int val = Integer.parseInt(newText);
+                if (val < 0 || val > 100) return null;
+            } catch (NumberFormatException ex) { return null; }
+            return change;
+        };
+        poThresholdField.setTextFormatter(new TextFormatter<>(filter));
+        cohortThresholdField.setTextFormatter(new TextFormatter<>(filter));
+        // Defaults (align with current POReport defaults: PO=40, CO=60)
+        poThresholdField.setText("40");
+        cohortThresholdField.setText("60");
+
+        // Listeners to reload courses/students and validate
         programmeCombo.valueProperty().addListener((o, old, val) -> onCohortChanged());
         batchCombo.valueProperty().addListener((o, old, val) -> onCohortChanged());
         yearCombo.valueProperty().addListener((o, old, val) -> onCohortChanged());
         course1Combo.valueProperty().addListener((o, old, val) -> onCoursesChanged());
         course2Combo.valueProperty().addListener((o, old, val) -> onCoursesChanged());
         course3Combo.valueProperty().addListener((o, old, val) -> onCoursesChanged());
+        poThresholdField.textProperty().addListener((o, old, val) -> updateGenerateButtonState());
+        cohortThresholdField.textProperty().addListener((o, old, val) -> updateGenerateButtonState());
 
         updateGenerateButtonState();
     }
@@ -133,10 +156,23 @@ public class AdminPOReportSelectorController implements Initializable {
         return items.stream().distinct().collect(Collectors.toList());
     }
 
+    private boolean thresholdsValid() {
+        try {
+            int po = Integer.parseInt(optionalText(poThresholdField));
+            int co = Integer.parseInt(optionalText(cohortThresholdField));
+            return po >= 0 && po <= 100 && co >= 0 && co <= 100;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private String optionalText(TextField tf) { String s = tf.getText(); return s == null || s.isBlank() ? "" : s.trim(); }
+
     private void updateGenerateButtonState() {
         boolean ready = programmeCombo.getValue() != null && batchCombo.getValue() != null && yearCombo.getValue() != null;
         List<String> codes = selectedCourseCodes();
-        generateButton.setDisable(!(ready && codes.size() == 3));
+        boolean validThresh = thresholdsValid();
+        generateButton.setDisable(!(ready && codes.size() == 3 && validThresh));
     }
 
     @FXML
@@ -145,17 +181,19 @@ public class AdminPOReportSelectorController implements Initializable {
         Integer batch = batchCombo.getValue();
         String year = yearCombo.getValue();
         List<String> codes = selectedCourseCodes();
-        if (programme == null || batch == null || year == null || codes.size() != 3) {
-            setStatus("Please select programme, batch, year and exactly three courses.");
+        if (programme == null || batch == null || year == null || codes.size() != 3 || !thresholdsValid()) {
+            setStatus("Please select programme, batch, year, exactly three courses, and valid thresholds.");
             return;
         }
+        int poPct = Integer.parseInt(poThresholdField.getText());
+        int coPct = Integer.parseInt(cohortThresholdField.getText());
         // For each selected course, open PO report dialog in its own window
         for (String code : codes) {
-            openPOReportForCourse(code, programme, year);
+            openPOReportForCourse(code, programme, year, poPct, coPct);
         }
     }
 
-    private void openPOReportForCourse(String courseCode, String programme, String academicYear) {
+    private void openPOReportForCourse(String courseCode, String programme, String academicYear, int poThresholdPct, int coThresholdPct) {
         try {
             DatabaseService.CourseData ci = db.getCourseInfo(courseCode, programme);
             if (ci == null) { setStatus("Course not found: " + courseCode + " ("+programme+")"); return; }
@@ -166,6 +204,7 @@ public class AdminPOReportSelectorController implements Initializable {
             Parent root = loader.load();
             POReportDialogController controller = loader.getController();
             controller.setContext(selected);
+            controller.setThresholds(poThresholdPct, coThresholdPct);
             Stage stage = new Stage();
             stage.setTitle("PO Report - " + courseCode + " (" + academicYear + ")");
             WindowUtils.setSceneAndMaximize(stage, new Scene(root));

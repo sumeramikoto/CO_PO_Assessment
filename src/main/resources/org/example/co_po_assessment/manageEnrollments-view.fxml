@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="520" prefWidth="840" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.admin_input_controller.ManageEnrollmentsController">
+<BorderPane prefHeight="520" prefWidth="840" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.admin_input_controller.ManageEnrollmentsController">
     <top>
         <VBox spacing="6" BorderPane.alignment="CENTER_LEFT">
             <padding><Insets bottom="10" left="10" right="10" top="10" /></padding>

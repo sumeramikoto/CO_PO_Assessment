@@ -30,6 +30,12 @@
 
                         <Label text="Academic Year" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <ComboBox fx:id="yearCombo" prefWidth="200" promptText="Select year" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <!-- New threshold fields -->
+                        <Label text="PO threshold (%)" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextField fx:id="poThresholdField" promptText="0-100" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label text="Cohort threshold (%)" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                        <TextField fx:id="cohortThresholdField" promptText="0-100" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
                     </children>
                 </GridPane>
                 <Separator />
@@ -82,4 +88,3 @@
         </HBox>
     </bottom>
 </BorderPane>
-

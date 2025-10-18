@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.example.co_po_assessment.utilities.WindowUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -142,7 +143,7 @@ public class ManageCourseAssignmentsController implements Initializable {
 
             Stage stage = new Stage();
             stage.setTitle("Assign Course to Faculty");
-            stage.setScene(scene);
+            WindowUtils.setSceneAndMaximize(stage, scene);
             stage.showAndWait(); // Wait for the window to close before continuing
 
         } catch (IOException e) {

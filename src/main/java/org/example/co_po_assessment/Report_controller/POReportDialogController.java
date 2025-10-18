@@ -56,6 +56,18 @@ public class POReportDialogController implements Initializable {
     private final DatabaseService db = DatabaseService.getInstance();
     private DatabaseService.FacultyCourseAssignment selected;
 
+    // Thresholds (fractions 0..1). Defaults: CO 60%, PO 40%
+    private double coThreshold = 0.60;
+    private double poThreshold = 0.40;
+
+    /** Allow caller to override thresholds using percentages (0..100). */
+    public void setThresholds(int poPercent, int coPercent) {
+        double po = Math.max(0, Math.min(100, poPercent)) / 100.0;
+        double co = Math.max(0, Math.min(100, coPercent)) / 100.0;
+        this.poThreshold = po;
+        this.coThreshold = co;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         if (table != null) table.setItems(data);
@@ -174,7 +186,6 @@ public class POReportDialogController implements Initializable {
         if (graded == 0) throw new IllegalStateException("No marks have been entered yet. Please enter marks before viewing the PO report.");
         if (graded < totalRequired) throw new IllegalStateException("Cannot view PO report. Some required mark entries are still ungraded.");
 
-        final double CO_THRESHOLD = 0.60; final double PO_THRESHOLD = 0.40;
         Map<String,Integer> poAttainedCounts = new HashMap<>(); for (String po : poTotal.keySet()) poAttainedCounts.put(po,0);
         for (DatabaseService.StudentData sd : students) {
             Map<String, Double> studentPOMap = studentPoTotals.get(sd.id);
@@ -186,11 +197,11 @@ public class POReportDialogController implements Initializable {
                 for (String co : coDenoms.keySet()) {
                     double coDenom = coDenoms.get(co); if (coDenom <= 0) continue;
                     double coGot = Optional.ofNullable(studentPOCOMap.get(po)).map(m-> m.getOrDefault(co,0.0)).orElse(0.0);
-                    if (coGot / coDenom >= CO_THRESHOLD) { anyCOAttained = true; break; }
+                    if (coGot / coDenom >= coThreshold) { anyCOAttained = true; break; }
                 }
                 if (!anyCOAttained) continue;
                 double poGot = studentPOMap.getOrDefault(po, 0.0);
-                if (poGot / poDenom >= PO_THRESHOLD) poAttainedCounts.merge(po,1,Integer::sum);
+                if (poGot / poDenom >= poThreshold) poAttainedCounts.merge(po,1,Integer::sum);
             }
         }
         Map<String,Double> percentPerPO = new TreeMap<>(Comparator.comparingInt(p -> { try { return Integer.parseInt(p.replaceAll("[^0-9]", "")); } catch(Exception ex){ return Integer.MAX_VALUE; } }));
@@ -219,9 +230,10 @@ public class POReportDialogController implements Initializable {
                 doc.add(new Paragraph("Programme: " + selected.getProgramme()));
                 DatabaseService.FacultyInfo fi = UserSession.getCurrentFaculty(); if (fi != null) doc.add(new Paragraph("Faculty: " + fi.fullName + " (" + fi.shortname + ")"));
                 doc.add(new Paragraph("Academic Year: " + selected.getAcademicYear()));
-                doc.add(new Paragraph("Generated: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
-                doc.add(new Paragraph("\n"));
-                // Removed per-row descriptive paragraphs; rely on the summary table below
+                doc.add(new Paragraph(String.format("Thresholds: CO %.0f%%, PO %.0f%%", coThreshold*100, poThreshold*100)));
+                doc.add(new Paragraph("Generated on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
+                doc.add(new Paragraph(" "));
+
                 Image chartImg = new Image(ImageDataFactory.create(chartBytes)).setAutoScale(true); doc.add(chartImg);
                 // Add summary table at the bottom
                 doc.add(new Paragraph("\n"));

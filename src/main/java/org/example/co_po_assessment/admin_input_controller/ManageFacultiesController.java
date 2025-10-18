@@ -8,16 +8,17 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.apache.poi.ss.usermodel.Cell;
 import org.example.co_po_assessment.DB_helper.DatabaseService;
+import org.example.co_po_assessment.DB_helper.FacultyDatabaseHelper; // added import
 import org.example.co_po_assessment.Objects.Faculty;
-import org.example.co_po_assessment.DB_helper.FacultyDatabaseHelper;
 import org.example.co_po_assessment.utilities.ExcelImportUtils;
+import org.example.co_po_assessment.utilities.WindowUtils;
+import org.apache.poi.ss.usermodel.Cell;
 
 import java.io.File;
 import java.io.IOException;
@@ -112,7 +113,7 @@ public class ManageFacultiesController implements Initializable {
 
             Stage stage = new Stage();
             stage.setTitle("Add Faculty Information");
-            stage.setScene(scene);
+            WindowUtils.setSceneAndMaximize(stage, scene);
             stage.showAndWait(); // Wait for the window to close before continuing
 
         } catch (IOException e) {

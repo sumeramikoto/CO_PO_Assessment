@@ -130,76 +130,82 @@ public class POReportDialogController implements Initializable {
         List<DatabaseService.QuestionData> quizQuestionsAll = new ArrayList<>();
         quizQuestionsAll.addAll(quiz1); quizQuestionsAll.addAll(quiz2); quizQuestionsAll.addAll(quiz3); quizQuestionsAll.addAll(quiz4);
 
+        // Total possible marks per PO across all assessments
         Map<String,Double> poTotal = new HashMap<>();
-        Map<String, Map<String,Double>> poCoTotals = new HashMap<>();
-        java.util.function.Consumer<DatabaseService.QuestionData> accumulate = q -> {
-            if (q.po == null || q.po.trim().isEmpty() || q.co == null || q.co.trim().isEmpty()) return;
+        java.util.function.Consumer<DatabaseService.QuestionData> accumulateTotals = q -> {
+            if (q.po == null) return;
             String po = q.po.trim().toUpperCase();
-            String co = q.co.trim().toUpperCase();
+            if (po.isEmpty()) return;
             poTotal.merge(po, q.marks, Double::sum);
-            poCoTotals.computeIfAbsent(po, k-> new HashMap<>()).merge(co, q.marks, Double::sum);
         };
-        quizQuestionsAll.forEach(accumulate); midQuestions.forEach(accumulate); finalQuestions.forEach(accumulate);
+        quizQuestionsAll.forEach(accumulateTotals);
+        midQuestions.forEach(accumulateTotals);
+        finalQuestions.forEach(accumulateTotals);
         if (poTotal.isEmpty()) throw new IllegalStateException("Questions exist but none have PO mappings.");
 
         List<DatabaseService.StudentData> students = db.getEnrolledStudents(courseCode, programme, academicYear);
         if (students.isEmpty()) throw new IllegalStateException("No students enrolled for this course in the selected academic year.");
 
-        Map<Integer,String> quizIdToPO = new HashMap<>(); Map<Integer,String> quizIdToCO = new HashMap<>();
-        for (DatabaseService.QuestionData qd : quizQuestionsAll) { if (qd.po!=null) quizIdToPO.put(qd.id, qd.po.trim().toUpperCase()); if (qd.co!=null) quizIdToCO.put(qd.id, qd.co.trim().toUpperCase()); }
-        Map<Integer,String> midIdToPO = new HashMap<>(); Map<Integer,String> midIdToCO = new HashMap<>();
-        for (DatabaseService.QuestionData qd : midQuestions) { if (qd.po!=null) midIdToPO.put(qd.id, qd.po.trim().toUpperCase()); if (qd.co!=null) midIdToCO.put(qd.id, qd.co.trim().toUpperCase()); }
-        Map<Integer,String> finalIdToPO = new HashMap<>(); Map<Integer,String> finalIdToCO = new HashMap<>();
-        for (DatabaseService.QuestionData qd : finalQuestions) { if (qd.po!=null) finalIdToPO.put(qd.id, qd.po.trim().toUpperCase()); if (qd.co!=null) finalIdToCO.put(qd.id, qd.co.trim().toUpperCase()); }
+        // Map questionId -> PO for each assessment
+        Map<Integer,String> quizIdToPO = new HashMap<>();
+        for (DatabaseService.QuestionData qd : quizQuestionsAll) if (qd.po!=null) quizIdToPO.put(qd.id, qd.po.trim().toUpperCase());
+        Map<Integer,String> midIdToPO = new HashMap<>();
+        for (DatabaseService.QuestionData qd : midQuestions) if (qd.po!=null) midIdToPO.put(qd.id, qd.po.trim().toUpperCase());
+        Map<Integer,String> finalIdToPO = new HashMap<>();
+        for (DatabaseService.QuestionData qd : finalQuestions) if (qd.po!=null) finalIdToPO.put(qd.id, qd.po.trim().toUpperCase());
 
         int totalRequired = 0; int graded = 0;
         Map<String, Map<String, Double>> studentPoTotals = new HashMap<>();
-        Map<String, Map<String, Map<String, Double>>> studentPoCoTotals = new HashMap<>();
-        for (DatabaseService.StudentData sd : students) { studentPoTotals.put(sd.id, new HashMap<>()); studentPoCoTotals.put(sd.id, new HashMap<>()); }
+        for (DatabaseService.StudentData sd : students) {
+            studentPoTotals.put(sd.id, new HashMap<>());
+        }
 
+        // Accumulate obtained marks per student per PO, and track required/graded entries
         for (int quizNum=1; quizNum<=4; quizNum++) {
             for (DatabaseService.StudentMarksData smd : db.getStudentQuizMarks(courseCode, programme, quizNum, academicYear)) {
-                String po = quizIdToPO.get(smd.questionId); String co = quizIdToCO.get(smd.questionId);
-                if (po==null || co==null) continue;
+                String po = quizIdToPO.get(smd.questionId);
+                if (po==null || po.isEmpty()) continue;
                 totalRequired++;
                 if (smd.marksObtained != null) {
-                    graded++; double got = smd.marksObtained;
+                    graded++;
+                    double got = smd.marksObtained;
                     studentPoTotals.get(smd.studentId).merge(po, got, Double::sum);
-                    studentPoCoTotals.get(smd.studentId).computeIfAbsent(po,k-> new HashMap<>()).merge(co, got, Double::sum);
                 }
             }
         }
         for (DatabaseService.StudentMarksData smd : db.getStudentMidMarks(courseCode, programme, academicYear)) {
-            String po = midIdToPO.get(smd.questionId); String co = midIdToCO.get(smd.questionId);
-            if (po==null || co==null) continue;
+            String po = midIdToPO.get(smd.questionId);
+            if (po==null || po.isEmpty()) continue;
             totalRequired++;
-            if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentPoTotals.get(smd.studentId).merge(po, got, Double::sum); studentPoCoTotals.get(smd.studentId).computeIfAbsent(po,k-> new HashMap<>()).merge(co, got, Double::sum); }
+            if (smd.marksObtained != null) {
+                graded++;
+                double got = smd.marksObtained;
+                studentPoTotals.get(smd.studentId).merge(po, got, Double::sum);
+            }
         }
         for (DatabaseService.StudentMarksData smd : db.getStudentFinalMarks(courseCode, programme, academicYear)) {
-            String po = finalIdToPO.get(smd.questionId); String co = finalIdToCO.get(smd.questionId);
-            if (po==null || co==null) continue;
+            String po = finalIdToPO.get(smd.questionId);
+            if (po==null || po.isEmpty()) continue;
             totalRequired++;
-            if (smd.marksObtained != null) { graded++; double got = smd.marksObtained; studentPoTotals.get(smd.studentId).merge(po, got, Double::sum); studentPoCoTotals.get(smd.studentId).computeIfAbsent(po,k-> new HashMap<>()).merge(co, got, Double::sum); }
+            if (smd.marksObtained != null) {
+                graded++;
+                double got = smd.marksObtained;
+                studentPoTotals.get(smd.studentId).merge(po, got, Double::sum);
+            }
         }
 
         if (totalRequired == 0) throw new IllegalStateException("There are PO-mapped questions but no enrolled students to grade.");
         if (graded == 0) throw new IllegalStateException("No marks have been entered yet. Please enter marks before viewing the PO report.");
         if (graded < totalRequired) throw new IllegalStateException("Cannot view PO report. Some required mark entries are still ungraded.");
 
-        Map<String,Integer> poAttainedCounts = new HashMap<>(); for (String po : poTotal.keySet()) poAttainedCounts.put(po,0);
+        // Count students attaining each PO using only PO threshold (no CO gate)
+        Map<String,Integer> poAttainedCounts = new HashMap<>();
+        for (String po : poTotal.keySet()) poAttainedCounts.put(po,0);
         for (DatabaseService.StudentData sd : students) {
             Map<String, Double> studentPOMap = studentPoTotals.get(sd.id);
-            Map<String, Map<String, Double>> studentPOCOMap = studentPoCoTotals.get(sd.id);
             for (String po : poTotal.keySet()) {
-                double poDenom = poTotal.get(po); if (poDenom <= 0) continue;
-                Map<String,Double> coDenoms = poCoTotals.getOrDefault(po, Collections.emptyMap());
-                boolean anyCOAttained = false;
-                for (String co : coDenoms.keySet()) {
-                    double coDenom = coDenoms.get(co); if (coDenom <= 0) continue;
-                    double coGot = Optional.ofNullable(studentPOCOMap.get(po)).map(m-> m.getOrDefault(co,0.0)).orElse(0.0);
-                    if (coGot / coDenom >= coThreshold) { anyCOAttained = true; break; }
-                }
-                if (!anyCOAttained) continue;
+                double poDenom = poTotal.get(po);
+                if (poDenom <= 0) continue;
                 double poGot = studentPOMap.getOrDefault(po, 0.0);
                 if (poGot / poDenom >= poThreshold) poAttainedCounts.merge(po,1,Integer::sum);
             }

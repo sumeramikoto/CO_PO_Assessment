@@ -134,60 +134,88 @@ public class CoursesDatabaseHelper {
 
     // Remove a course (by composite key)
     public void removeCourse(String courseCode, String programme) throws SQLException {
-        // First check if course is assigned to any faculty
-        String checkAssignmentSql = "SELECT COUNT(*) FROM CourseAssignment WHERE course_code = ? AND programme = ?";
-
-        try (Connection conn = getConnection();
-             PreparedStatement checkStmt = conn.prepareStatement(checkAssignmentSql)) {
-            checkStmt.setString(1, courseCode);
-            checkStmt.setString(2, programme);
-            ResultSet rs = checkStmt.executeQuery();
-
-            if (rs.next() && rs.getInt(1) > 0) {
-                throw new SQLException("Cannot delete course. It is currently assigned to faculty members.");
-            }
-        }
-
-        // Check if course has enrollments
-        String checkEnrollmentSql = "SELECT COUNT(*) FROM Enrollment WHERE course_id = ? AND programme = ?";
-
-        try (Connection conn = getConnection();
-             PreparedStatement checkStmt = conn.prepareStatement(checkEnrollmentSql)) {
-            checkStmt.setString(1, courseCode);
-            checkStmt.setString(2, programme);
-            ResultSet rs = checkStmt.executeQuery();
-
-            if (rs.next() && rs.getInt(1) > 0) {
-                throw new SQLException("Cannot delete course. Students are enrolled in this course.");
-            }
-        }
-
-        // If no dependencies, delete CO/PO mappings and then the course
-        String deleteCourseCo = "DELETE FROM Course_CO WHERE course_code = ? AND programme = ?";
-        String deleteCoursePo = "DELETE FROM Course_PO WHERE course_code = ? AND programme = ?";
-        String deleteSql = "DELETE FROM Course WHERE course_code = ? AND programme = ?";
-
-        try (Connection conn = getConnection();
-             PreparedStatement delCo = conn.prepareStatement(deleteCourseCo);
-             PreparedStatement delPo = conn.prepareStatement(deleteCoursePo);
-             PreparedStatement stmt = conn.prepareStatement(deleteSql)) {
+        // Use a single connection + transaction to avoid race conditions
+        try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
             try {
-                delCo.setString(1, courseCode);
-                delCo.setString(2, programme);
-                delCo.executeUpdate();
-
-                delPo.setString(1, courseCode);
-                delPo.setString(2, programme);
-                delPo.executeUpdate();
-
-                stmt.setString(1, courseCode);
-                stmt.setString(2, programme);
-
-                int rowsAffected = stmt.executeUpdate();
-                if (rowsAffected == 0) {
-                    throw new SQLException("Course not found or could not be deleted");
+                // First check if course is assigned to any faculty
+                String checkAssignmentSql = "SELECT COUNT(*) FROM CourseAssignment WHERE course_code = ? AND programme = ?";
+                try (PreparedStatement checkStmt = conn.prepareStatement(checkAssignmentSql)) {
+                    checkStmt.setString(1, courseCode);
+                    checkStmt.setString(2, programme);
+                    try (ResultSet rs = checkStmt.executeQuery()) {
+                        if (rs.next() && rs.getInt(1) > 0) {
+                            throw new SQLException("Cannot delete course. It is currently assigned to faculty members.");
+                        }
+                    }
                 }
+
+                // Check if course has enrollments
+                String checkEnrollmentSql = "SELECT COUNT(*) FROM Enrollment WHERE course_id = ? AND programme = ?";
+                try (PreparedStatement checkStmt = conn.prepareStatement(checkEnrollmentSql)) {
+                    checkStmt.setString(1, courseCode);
+                    checkStmt.setString(2, programme);
+                    try (ResultSet rs = checkStmt.executeQuery()) {
+                        if (rs.next() && rs.getInt(1) > 0) {
+                            throw new SQLException("Cannot delete course. Students are enrolled in this course.");
+                        }
+                    }
+                }
+
+                // If no blocking dependencies, delete child rows referencing Course
+                // 1) Remove CO/PO mappings
+                String deleteCourseCo = "DELETE FROM Course_CO WHERE course_code = ? AND programme = ?";
+                String deleteCoursePo = "DELETE FROM Course_PO WHERE course_code = ? AND programme = ?";
+                try (PreparedStatement delCo = conn.prepareStatement(deleteCourseCo);
+                     PreparedStatement delPo = conn.prepareStatement(deleteCoursePo)) {
+                    delCo.setString(1, courseCode);
+                    delCo.setString(2, programme);
+                    delCo.executeUpdate();
+
+                    delPo.setString(1, courseCode);
+                    delPo.setString(2, programme);
+                    delPo.executeUpdate();
+                }
+
+                // 2) Remove culmination course mapping if any
+                String deleteCulmination = "DELETE FROM CulminationCourse WHERE course_code = ? AND programme = ?";
+                try (PreparedStatement delCulm = conn.prepareStatement(deleteCulmination)) {
+                    delCulm.setString(1, courseCode);
+                    delCulm.setString(2, programme);
+                    delCulm.executeUpdate();
+                }
+
+                // 3) Remove assessments (these will cascade delete their questions and marks)
+                String deleteQuiz = "DELETE FROM Quiz WHERE course_id = ? AND programme = ?";
+                String deleteMid = "DELETE FROM `Mid` WHERE course_id = ? AND programme = ?";
+                String deleteFinal = "DELETE FROM `Final` WHERE course_id = ? AND programme = ?";
+                try (PreparedStatement delQuiz = conn.prepareStatement(deleteQuiz);
+                     PreparedStatement delMid = conn.prepareStatement(deleteMid);
+                     PreparedStatement delFinal = conn.prepareStatement(deleteFinal)) {
+                    delQuiz.setString(1, courseCode);
+                    delQuiz.setString(2, programme);
+                    delQuiz.executeUpdate();
+
+                    delMid.setString(1, courseCode);
+                    delMid.setString(2, programme);
+                    delMid.executeUpdate();
+
+                    delFinal.setString(1, courseCode);
+                    delFinal.setString(2, programme);
+                    delFinal.executeUpdate();
+                }
+
+                // 4) Finally, delete the course itself
+                String deleteSql = "DELETE FROM Course WHERE course_code = ? AND programme = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(deleteSql)) {
+                    stmt.setString(1, courseCode);
+                    stmt.setString(2, programme);
+                    int rowsAffected = stmt.executeUpdate();
+                    if (rowsAffected == 0) {
+                        throw new SQLException("Course not found or could not be deleted");
+                    }
+                }
+
                 conn.commit();
             } catch (SQLException ex) {
                 conn.rollback();

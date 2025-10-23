@@ -178,17 +178,80 @@ public class DatabaseService {
         }
     }
 
+    // New helpers: allowed COs/POs for a course
+    public List<String> getAllowedCOsForCourse(String courseCode, String programme) throws SQLException {
+        String sql = "SELECT co.co_number FROM Course_CO cc JOIN CO co ON cc.co_id = co.id WHERE cc.course_code=? AND cc.programme=? ORDER BY co.id";
+        List<String> out = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, courseCode);
+            ps.setString(2, programme);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) out.add(rs.getString(1));
+            }
+        }
+        return out;
+    }
+    public List<String> getAllowedPOsForCourse(String courseCode, String programme) throws SQLException {
+        String sql = "SELECT po.po_number FROM Course_PO cp JOIN PO po ON cp.po_id = po.id WHERE cp.course_code=? AND cp.programme=? ORDER BY po.id";
+        List<String> out = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, courseCode);
+            ps.setString(2, programme);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) out.add(rs.getString(1));
+            }
+        }
+        return out;
+    }
+
     public void saveQuizQuestion(String courseCode, String programme, int quizNumber, String title, double marks, String co, String po, String academicYear) throws SQLException {
-        String sql = "INSERT INTO QuizQuestion (quiz_id, title, marks, co_id, po_id) SELECT q.id, ?, ?, co.id, po.id FROM Quiz q, CO co, PO po WHERE q.course_id=? AND q.programme=? AND q.quiz_number=? AND q.academic_year=? AND co.co_number=? AND po.po_number=?";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,title); ps.setDouble(2,marks); ps.setString(3,courseCode); ps.setString(4,programme); ps.setInt(5,quizNumber); ps.setString(6,academicYear); ps.setString(7,co); ps.setString(8,po); ps.executeUpdate(); }
+        // Only allow CO/PO that are mapped to this course via Course_CO and Course_PO
+        String sql = "INSERT INTO QuizQuestion (quiz_id, title, marks, co_id, po_id) " +
+                "SELECT q.id, ?, ?, co.id, po.id " +
+                "FROM Quiz q, CO co, PO po " +
+                "WHERE q.course_id=? AND q.programme=? AND q.quiz_number=? AND q.academic_year=? " +
+                "AND co.co_number=? AND po.po_number=? " +
+                "AND EXISTS (SELECT 1 FROM Course_CO cc WHERE cc.course_code=q.course_id AND cc.programme=q.programme AND cc.co_id=co.id) " +
+                "AND EXISTS (SELECT 1 FROM Course_PO cp WHERE cp.course_code=q.course_id AND cp.programme=q.programme AND cp.po_id=po.id)";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1,title); ps.setDouble(2,marks);
+            ps.setString(3,courseCode); ps.setString(4,programme); ps.setInt(5,quizNumber); ps.setString(6,academicYear);
+            ps.setString(7,co); ps.setString(8,po);
+            int updated = ps.executeUpdate();
+            if (updated == 0) throw new SQLException("Selected CO/PO not allowed for this course");
+        }
     }
     public void saveMidQuestion(String courseCode, String programme, String title, double marks, String co, String po, String academicYear) throws SQLException {
-        String sql = "INSERT INTO MidQuestion (mid_id, title, marks, co_id, po_id) SELECT m.id, ?, ?, co.id, po.id FROM Mid m, CO co, PO po WHERE m.course_id=? AND m.programme=? AND m.academic_year=? AND co.co_number=? AND po.po_number=?";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,title); ps.setDouble(2,marks); ps.setString(3,courseCode); ps.setString(4,programme); ps.setString(5,academicYear); ps.setString(6,co); ps.setString(7,po); ps.executeUpdate(); }
+        String sql = "INSERT INTO MidQuestion (mid_id, title, marks, co_id, po_id) " +
+                "SELECT m.id, ?, ?, co.id, po.id " +
+                "FROM Mid m, CO co, PO po " +
+                "WHERE m.course_id=? AND m.programme=? AND m.academic_year=? " +
+                "AND co.co_number=? AND po.po_number=? " +
+                "AND EXISTS (SELECT 1 FROM Course_CO cc WHERE cc.course_code=m.course_id AND cc.programme=m.programme AND cc.co_id=co.id) " +
+                "AND EXISTS (SELECT 1 FROM Course_PO cp WHERE cp.course_code=m.course_id AND cp.programme=m.programme AND cp.po_id=po.id)";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1,title); ps.setDouble(2,marks);
+            ps.setString(3,courseCode); ps.setString(4,programme); ps.setString(5,academicYear);
+            ps.setString(6,co); ps.setString(7,po);
+            int updated = ps.executeUpdate();
+            if (updated == 0) throw new SQLException("Selected CO/PO not allowed for this course");
+        }
     }
     public void saveFinalQuestion(String courseCode, String programme, String title, double marks, String co, String po, String academicYear) throws SQLException {
-        String sql = "INSERT INTO FinalQuestion (final_id, title, marks, co_id, po_id) SELECT f.id, ?, ?, co.id, po.id FROM Final f, CO co, PO po WHERE f.course_id=? AND f.programme=? AND f.academic_year=? AND co.co_number=? AND po.po_number=?";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,title); ps.setDouble(2,marks); ps.setString(3,courseCode); ps.setString(4,programme); ps.setString(5,academicYear); ps.setString(6,co); ps.setString(7,po); ps.executeUpdate(); }
+        String sql = "INSERT INTO FinalQuestion (final_id, title, marks, co_id, po_id) " +
+                "SELECT f.id, ?, ?, co.id, po.id " +
+                "FROM Final f, CO co, PO po " +
+                "WHERE f.course_id=? AND f.programme=? AND f.academic_year=? " +
+                "AND co.co_number=? AND po.po_number=? " +
+                "AND EXISTS (SELECT 1 FROM Course_CO cc WHERE cc.course_code=f.course_id AND cc.programme=f.programme AND cc.co_id=co.id) " +
+                "AND EXISTS (SELECT 1 FROM Course_PO cp WHERE cp.course_code=f.course_id AND cp.programme=f.programme AND cp.po_id=po.id)";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1,title); ps.setDouble(2,marks);
+            ps.setString(3,courseCode); ps.setString(4,programme); ps.setString(5,academicYear);
+            ps.setString(6,co); ps.setString(7,po);
+            int updated = ps.executeUpdate();
+            if (updated == 0) throw new SQLException("Selected CO/PO not allowed for this course");
+        }
     }
 
     // ------------------------------------------------------------------
@@ -349,9 +412,9 @@ public class DatabaseService {
         }
         if (eligible.isEmpty()) return; // no matching students
         ensureEnrollmentYearColumn();
-        String sql = "INSERT IGNORE INTO Enrollment (student_id, course_id, academic_year) VALUES (?,?,?)";
+        String sql = "INSERT IGNORE INTO Enrollment (student_id, course_id, programme, academic_year) VALUES (?,?,?,?)";
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            for (String sid : eligible) { ps.setString(1,sid); ps.setString(2,courseId); ps.setString(3,academicYear); ps.addBatch(); }
+            for (String sid : eligible) { ps.setString(1,sid); ps.setString(2,courseId); ps.setString(3,courseProg); ps.setString(4,academicYear); ps.addBatch(); }
             ps.executeBatch();
         } catch (SQLException ex) {
             if (ex.getMessage()!=null && ex.getMessage().toLowerCase().contains("unknown column 'academic_year'")) {
@@ -475,3 +538,4 @@ public class DatabaseService {
         return list;
     }
 }
+

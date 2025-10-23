@@ -23,6 +23,17 @@ CREATE TABLE Course (
                         PRIMARY KEY (course_code, programme)
 );
 
+-- CO and PO master tables
+CREATE TABLE CO (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    co_number VARCHAR(10) NOT NULL -- CO1, CO2, etc.
+);
+
+CREATE TABLE PO (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    po_number VARCHAR(10) NOT NULL UNIQUE -- PO1, PO2, etc.
+);
+
 -- Updated: include programme in FK to Course; faculty_id now VARCHAR(20)
 CREATE TABLE CourseAssignment (
                                   faculty_id VARCHAR(20) NOT NULL,
@@ -46,8 +57,7 @@ CREATE TABLE Course_CO (
                             programme VARCHAR(11) NOT NULL,
                             co_id INT NOT NULL,
                             FOREIGN KEY (course_code, programme) REFERENCES Course(course_code, programme),
-                            FOREIGN KEY (co_id) REFERENCES CO(id),
-                            UNIQUE (course_code, programme, co_id)
+                            FOREIGN KEY (co_id) REFERENCES CO(id)
 );
 
 CREATE TABLE Course_PO (
@@ -55,8 +65,7 @@ CREATE TABLE Course_PO (
                             programme VARCHAR(11) NOT NULL,
                             po_id INT NOT NULL,
                             FOREIGN KEY (course_code, programme) REFERENCES Course(course_code, programme),
-                            FOREIGN KEY (po_id) REFERENCES PO(id),
-                            UNIQUE (course_code, programme, po_id)
+                            FOREIGN KEY (po_id) REFERENCES PO(id)
 );
 
 CREATE TABLE Student (
@@ -78,17 +87,6 @@ CREATE TABLE Enrollment (
                             FOREIGN KEY (student_id) REFERENCES Student(id),
                             FOREIGN KEY (course_id, programme) REFERENCES Course(course_code, programme),
                             UNIQUE (student_id, course_id, programme, academic_year)
-);
-
--- CO and PO master tables
-CREATE TABLE CO (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    co_number VARCHAR(10) NOT NULL -- CO1, CO2, etc.
-);
-
-CREATE TABLE PO (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    po_number VARCHAR(10) NOT NULL UNIQUE -- PO1, PO2, etc.
 );
 
 CREATE TABLE THRESHOLDS (

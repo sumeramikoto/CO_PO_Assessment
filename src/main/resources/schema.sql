@@ -35,6 +35,30 @@ CREATE TABLE CourseAssignment (
                                   UNIQUE (course_code, programme, academic_year, department)
 );
 
+CREATE TABLE CulminationCourse (
+                                    course_code VARCHAR(20),
+                                    programme VARCHAR(11),
+                                    FOREIGN KEY (course_code, programme) REFERENCES Course(course_code, programme)
+);
+
+CREATE TABLE Course_CO (
+                            course_code VARCHAR(20) NOT NULL,
+                            programme VARCHAR(11) NOT NULL,
+                            co_id INT NOT NULL,
+                            FOREIGN KEY (course_code, programme) REFERENCES Course(course_code, programme),
+                            FOREIGN KEY (co_id) REFERENCES CO(id),
+                            UNIQUE (course_code, programme, co_id)
+);
+
+CREATE TABLE Course_PO (
+                            course_code VARCHAR(20) NOT NULL,
+                            programme VARCHAR(11) NOT NULL,
+                            po_id INT NOT NULL,
+                            FOREIGN KEY (course_code, programme) REFERENCES Course(course_code, programme),
+                            FOREIGN KEY (po_id) REFERENCES PO(id),
+                            UNIQUE (course_code, programme, po_id)
+);
+
 CREATE TABLE Student (
                          id VARCHAR(9) PRIMARY KEY,  -- Manual ID assignment (e.g., student ID/roll number)
                          batch INT NOT NULL,
@@ -65,6 +89,11 @@ CREATE TABLE CO (
 CREATE TABLE PO (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     po_number VARCHAR(10) NOT NULL UNIQUE -- PO1, PO2, etc.
+);
+
+CREATE TABLE THRESHOLDS (
+                        type VARCHAR(2),
+                        percentage DECIMAL(4, 2)
 );
 
 -- Assessment tables (added programme for FK to Course)

@@ -56,6 +56,82 @@ public class CoursesDatabaseHelper {
         }
     }
 
+    // Assign a set of CO numbers (e.g., [1,2,3]) to a course (code + programme)
+    public void assignCOsToCourse(String courseCode, String programme, List<Integer> coNumbers) throws SQLException {
+        if (coNumbers == null || coNumbers.isEmpty()) return;
+        String selectCoIdSql = "SELECT id FROM CO WHERE co_number = ?";
+        String insertSql = "INSERT INTO Course_CO (course_code, programme, co_id) VALUES (?, ?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement sel = conn.prepareStatement(selectCoIdSql);
+             PreparedStatement ins = conn.prepareStatement(insertSql)) {
+            conn.setAutoCommit(false);
+            try {
+                for (Integer n : coNumbers) {
+                    if (n == null) continue;
+                    String label = "CO" + n;
+                    Integer coId = null;
+                    sel.setString(1, label);
+                    try (ResultSet rs = sel.executeQuery()) {
+                        if (rs.next()) coId = rs.getInt(1);
+                    }
+                    if (coId == null) throw new SQLException("Unknown CO number: " + n);
+                    ins.setString(1, courseCode);
+                    ins.setString(2, programme);
+                    ins.setInt(3, coId);
+                    try {
+                        ins.executeUpdate();
+                    } catch (SQLIntegrityConstraintViolationException dup) {
+                        // duplicate mapping -> ignore
+                    }
+                }
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
+    // Assign a set of PO numbers (e.g., [1,2,5]) to a course (code + programme)
+    public void assignPOsToCourse(String courseCode, String programme, List<Integer> poNumbers) throws SQLException {
+        if (poNumbers == null || poNumbers.isEmpty()) return;
+        String selectPoIdSql = "SELECT id FROM PO WHERE po_number = ?";
+        String insertSql = "INSERT INTO Course_PO (course_code, programme, po_id) VALUES (?, ?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement sel = conn.prepareStatement(selectPoIdSql);
+             PreparedStatement ins = conn.prepareStatement(insertSql)) {
+            conn.setAutoCommit(false);
+            try {
+                for (Integer n : poNumbers) {
+                    if (n == null) continue;
+                    String label = "PO" + n;
+                    Integer poId = null;
+                    sel.setString(1, label);
+                    try (ResultSet rs = sel.executeQuery()) {
+                        if (rs.next()) poId = rs.getInt(1);
+                    }
+                    if (poId == null) throw new SQLException("Unknown PO number: " + n);
+                    ins.setString(1, courseCode);
+                    ins.setString(2, programme);
+                    ins.setInt(3, poId);
+                    try {
+                        ins.executeUpdate();
+                    } catch (SQLIntegrityConstraintViolationException dup) {
+                        // duplicate mapping -> ignore
+                    }
+                }
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
     // Remove a course (by composite key)
     public void removeCourse(String courseCode, String programme) throws SQLException {
         // First check if course is assigned to any faculty
@@ -86,17 +162,38 @@ public class CoursesDatabaseHelper {
             }
         }
 
-        // If no dependencies, delete the course
+        // If no dependencies, delete CO/PO mappings and then the course
+        String deleteCourseCo = "DELETE FROM Course_CO WHERE course_code = ? AND programme = ?";
+        String deleteCoursePo = "DELETE FROM Course_PO WHERE course_code = ? AND programme = ?";
         String deleteSql = "DELETE FROM Course WHERE course_code = ? AND programme = ?";
 
         try (Connection conn = getConnection();
+             PreparedStatement delCo = conn.prepareStatement(deleteCourseCo);
+             PreparedStatement delPo = conn.prepareStatement(deleteCoursePo);
              PreparedStatement stmt = conn.prepareStatement(deleteSql)) {
-            stmt.setString(1, courseCode);
-            stmt.setString(2, programme);
+            conn.setAutoCommit(false);
+            try {
+                delCo.setString(1, courseCode);
+                delCo.setString(2, programme);
+                delCo.executeUpdate();
 
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new SQLException("Course not found or could not be deleted");
+                delPo.setString(1, courseCode);
+                delPo.setString(2, programme);
+                delPo.executeUpdate();
+
+                stmt.setString(1, courseCode);
+                stmt.setString(2, programme);
+
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new SQLException("Course not found or could not be deleted");
+                }
+                conn.commit();
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            } finally {
+                conn.setAutoCommit(true);
             }
         }
     }

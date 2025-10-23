@@ -443,51 +443,6 @@ public class DatabaseService {
     }
 
     // ------------------------------------------------------------------
-    // Cohort helpers (programmes, batches, courses per batch+programme+AY)
-    // ------------------------------------------------------------------
-    public List<String> getProgrammes() throws SQLException {
-        String sql = "SELECT DISTINCT programme FROM Student WHERE programme IS NOT NULL AND programme<>'' ORDER BY programme";
-        List<String> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(rs.getString(1)); }
-        if (list.isEmpty()) {
-            // Fallback to Course table if Student has none
-            try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement("SELECT DISTINCT programme FROM Course WHERE programme IS NOT NULL AND programme<>'' ORDER BY programme"); ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(rs.getString(1)); }
-        }
-        return list;
-    }
-
-    public List<Integer> getBatches() throws SQLException {
-        String sql = "SELECT DISTINCT batch FROM Student WHERE batch IS NOT NULL ORDER BY batch DESC";
-        List<Integer> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(rs.getInt(1)); }
-        return list;
-    }
-
-    public List<String> getCoursesForCohort(int batch, String programme, String academicYear) throws SQLException {
-        String sql = "SELECT DISTINCT c.course_code, c.course_name FROM Enrollment e JOIN Student s ON e.student_id=s.id JOIN Course c ON e.course_id=c.course_code AND e.programme=c.programme WHERE s.batch=? AND s.programme=? AND e.academic_year=? ORDER BY c.course_code";
-        List<String> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, batch); ps.setString(2, programme); ps.setString(3, academicYear);
-            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(rs.getString(1) + " - " + rs.getString(2)); }
-        }
-        return list;
-    }
-
-    public List<StudentData> getStudentsForCohortAndCourses(int batch, String programme, String academicYear, List<String> courseCodes) throws SQLException {
-        if (courseCodes == null || courseCodes.isEmpty()) return new ArrayList<>();
-        String placeholders = String.join(",", java.util.Collections.nCopies(courseCodes.size(), "?"));
-        String sql = "SELECT DISTINCT s.id,s.name,s.email,s.batch,s.programme,s.department FROM Student s JOIN Enrollment e ON s.id=e.student_id WHERE s.batch=? AND s.programme=? AND e.academic_year=? AND e.course_id IN ("+placeholders+") ORDER BY s.id";
-        List<StudentData> list = new ArrayList<>();
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            int idx = 1;
-            ps.setInt(idx++, batch); ps.setString(idx++, programme); ps.setString(idx++, academicYear);
-            for (String code : courseCodes) ps.setString(idx++, code);
-            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(new StudentData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6))); }
-        }
-        return list;
-    }
-
-    // ------------------------------------------------------------------
     // Data classes
     // ------------------------------------------------------------------
     public static class QuestionData { public final int id; public final String title; public final double marks; public final String co; public final String po; public QuestionData(int id,String title,double marks,String co,String po){this.id=id;this.title=title;this.marks=marks;this.co=co;this.po=po;} }

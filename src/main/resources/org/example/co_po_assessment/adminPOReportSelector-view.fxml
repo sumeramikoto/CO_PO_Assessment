@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.co_po_assessment.Report_controller.AdminPOReportSelectorController"
+            prefWidth="900.0" prefHeight="600.0">
+    <top>
+        <VBox spacing="8.0" BorderPane.alignment="CENTER_LEFT" style="-fx-padding: 12;">
+            <children>
+                <Label text="PO Report - Select Cohort and Courses" style="-fx-font-size:18px; -fx-font-weight:bold;" />
+                <GridPane hgap="10" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="15" />
+                        <ColumnConstraints percentWidth="35" />
+                        <ColumnConstraints percentWidth="15" />
+                        <ColumnConstraints percentWidth="35" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="30" />
+                        <RowConstraints minHeight="30" />
+                        <RowConstraints minHeight="30" />
+                    </rowConstraints>
+                    <children>
+                        <Label text="Programme" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="programmeCombo" prefWidth="250" promptText="Select programme" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <Label text="Batch" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                        <ComboBox fx:id="batchCombo" prefWidth="200" promptText="Select batch" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+                        <Label text="Academic Year" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="yearCombo" prefWidth="200" promptText="Select year" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <!-- New threshold fields -->
+                        <Label text="PO threshold (%)" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextField fx:id="poThresholdField" promptText="0-100" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label text="Cohort threshold (%)" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                        <TextField fx:id="cohortThresholdField" promptText="0-100" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+                    </children>
+                </GridPane>
+                <Separator />
+                <GridPane hgap="10" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="15" />
+                        <ColumnConstraints percentWidth="35" />
+                        <ColumnConstraints percentWidth="15" />
+                        <ColumnConstraints percentWidth="35" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="30" />
+                        <RowConstraints minHeight="30" />
+                    </rowConstraints>
+                    <children>
+                        <Label text="Course 1" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="course1Combo" prefWidth="300" promptText="Select course" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <Label text="Course 2" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                        <ComboBox fx:id="course2Combo" prefWidth="300" promptText="Select course" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                        <Label text="Course 3" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="course3Combo" prefWidth="300" promptText="Select course" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    </children>
+                </GridPane>
+            </children>
+        </VBox>
+    </top>
+    <center>
+        <VBox spacing="6.0" BorderPane.alignment="CENTER" style="-fx-padding: 12;">
+            <children>
+                <Label text="Students in selected cohort/courses" />
+                <TableView fx:id="studentsTable" prefHeight="400">
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="150"/>
+                        <TableColumn fx:id="colName" text="Name" prefWidth="300"/>
+                        <TableColumn fx:id="colEmail" text="Email" prefWidth="300"/>
+                        <TableColumn fx:id="colBatch" text="Batch" prefWidth="100"/>
+                    </columns>
+                </TableView>
+            </children>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox spacing="8.0" BorderPane.alignment="CENTER_RIGHT" style="-fx-padding: 10;">
+            <children>
+                <Label fx:id="statusLabel" text="" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="Close" onAction="#onClose" />
+                <Button fx:id="generateButton" text="Generate Report" defaultButton="true" onAction="#onGenerate" disable="true" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

@@ -90,7 +90,7 @@ CREATE TABLE Enrollment (
 );
 
 CREATE TABLE THRESHOLDS (
-                        type VARCHAR(2),
+                        type VARCHAR(25),
                         percentage DECIMAL(4, 2)
 );
 

@@ -189,8 +189,21 @@ public class ManageCourseQuestionsController implements Initializable {
         ChoiceBox<String> coChoice = new ChoiceBox<>();
         ChoiceBox<String> poChoice = new ChoiceBox<>();
 
-        coChoice.getItems().addAll("CO1","CO2","CO3","CO4","CO5","CO6","CO7","CO8","CO9","CO10","CO11","CO12","CO13","CO14","CO15","CO16","CO17","CO18","CO19","CO20");
-        poChoice.getItems().addAll("PO1","PO2","PO3","PO4","PO5","PO6","PO7","PO8","PO9","PO10","PO11","PO12");
+        // Load allowed CO/PO for this course/programme
+        List<String> allowedCOs = List.of();
+        List<String> allowedPOs = List.of();
+        try {
+            if (courseAssignment != null) {
+                allowedCOs = db.getAllowedCOsForCourse(courseAssignment.courseCode, courseAssignment.programme);
+                allowedPOs = db.getAllowedPOsForCourse(courseAssignment.courseCode, courseAssignment.programme);
+            }
+        } catch (Exception e) {
+            Alert warn = new Alert(Alert.AlertType.ERROR, "Could not fetch allowed CO/PO: " + e.getMessage(), ButtonType.OK);
+            warn.setHeaderText(null);
+            warn.showAndWait();
+        }
+        coChoice.getItems().setAll(allowedCOs);
+        poChoice.getItems().setAll(allowedPOs);
 
         GridPane grid = new GridPane();
         grid.setHgap(10); grid.setVgap(10);
@@ -207,6 +220,8 @@ public class ManageCourseQuestionsController implements Initializable {
             String no = numberField.getText().trim();
             String marksTxt = marksField.getText().trim();
             boolean valid = !no.isEmpty() && coChoice.getValue() != null && poChoice.getValue() != null;
+            // Also require that there are allowed CO/PO options
+            if (coChoice.getItems().isEmpty() || poChoice.getItems().isEmpty()) valid = false;
             double m = -1;
             try { m = Double.parseDouble(marksTxt); } catch (Exception ignored) {}
             if (m <= 0) valid = false;
@@ -218,6 +233,12 @@ public class ManageCourseQuestionsController implements Initializable {
         marksField.textProperty().addListener((obs,o,n)-> validate.run());
         coChoice.valueProperty().addListener((obs,o,n)-> validate.run());
         poChoice.valueProperty().addListener((obs,o,n)-> validate.run());
+
+        if (coChoice.getItems().isEmpty() || poChoice.getItems().isEmpty()) {
+            Alert info = new Alert(Alert.AlertType.INFORMATION, "This course has no CO/PO mappings. Please assign COs and POs to the course first.", ButtonType.OK);
+            info.setHeaderText(null);
+            info.showAndWait();
+        }
 
         dialog.setResultConverter(btn -> {
             if (btn == addBtnType) {

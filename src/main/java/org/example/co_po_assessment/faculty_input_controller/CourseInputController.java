@@ -9,7 +9,7 @@ import org.example.co_po_assessment.DB_helper.CoursesDatabaseHelper;
 import org.example.co_po_assessment.admin_input_controller.ManageCoursesController;
 
 import java.net.URL;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class CourseInputController implements Initializable {
     @FXML
@@ -24,6 +24,10 @@ public class CourseInputController implements Initializable {
     TextField departmentTextField;
     @FXML
     TextField programmeTextField;
+    @FXML
+    TextField cosTextField; // e.g., 1-5 or 1,2,5
+    @FXML
+    TextField posTextField; // e.g., 1,2,5
     @FXML
     Button confirmButton;
     @FXML
@@ -65,10 +69,14 @@ public class CourseInputController implements Initializable {
         String department = departmentTextField.getText().trim().toUpperCase();
         String programme = programmeTextField.getText().trim();
 
+        // Parse validated outcomes
+        OutcomeParseResult coParsed = parseAndValidateOutcomes(cosTextField == null ? null : cosTextField.getText(), 20, "CO");
+        OutcomeParseResult poParsed = parseAndValidateOutcomes(posTextField == null ? null : posTextField.getText(), 12, "PO");
+
         try {
-            // Call parent controller to add the course
+            // Call parent controller to add the course and assign CO/POs
             if (parentController != null) {
-                parentController.addNewCourse(courseCode, courseName, credits, department, programme);
+                parentController.addNewCourse(courseCode, courseName, credits, department, programme, coParsed.numbers, poParsed.numbers);
             }
 
             // Close the current window
@@ -139,6 +147,18 @@ public class CourseInputController implements Initializable {
             errors.append("Programme must match the format: BSc in XX, BSc in XXX, MSc in XX/XXX, PhD in XX/XXX, or BBA in XX/XXX (where the last part is 2 or 3 uppercase letters).\n");
         }
 
+        // Optional: Validate COs/POs format and bounds if provided
+        String coRaw = cosTextField == null ? null : cosTextField.getText();
+        if (coRaw != null && !coRaw.trim().isEmpty()) {
+            OutcomeParseResult r = parseAndValidateOutcomes(coRaw, 20, "CO");
+            if (r.error != null) errors.append(r.error).append('\n');
+        }
+        String poRaw = posTextField == null ? null : posTextField.getText();
+        if (poRaw != null && !poRaw.trim().isEmpty()) {
+            OutcomeParseResult r = parseAndValidateOutcomes(poRaw, 12, "PO");
+            if (r.error != null) errors.append(r.error).append('\n');
+        }
+
         // Check if course (code + programme) already exists
         try {
             if (!courseCode.isEmpty() && !programme.isEmpty() && databaseHelper.courseExists(courseCode.toUpperCase(), programme)) {
@@ -175,6 +195,50 @@ public class CourseInputController implements Initializable {
         if (programme == null) return false;
         String trimmed = programme.trim().replaceAll("\\s+", " ");
         return trimmed.matches("(BSc|MSc|PhD|BBA) in [A-Z]{2,3}");
+    }
+
+    private static class OutcomeParseResult {
+        final List<Integer> numbers; final String error;
+        OutcomeParseResult(List<Integer> numbers, String error) { this.numbers = numbers; this.error = error; }
+    }
+
+    private static OutcomeParseResult parseAndValidateOutcomes(String raw, int maxAllowed, String label) {
+        List<Integer> nums = new ArrayList<>();
+        if (raw == null || raw.trim().isEmpty()) return new OutcomeParseResult(nums, null);
+        String s = raw.trim().replaceAll("\\s+", " ");
+        // Normalize label prefixes like CO1 or PO2 by stripping letters
+        s = s.replaceAll("(?i)CO", "").replaceAll("(?i)PO", "");
+        String[] parts = s.split("[ ,;]+");
+        List<String> invalid = new ArrayList<>();
+        for (String part : parts) {
+            if (part.isBlank()) continue;
+            if (part.contains("-")) {
+                String[] ab = part.split("-");
+                if (ab.length != 2) { invalid.add(part); continue; }
+                try {
+                    int a = Integer.parseInt(ab[0].trim());
+                    int b = Integer.parseInt(ab[1].trim());
+                    if (a > b) { invalid.add(part); continue; }
+                    for (int x=a; x<=b; x++) {
+                        if (x < 1 || x > maxAllowed) { invalid.add(String.valueOf(x)); continue; }
+                        if (!nums.contains(x)) nums.add(x);
+                    }
+                } catch (NumberFormatException nfe) {
+                    invalid.add(part);
+                }
+            } else {
+                try {
+                    int v = Integer.parseInt(part.trim());
+                    if (v < 1 || v > maxAllowed) invalid.add(part);
+                    else if (!nums.contains(v)) nums.add(v);
+                } catch (NumberFormatException nfe) {
+                    invalid.add(part);
+                }
+            }
+        }
+        Collections.sort(nums);
+        String error = invalid.isEmpty() ? null : (label + " values out of range or invalid: " + String.join(", ", invalid));
+        return new OutcomeParseResult(nums, error);
     }
 
     /**

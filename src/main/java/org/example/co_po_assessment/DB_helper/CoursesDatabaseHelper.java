@@ -56,47 +56,172 @@ public class CoursesDatabaseHelper {
         }
     }
 
+    // Assign a set of CO numbers (e.g., [1,2,3]) to a course (code + programme)
+    public void assignCOsToCourse(String courseCode, String programme, List<Integer> coNumbers) throws SQLException {
+        if (coNumbers == null || coNumbers.isEmpty()) return;
+        String selectCoIdSql = "SELECT id FROM CO WHERE co_number = ?";
+        String insertSql = "INSERT INTO Course_CO (course_code, programme, co_id) VALUES (?, ?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement sel = conn.prepareStatement(selectCoIdSql);
+             PreparedStatement ins = conn.prepareStatement(insertSql)) {
+            conn.setAutoCommit(false);
+            try {
+                for (Integer n : coNumbers) {
+                    if (n == null) continue;
+                    String label = "CO" + n;
+                    Integer coId = null;
+                    sel.setString(1, label);
+                    try (ResultSet rs = sel.executeQuery()) {
+                        if (rs.next()) coId = rs.getInt(1);
+                    }
+                    if (coId == null) throw new SQLException("Unknown CO number: " + n);
+                    ins.setString(1, courseCode);
+                    ins.setString(2, programme);
+                    ins.setInt(3, coId);
+                    try {
+                        ins.executeUpdate();
+                    } catch (SQLIntegrityConstraintViolationException dup) {
+                        // duplicate mapping -> ignore
+                    }
+                }
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
+    // Assign a set of PO numbers (e.g., [1,2,5]) to a course (code + programme)
+    public void assignPOsToCourse(String courseCode, String programme, List<Integer> poNumbers) throws SQLException {
+        if (poNumbers == null || poNumbers.isEmpty()) return;
+        String selectPoIdSql = "SELECT id FROM PO WHERE po_number = ?";
+        String insertSql = "INSERT INTO Course_PO (course_code, programme, po_id) VALUES (?, ?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement sel = conn.prepareStatement(selectPoIdSql);
+             PreparedStatement ins = conn.prepareStatement(insertSql)) {
+            conn.setAutoCommit(false);
+            try {
+                for (Integer n : poNumbers) {
+                    if (n == null) continue;
+                    String label = "PO" + n;
+                    Integer poId = null;
+                    sel.setString(1, label);
+                    try (ResultSet rs = sel.executeQuery()) {
+                        if (rs.next()) poId = rs.getInt(1);
+                    }
+                    if (poId == null) throw new SQLException("Unknown PO number: " + n);
+                    ins.setString(1, courseCode);
+                    ins.setString(2, programme);
+                    ins.setInt(3, poId);
+                    try {
+                        ins.executeUpdate();
+                    } catch (SQLIntegrityConstraintViolationException dup) {
+                        // duplicate mapping -> ignore
+                    }
+                }
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
     // Remove a course (by composite key)
     public void removeCourse(String courseCode, String programme) throws SQLException {
-        // First check if course is assigned to any faculty
-        String checkAssignmentSql = "SELECT COUNT(*) FROM CourseAssignment WHERE course_code = ? AND programme = ?";
+        // Use a single connection + transaction to avoid race conditions
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                // First check if course is assigned to any faculty
+                String checkAssignmentSql = "SELECT COUNT(*) FROM CourseAssignment WHERE course_code = ? AND programme = ?";
+                try (PreparedStatement checkStmt = conn.prepareStatement(checkAssignmentSql)) {
+                    checkStmt.setString(1, courseCode);
+                    checkStmt.setString(2, programme);
+                    try (ResultSet rs = checkStmt.executeQuery()) {
+                        if (rs.next() && rs.getInt(1) > 0) {
+                            throw new SQLException("Cannot delete course. It is currently assigned to faculty members.");
+                        }
+                    }
+                }
 
-        try (Connection conn = getConnection();
-             PreparedStatement checkStmt = conn.prepareStatement(checkAssignmentSql)) {
-            checkStmt.setString(1, courseCode);
-            checkStmt.setString(2, programme);
-            ResultSet rs = checkStmt.executeQuery();
+                // Check if course has enrollments
+                String checkEnrollmentSql = "SELECT COUNT(*) FROM Enrollment WHERE course_id = ? AND programme = ?";
+                try (PreparedStatement checkStmt = conn.prepareStatement(checkEnrollmentSql)) {
+                    checkStmt.setString(1, courseCode);
+                    checkStmt.setString(2, programme);
+                    try (ResultSet rs = checkStmt.executeQuery()) {
+                        if (rs.next() && rs.getInt(1) > 0) {
+                            throw new SQLException("Cannot delete course. Students are enrolled in this course.");
+                        }
+                    }
+                }
 
-            if (rs.next() && rs.getInt(1) > 0) {
-                throw new SQLException("Cannot delete course. It is currently assigned to faculty members.");
-            }
-        }
+                // If no blocking dependencies, delete child rows referencing Course
+                // 1) Remove CO/PO mappings
+                String deleteCourseCo = "DELETE FROM Course_CO WHERE course_code = ? AND programme = ?";
+                String deleteCoursePo = "DELETE FROM Course_PO WHERE course_code = ? AND programme = ?";
+                try (PreparedStatement delCo = conn.prepareStatement(deleteCourseCo);
+                     PreparedStatement delPo = conn.prepareStatement(deleteCoursePo)) {
+                    delCo.setString(1, courseCode);
+                    delCo.setString(2, programme);
+                    delCo.executeUpdate();
 
-        // Check if course has enrollments
-        String checkEnrollmentSql = "SELECT COUNT(*) FROM Enrollment WHERE course_id = ? AND programme = ?";
+                    delPo.setString(1, courseCode);
+                    delPo.setString(2, programme);
+                    delPo.executeUpdate();
+                }
 
-        try (Connection conn = getConnection();
-             PreparedStatement checkStmt = conn.prepareStatement(checkEnrollmentSql)) {
-            checkStmt.setString(1, courseCode);
-            checkStmt.setString(2, programme);
-            ResultSet rs = checkStmt.executeQuery();
+                // 2) Remove culmination course mapping if any
+                String deleteCulmination = "DELETE FROM CulminationCourse WHERE course_code = ? AND programme = ?";
+                try (PreparedStatement delCulm = conn.prepareStatement(deleteCulmination)) {
+                    delCulm.setString(1, courseCode);
+                    delCulm.setString(2, programme);
+                    delCulm.executeUpdate();
+                }
 
-            if (rs.next() && rs.getInt(1) > 0) {
-                throw new SQLException("Cannot delete course. Students are enrolled in this course.");
-            }
-        }
+                // 3) Remove assessments (these will cascade delete their questions and marks)
+                String deleteQuiz = "DELETE FROM Quiz WHERE course_id = ? AND programme = ?";
+                String deleteMid = "DELETE FROM `Mid` WHERE course_id = ? AND programme = ?";
+                String deleteFinal = "DELETE FROM `Final` WHERE course_id = ? AND programme = ?";
+                try (PreparedStatement delQuiz = conn.prepareStatement(deleteQuiz);
+                     PreparedStatement delMid = conn.prepareStatement(deleteMid);
+                     PreparedStatement delFinal = conn.prepareStatement(deleteFinal)) {
+                    delQuiz.setString(1, courseCode);
+                    delQuiz.setString(2, programme);
+                    delQuiz.executeUpdate();
 
-        // If no dependencies, delete the course
-        String deleteSql = "DELETE FROM Course WHERE course_code = ? AND programme = ?";
+                    delMid.setString(1, courseCode);
+                    delMid.setString(2, programme);
+                    delMid.executeUpdate();
 
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(deleteSql)) {
-            stmt.setString(1, courseCode);
-            stmt.setString(2, programme);
+                    delFinal.setString(1, courseCode);
+                    delFinal.setString(2, programme);
+                    delFinal.executeUpdate();
+                }
 
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new SQLException("Course not found or could not be deleted");
+                // 4) Finally, delete the course itself
+                String deleteSql = "DELETE FROM Course WHERE course_code = ? AND programme = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(deleteSql)) {
+                    stmt.setString(1, courseCode);
+                    stmt.setString(2, programme);
+                    int rowsAffected = stmt.executeUpdate();
+                    if (rowsAffected == 0) {
+                        throw new SQLException("Course not found or could not be deleted");
+                    }
+                }
+
+                conn.commit();
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            } finally {
+                conn.setAutoCommit(true);
             }
         }
     }

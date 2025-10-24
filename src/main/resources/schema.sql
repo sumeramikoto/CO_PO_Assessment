@@ -23,6 +23,17 @@ CREATE TABLE Course (
                         PRIMARY KEY (course_code, programme)
 );
 
+-- CO and PO master tables
+CREATE TABLE CO (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    co_number VARCHAR(10) NOT NULL -- CO1, CO2, etc.
+);
+
+CREATE TABLE PO (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    po_number VARCHAR(10) NOT NULL UNIQUE -- PO1, PO2, etc.
+);
+
 -- Updated: include programme in FK to Course; faculty_id now VARCHAR(20)
 CREATE TABLE CourseAssignment (
                                   faculty_id VARCHAR(20) NOT NULL,
@@ -33,6 +44,28 @@ CREATE TABLE CourseAssignment (
                                   FOREIGN KEY (faculty_id) REFERENCES Faculty(id),
                                   FOREIGN KEY (course_code, programme) REFERENCES Course(course_code, programme),
                                   UNIQUE (course_code, programme, academic_year, department)
+);
+
+CREATE TABLE CulminationCourse (
+                                    course_code VARCHAR(20),
+                                    programme VARCHAR(11),
+                                    FOREIGN KEY (course_code, programme) REFERENCES Course(course_code, programme)
+);
+
+CREATE TABLE Course_CO (
+                            course_code VARCHAR(20) NOT NULL,
+                            programme VARCHAR(11) NOT NULL,
+                            co_id INT NOT NULL,
+                            FOREIGN KEY (course_code, programme) REFERENCES Course(course_code, programme),
+                            FOREIGN KEY (co_id) REFERENCES CO(id)
+);
+
+CREATE TABLE Course_PO (
+                            course_code VARCHAR(20) NOT NULL,
+                            programme VARCHAR(11) NOT NULL,
+                            po_id INT NOT NULL,
+                            FOREIGN KEY (course_code, programme) REFERENCES Course(course_code, programme),
+                            FOREIGN KEY (po_id) REFERENCES PO(id)
 );
 
 CREATE TABLE Student (
@@ -56,15 +89,9 @@ CREATE TABLE Enrollment (
                             UNIQUE (student_id, course_id, programme, academic_year)
 );
 
--- CO and PO master tables
-CREATE TABLE CO (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    co_number VARCHAR(10) NOT NULL -- CO1, CO2, etc.
-);
-
-CREATE TABLE PO (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    po_number VARCHAR(10) NOT NULL UNIQUE -- PO1, PO2, etc.
+CREATE TABLE THRESHOLDS (
+                        type VARCHAR(25),
+                        percentage DECIMAL(4, 2)
 );
 
 -- Assessment tables (added programme for FK to Course)

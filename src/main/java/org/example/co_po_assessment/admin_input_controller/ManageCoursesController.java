@@ -79,7 +79,7 @@ public class ManageCoursesController implements Initializable {
     public void onAddCourseButton(ActionEvent actionEvent) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/courseInput-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 500, 420);
+            Scene scene = new Scene(fxmlLoader.load(), 500, 520);
             CourseInputController controller = fxmlLoader.getController();
             controller.setParentController(this);
             Stage stage = new Stage();
@@ -144,8 +144,8 @@ public class ManageCoursesController implements Initializable {
         try (Workbook wb = new XSSFWorkbook()) {
             Sheet sheet = wb.createSheet("Courses");
 
-            // Header row
-            String[] headers = {"Course Code", "Course Name", "Credits", "Department", "Programme"};
+            // Header row (add COs and POs)
+            String[] headers = {"Course Code", "Course Name", "Credits", "Department", "Programme", "COs", "POs"};
             Row headerRow = sheet.createRow(0);
             CellStyle headerStyle = wb.createCellStyle();
             Font headerFont = wb.createFont();
@@ -157,7 +157,11 @@ public class ManageCoursesController implements Initializable {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(headers[i]);
                 cell.setCellStyle(headerStyle);
-                sheet.setColumnWidth(i, (i == 1 ? 35 : 20) * 256); // wider for Course Name
+                int width;
+                if (i == 1) width = 35; // Course Name wider
+                else if (i >= 5) width = 18; // COs/POs
+                else width = 20;
+                sheet.setColumnWidth(i, width * 256);
             }
             sheet.createFreezePane(0, 1);
 
@@ -244,17 +248,54 @@ public class ManageCoursesController implements Initializable {
             progDV.createErrorBox("Invalid Programme", "Programme must be like 'BSc in CSE' or 'MSc in EEE'.");
             sheet.addValidationData(progDV);
 
-            // Save
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Save Courses Template");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Workbook", "*.xlsx"));
-            fileChooser.setInitialFileName("CoursesTemplate.xlsx");
-            File out = fileChooser.showSaveDialog(stage);
-            if (out != null) {
-                if (!out.getName().toLowerCase().endsWith(".xlsx")) out = new File(out.getParentFile(), out.getName() + ".xlsx");
-                try (FileOutputStream fos = new FileOutputStream(out)) { wb.write(fos); }
-                showInfoAlert("Template Saved", "Template saved to: " + out.getAbsolutePath());
+            // Validation for COs (column F) and POs (column G): allow only digits, commas, hyphens, and spaces; allow blank; enforce sane separators
+            String allowedCOsFormula =
+                    "OR(" +
+                    "TRIM(F2)=\"\"," +
+                    "AND(" +
+                        // After stripping commas, hyphens and spaces, must be numeric
+                        "ISNUMBER(VALUE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TRIM(F2),\",\",\"\"),\"-\",\"\"),\" \",\"\")))," +
+                        // cannot start or end with comma or hyphen
+                        "LEFT(TRIM(F2),1)<>\",\", LEFT(TRIM(F2),1)<>\"-\", RIGHT(TRIM(F2),1)<>\",\", RIGHT(TRIM(F2),1)<>\"-\"," +
+                        // no repeated or illegal adjacent separators
+                        "ISERROR(SEARCH(\",,\",F2)), ISERROR(SEARCH(\"--\",F2)), ISERROR(SEARCH(\",-\",F2)), ISERROR(SEARCH(\"-,\",F2))" +
+                    ")" +
+                    ")";
+            DataValidationConstraint cosC = dvh.createCustomConstraint(allowedCOsFormula);
+            CellRangeAddressList cosRange = new CellRangeAddressList(firstRow, lastRow, 5, 5);
+            DataValidation cosDV = dvh.createValidation(cosC, cosRange);
+            cosDV.setShowErrorBox(true);
+            cosDV.createErrorBox("Invalid COs", "Use numbers separated by commas and optional ranges with '-' (e.g., 1-5 or 1,2,3). Only digits, commas, hyphens and spaces are allowed.");
+            sheet.addValidationData(cosDV);
+
+            String allowedPOsFormula =
+                    "OR(" +
+                    "TRIM(G2)=\"\"," +
+                    "AND(" +
+                    // After stripping commas, hyphens and spaces, must be numeric
+                    "ISNUMBER(VALUE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TRIM(G2),\",\",\"\"),\"-\",\"\"),\" \",\"\")))," +
+                    // cannot start or end with comma or hyphen
+                    "LEFT(TRIM(G2),1)<>\",\", LEFT(TRIM(G2),1)<>\"-\", RIGHT(TRIM(G2),1)<>\",\", RIGHT(TRIM(G2),1)<>\"-\"," +
+                    // no repeated or illegal adjacent separators
+                    "ISERROR(SEARCH(\",,\",G2)), ISERROR(SEARCH(\"--\",G2)), ISERROR(SEARCH(\",-\",G2)), ISERROR(SEARCH(\"-,\",G2))" +
+                    ")" +
+                    ")";
+            DataValidationConstraint posC = dvh.createCustomConstraint(allowedPOsFormula);
+            CellRangeAddressList posRange = new CellRangeAddressList(firstRow, lastRow, 6, 6);
+            DataValidation posDV = dvh.createValidation(posC, posRange);
+            posDV.setShowErrorBox(true);
+            posDV.createErrorBox("Invalid POs", "Use numbers separated by commas and optional ranges with '-' (e.g., 1-5 or 1,2,3). Only digits, commas, hyphens and spaces are allowed.");
+            sheet.addValidationData(posDV);
+
+//            // Example hint row - use valid examples so validation passes
+            // Example hint row - use valid examples so validation passes
+            Row example = sheet.createRow(1);
+            example.createCell(5).setCellValue("1-5");
+            example.createCell(6).setCellValue("1,2,5");
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                wb.write(fos);
             }
+            showInfoAlert("Template Created", "Saved Excel template to:\n" + file.getAbsolutePath());
         } catch (IOException e) {
             showErrorAlert("Template Error", "Failed to create template: " + e.getMessage());
         }
@@ -272,7 +313,7 @@ public class ManageCoursesController implements Initializable {
         File file = chooser.showOpenDialog(((Stage) backButton.getScene().getWindow()));
         if (file == null) return;
         List<String> errors = new ArrayList<>();
-        int inserted = 0, skipped = 0;
+        int inserted = 0, skipped = 0, mapped = 0;
         try {
             List<Map<String, String>> rows = ExcelImportUtils.readSheetAsMaps(file);
             int rowNum = 1;
@@ -283,6 +324,8 @@ public class ManageCoursesController implements Initializable {
                 String creditsStr = ExcelImportUtils.get(row, "credits", "credit");
                 String dept = ExcelImportUtils.get(row, "department", "dept");
                 String prog = ExcelImportUtils.get(row, "programme", "program", "program_name");
+                String cosRaw = ExcelImportUtils.get(row, "cos", "course_outcomes");
+                String posRaw = ExcelImportUtils.get(row, "pos", "program_outcomes", "po_s");
                 if (code == null || name == null || creditsStr == null || dept == null || prog == null) {
                     errors.add("Row " + rowNum + ": missing required fields (course_code, course_name, credits, department, programme)");
                     skipped++;
@@ -293,14 +336,28 @@ public class ManageCoursesController implements Initializable {
                     errors.add("Row " + rowNum + ": invalid credits '" + creditsStr + "'");
                     skipped++; continue;
                 }
+                OutcomeParseResult coParsed = parseAndValidateOutcomes(cosRaw, 20, "CO");
+                OutcomeParseResult poParsed = parseAndValidateOutcomes(posRaw, 12, "PO");
+                if (coParsed.error != null) errors.add("Row " + rowNum + ": " + coParsed.error);
+                if (poParsed.error != null) errors.add("Row " + rowNum + ": " + poParsed.error);
                 try {
                     databaseHelper.addCourse(code, name, credits, dept, prog);
                     inserted++;
                 } catch (SQLException ex) {
-                    String msg = ex.getMessage();
-                    if (msg != null && msg.toLowerCase().contains("duplicate")) errors.add("Row " + rowNum + ": duplicate (" + code + ", " + prog + ")");
-                    else errors.add("Row " + rowNum + ": " + msg);
-                    skipped++;
+                    String msg = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase(Locale.ROOT);
+                    if (!msg.contains("duplicate")) {
+                        errors.add("Row " + rowNum + ": " + ex.getMessage());
+                        skipped++;
+                        continue;
+                    }
+                    // Duplicate -> proceed to mapping
+                }
+                // Map only valid outcomes
+                try {
+                    if (!coParsed.numbers.isEmpty()) { databaseHelper.assignCOsToCourse(code, prog, coParsed.numbers); mapped++; }
+                    if (!poParsed.numbers.isEmpty()) { databaseHelper.assignPOsToCourse(code, prog, poParsed.numbers); mapped++; }
+                } catch (SQLException mapEx) {
+                    errors.add("Row " + rowNum + ": failed to map CO/POs - " + mapEx.getMessage());
                 }
             }
         } catch (IOException e) {
@@ -308,7 +365,8 @@ public class ManageCoursesController implements Initializable {
             return;
         }
         loadCourseData();
-        StringBuilder sb = new StringBuilder("Imported ").append(inserted).append(" rows. Skipped ").append(skipped).append(".");
+        StringBuilder sb = new StringBuilder("Imported ").append(inserted).append(" course rows. Skipped ").append(skipped).append(".");
+        if (mapped > 0) sb.append(" Mapped CO/POs on ").append(mapped).append(" row(s).");
         if (!errors.isEmpty()) {
             sb.append("\n\nIssues:\n");
             for (int i=0;i<Math.min(10, errors.size());i++) sb.append("- ").append(errors.get(i)).append('\n');
@@ -317,20 +375,208 @@ public class ManageCoursesController implements Initializable {
         showInfoAlert("Course Import", sb.toString());
     }
 
-    // Updated to include department & programme
-    public void addNewCourse(String courseCode, String courseName, double credits, String department, String programme) {
+    // Updated to include department & programme and assign CO/POs when provided
+    public void addNewCourse(String courseCode, String courseName, double credits, String department, String programme,
+                             List<Integer> coNumbers, List<Integer> poNumbers) {
         try {
             databaseHelper.addCourse(courseCode, courseName, credits, department, programme);
+            if (coNumbers != null && !coNumbers.isEmpty()) databaseHelper.assignCOsToCourse(courseCode, programme, coNumbers);
+            if (poNumbers != null && !poNumbers.isEmpty()) databaseHelper.assignPOsToCourse(courseCode, programme, poNumbers);
             Course newCourse = new Course(courseCode, courseName, "", "", credits, programme, department);
             courseList.add(newCourse);
             showInfoAlert("Success", "Course added successfully.");
         } catch (SQLException e) {
-            if (e.getMessage().contains("Duplicate entry")) {
+            if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
                 showErrorAlert("Course Error", "A course with this code already exists for the selected programme.");
             } else {
                 showErrorAlert("Database Error", "Failed to add course: " + e.getMessage());
             }
         }
+    }
+
+    // Backward compatible existing call sites (if any)
+    public void addNewCourse(String courseCode, String courseName, double credits, String department, String programme) {
+        addNewCourse(courseCode, courseName, credits, department, programme, Collections.emptyList(), Collections.emptyList());
+    }
+
+    @FXML
+    private void onExportCourses(ActionEvent actionEvent) {
+        // Export current courses with CO/PO mappings
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Export Courses to Excel");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Workbook (*.xlsx)", "*.xlsx"));
+        chooser.setInitialFileName("Courses.xlsx");
+        Stage stage = (Stage) backButton.getScene().getWindow();
+        File out = chooser.showSaveDialog(stage);
+        if (out == null) return;
+        if (!out.getName().toLowerCase().endsWith(".xlsx")) out = new File(out.getParentFile(), out.getName() + ".xlsx");
+
+        try (Workbook wb = new XSSFWorkbook()) {
+            Sheet sheet = wb.createSheet("Courses");
+            String[] headers = {"Course Code", "Course Name", "Credits", "Department", "Programme", "COs", "POs"};
+            Row headerRow = sheet.createRow(0);
+            CellStyle headerStyle = wb.createCellStyle();
+            Font headerFont = wb.createFont(); headerFont.setBold(true); headerStyle.setFont(headerFont);
+            for (int i=0;i<headers.length;i++) { Cell cell = headerRow.createCell(i); cell.setCellValue(headers[i]); cell.setCellStyle(headerStyle); sheet.setColumnWidth(i, (i==1?35:20)*256); }
+
+            int r = 1;
+            for (Course c : courseList) {
+                Row row = sheet.createRow(r++);
+                row.createCell(0).setCellValue(c.getCode());
+                row.createCell(1).setCellValue(c.getTitle());
+                row.createCell(2).setCellValue(c.getCredit());
+                row.createCell(3).setCellValue(c.getDepartment());
+                row.createCell(4).setCellValue(c.getProgramme());
+                try {
+                    List<Integer> coNums = getCourseCOs(c.getCode(), c.getProgramme());
+                    List<Integer> poNums = getCoursePOs(c.getCode(), c.getProgramme());
+                    row.createCell(5).setCellValue(joinInts(coNums));
+                    row.createCell(6).setCellValue(joinInts(poNums));
+                } catch (SQLException e) {
+                    row.createCell(5).setCellValue("");
+                    row.createCell(6).setCellValue("");
+                }
+            }
+            try (FileOutputStream fos = new FileOutputStream(out)) { wb.write(fos); }
+            showInfoAlert("Export Complete", "Exported to: " + out.getAbsolutePath());
+        } catch (IOException e) {
+            showErrorAlert("Export Failed", "Could not write Excel: " + e.getMessage());
+        }
+    }
+
+    private List<Integer> getCourseCOs(String courseCode, String programme) throws SQLException {
+        // query DB for CO ids mapped to this course and translate to numbers
+        List<Integer> out = new ArrayList<>();
+        String sql = "SELECT co.co_number FROM Course_CO cc JOIN CO co ON cc.co_id = co.id WHERE cc.course_code=? AND cc.programme=? ORDER BY co.id";
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(org.example.co_po_assessment.DB_Configuration.DBconfig.getUrl(), org.example.co_po_assessment.DB_Configuration.DBconfig.getUserName(), org.example.co_po_assessment.DB_Configuration.DBconfig.getPassword());
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, courseCode);
+            ps.setString(2, programme);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String label = rs.getString(1); // e.g., CO5
+                    out.add(extractTrailingInt(label));
+                }
+            }
+        }
+        return out;
+    }
+
+    private List<Integer> getCoursePOs(String courseCode, String programme) throws SQLException {
+        List<Integer> out = new ArrayList<>();
+        String sql = "SELECT po.po_number FROM Course_PO cp JOIN PO po ON cp.po_id = po.id WHERE cp.course_code=? AND cp.programme=? ORDER BY po.id";
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(org.example.co_po_assessment.DB_Configuration.DBconfig.getUrl(), org.example.co_po_assessment.DB_Configuration.DBconfig.getUserName(), org.example.co_po_assessment.DB_Configuration.DBconfig.getPassword());
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, courseCode);
+            ps.setString(2, programme);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String label = rs.getString(1); // e.g., PO2
+                    out.add(extractTrailingInt(label));
+                }
+            }
+        }
+        return out;
+    }
+
+    private static int extractTrailingInt(String label) {
+        if (label == null) return -1;
+        for (int i=label.length()-1;i>=0;i--) {
+            if (!Character.isDigit(label.charAt(i))) {
+                String num = label.substring(i+1);
+                try { return Integer.parseInt(num); } catch (NumberFormatException e) { return -1; }
+            }
+        }
+        try { return Integer.parseInt(label); } catch (Exception e) { return -1; }
+    }
+
+    private static String joinInts(List<Integer> ints) {
+        if (ints == null || ints.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder();
+        for (int i=0;i<ints.size();i++) {
+            if (i>0) sb.append(',');
+            sb.append(ints.get(i));
+        }
+        return sb.toString();
+    }
+
+    private static List<Integer> parseOutcomeNumbers(String raw) {
+        List<Integer> nums = new ArrayList<>();
+        if (raw == null) return nums;
+        String s = raw.trim();
+        if (s.isEmpty()) return nums;
+        // Normalize separators
+        s = s.replace("CO", "").replace("Po", "").replace("po", "").replace("PO", "");
+        s = s.replaceAll("\\s+", " ");
+        // Split by comma or space
+        String[] parts = s.split("[ ,;]+");
+        // Also handle ranges like 1-5
+        for (String p : parts) {
+            if (p.isBlank()) continue;
+            if (p.contains("-")) {
+                String[] ab = p.split("-");
+                if (ab.length == 2) {
+                    try {
+                        int a = Integer.parseInt(ab[0].trim());
+                        int b = Integer.parseInt(ab[1].trim());
+                        if (a <= b) {
+                            for (int x=a; x<=b; x++) if (!nums.contains(x)) nums.add(x);
+                        }
+                    } catch (NumberFormatException ignore) { /* skip */ }
+                }
+            } else {
+                try {
+                    int v = Integer.parseInt(p.trim());
+                    if (!nums.contains(v)) nums.add(v);
+                } catch (NumberFormatException ignore) { /* skip */ }
+            }
+        }
+        // Sort
+        Collections.sort(nums);
+        return nums;
+    }
+
+    private static class OutcomeParseResult {
+        final List<Integer> numbers; final String error;
+        OutcomeParseResult(List<Integer> numbers, String error) { this.numbers = numbers; this.error = error; }
+    }
+
+    private static OutcomeParseResult parseAndValidateOutcomes(String raw, int maxAllowed, String label) {
+        List<Integer> nums = new ArrayList<>();
+        if (raw == null || raw.trim().isEmpty()) return new OutcomeParseResult(nums, null);
+        String s = raw.trim().replaceAll("\\s+", " ");
+        s = s.replaceAll("(?i)CO", "").replaceAll("(?i)PO", "");
+        String[] parts = s.split("[ ,;]+");
+        List<String> invalid = new ArrayList<>();
+        for (String part : parts) {
+            if (part.isBlank()) continue;
+            if (part.contains("-")) {
+                String[] ab = part.split("-");
+                if (ab.length != 2) { invalid.add(part); continue; }
+                try {
+                    int a = Integer.parseInt(ab[0].trim());
+                    int b = Integer.parseInt(ab[1].trim());
+                    if (a > b) { invalid.add(part); continue; }
+                    for (int x=a; x<=b; x++) {
+                        if (x < 1 || x > maxAllowed) { invalid.add(String.valueOf(x)); continue; }
+                        if (!nums.contains(x)) nums.add(x);
+                    }
+                } catch (NumberFormatException nfe) {
+                    invalid.add(part);
+                }
+            } else {
+                try {
+                    int v = Integer.parseInt(part.trim());
+                    if (v < 1 || v > maxAllowed) invalid.add(part);
+                    else if (!nums.contains(v)) nums.add(v);
+                } catch (NumberFormatException nfe) {
+                    invalid.add(part);
+                }
+            }
+        }
+        Collections.sort(nums);
+        String error = invalid.isEmpty() ? null : (label + " values out of range or invalid: " + String.join(", ", invalid));
+        return new OutcomeParseResult(nums, error);
     }
 
     private void loadCourseData() {

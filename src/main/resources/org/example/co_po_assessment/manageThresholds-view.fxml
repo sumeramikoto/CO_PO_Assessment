@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.co_po_assessment.admin_input_controller.ManageThresholdsController">
+    <center>
+        <GridPane hgap="12" vgap="10" BorderPane.alignment="CENTER">
+            <padding><Insets top="16" right="16" bottom="8" left="16"/></padding>
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" minWidth="160"/>
+                <ColumnConstraints hgrow="ALWAYS" />
+            </columnConstraints>
+
+            <Label text="CO threshold (individual %):" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+            <TextField fx:id="coIndividualField" promptText="0 - 100" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+            <Label text="PO threshold (individual %):" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+            <TextField fx:id="poIndividualField" promptText="0 - 100" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+            <Label text="CO threshold (cohort %):" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+            <TextField fx:id="coCohortField" promptText="0 - 100" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+            <Label text="PO threshold (cohort %):" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+            <TextField fx:id="poCohortField" promptText="0 - 100" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+        </GridPane>
+    </center>
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT" BorderPane.alignment="CENTER">
+            <padding><Insets top="8" right="16" bottom="16" left="16"/></padding>
+            <Button fx:id="saveButton" text="Save" onAction="#onSave" />
+            <Button fx:id="closeButton" text="Close" onAction="#onClose" />
+        </HBox>
+    </bottom>
+</BorderPane>
+

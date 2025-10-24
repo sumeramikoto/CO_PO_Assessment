@@ -25,7 +25,8 @@ public class AdminDashboardController implements Initializable {
     @FXML Button manageCourseAssignmentsButton;
     @FXML Button manageCoursesButton;
     @FXML Button viewReportsButton;
-    @FXML Button poReportButton; // PO report button
+    @FXML Button culminationCoursesButton;
+    @FXML Button manageThresholdsButton;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -38,7 +39,10 @@ public class AdminDashboardController implements Initializable {
     public void onManageCourseAssignmentsButton(ActionEvent event) { openWindow("manageCourseAssignments-view.fxml", "Manage Course Assignments", 345, 380); }
     public void onManageEnrollmentsButton(ActionEvent event) { openWindow("manageEnrollments-view.fxml", "Manage Enrollments", 840, 520); }
     public void onViewReportsButton(ActionEvent event) { openWindow("reports-view.fxml", "CO / PO Reports", 500, 400); }
-    public void onPoReportButton(ActionEvent event) { openWindow("adminPOReportSelector-view.fxml", "PO Report Selector", 900, 600); } // Open new Admin PO Report selector
+    public void onCulminationCoursesButton(ActionEvent actionEvent) {
+        openWindow("manageCulminationCourses-view.fxml", "Manage Culmination Courses", 840, 520);
+    }
+    public void onManageThresholdsButton(ActionEvent actionEvent) { openWindow("manageThresholds-view.fxml", "Manage Thresholds", 420, 260); }
 
     private void openWindow(String fxml, String title, int w, int h) {
         try {
@@ -78,4 +82,6 @@ public class AdminDashboardController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+
 }

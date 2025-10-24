@@ -507,6 +507,56 @@ public class DatabaseService {
     }
 
     // ------------------------------------------------------------------
+    // Thresholds (CO/PO) CRUD
+    // ------------------------------------------------------------------
+    public Map<String, Double> getThresholds() throws SQLException {
+        String sql = "SELECT type, percentage FROM THRESHOLDS";
+        Map<String, Double> map = new HashMap<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                map.put(rs.getString(1), rs.getDouble(2));
+            }
+        }
+        return map;
+    }
+
+    /** Update provided thresholds within a single transaction. Values are percentages 0..100. */
+    public void updateThresholds(Map<String, Double> updates) throws SQLException {
+        if (updates == null || updates.isEmpty()) return;
+        try (Connection c = getConnection()) {
+            boolean oldAuto = c.getAutoCommit();
+            c.setAutoCommit(false);
+            try {
+                String upSql = "UPDATE THRESHOLDS SET percentage=? WHERE type=?";
+                String insSql = "INSERT INTO THRESHOLDS (type, percentage) VALUES (?,?)";
+                try (PreparedStatement up = c.prepareStatement(upSql); PreparedStatement ins = c.prepareStatement(insSql)) {
+                    for (Map.Entry<String, Double> e : updates.entrySet()) {
+                        String type = e.getKey();
+                        Double pct = e.getValue();
+                        if (pct == null) continue;
+                        // Try update
+                        up.setDouble(1, pct);
+                        up.setString(2, type);
+                        int n = up.executeUpdate();
+                        if (n == 0) {
+                            // Fallback insert (in case seed rows missing)
+                            ins.setString(1, type);
+                            ins.setDouble(2, pct);
+                            ins.executeUpdate();
+                        }
+                    }
+                }
+                c.commit();
+            } catch (SQLException ex) {
+                c.rollback();
+                throw ex;
+            } finally {
+                c.setAutoCommit(oldAuto);
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------
     // Data classes
     // ------------------------------------------------------------------
     public static class QuestionData {

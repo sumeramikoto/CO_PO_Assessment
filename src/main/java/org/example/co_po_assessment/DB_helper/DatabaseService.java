@@ -6,6 +6,7 @@ import org.example.co_po_assessment.utilities.PasswordUtils;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.*;
 
 public class DatabaseService {
     // ------------------------------------------------------------------
@@ -508,7 +509,16 @@ public class DatabaseService {
     // ------------------------------------------------------------------
     // Data classes
     // ------------------------------------------------------------------
-    public static class QuestionData { public final int id; public final String title; public final double marks; public final String co; public final String po; public QuestionData(int id,String title,double marks,String co,String po){this.id=id;this.title=title;this.marks=marks;this.co=co;this.po=po;} }
+    public static class QuestionData {
+        public final int id;
+        public final String title;
+        public final double marks;
+        public final String co;
+        public final String po;
+        public QuestionData(int id,String title,double marks,String co,String po){
+            this.id=id;this.title=title;this.marks=marks;this.co=co;this.po=po;
+        }
+    }
     public static class StudentData { public final String id,name,email; public final int batch; public final String programme,department; public StudentData(String id,String name,String email,int batch,String programme,String department){this.id=id;this.name=name;this.email=email;this.batch=batch;this.programme=programme;this.department=department;} }
     public static class CourseData { public final String courseCode, courseName, department, programme, instructorName; public final double credits; public CourseData(String courseCode,String courseName,double credits,String department,String programme,String instructorName){this.courseCode=courseCode;this.courseName=courseName;this.credits=credits;this.department=department;this.programme=programme;this.instructorName=instructorName;} }
     public static class StudentMarksData { public final String studentId, studentName, questionTitle; public final int questionId; public final double maxMarks; public final Double marksObtained; public StudentMarksData(String sid,String sname,int qid,String qTitle,double max,Double obtained){this.studentId=sid;this.studentName=sname;this.questionId=qid;this.questionTitle=qTitle;this.maxMarks=max;this.marksObtained=obtained;} }
@@ -537,5 +547,89 @@ public class DatabaseService {
         }
         return list;
     }
-}
 
+    // ------------------------------------------------------------------
+    // Culmination Courses helpers
+    // ------------------------------------------------------------------
+    public List<String> getDistinctProgrammesFromCourses() throws SQLException {
+        String sql = "SELECT DISTINCT programme FROM Course WHERE programme IS NOT NULL AND programme<>'' ORDER BY programme";
+        List<String> list = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) list.add(rs.getString(1));
+        }
+        return list;
+    }
+
+    public List<String> getCoursesForProgramme(String programme) throws SQLException {
+        String sql = "SELECT course_code, course_name FROM Course WHERE programme=? ORDER BY course_code";
+        List<String> list = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, programme);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(rs.getString(1) + " - " + rs.getString(2));
+            }
+        }
+        return list;
+    }
+
+    public List<String> getCulminationCourses(String programme) throws SQLException {
+        String sql = "SELECT course_code FROM CulminationCourse WHERE programme=? ORDER BY course_code";
+        List<String> codes = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, programme);
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) codes.add(rs.getString(1)); }
+        }
+        return codes;
+    }
+
+    public List<String> getMissingPOsForCourses(String programme, List<String> courseCodes, int totalPOs) throws SQLException {
+        if (courseCodes == null || courseCodes.isEmpty()) return Arrays.asList("PO1","PO2","PO3","PO4","PO5","PO6","PO7","PO8","PO9","PO10","PO11","PO12").subList(0, Math.min(totalPOs, 12));
+        // Build IN clause placeholders
+        String in = String.join(",", java.util.Collections.nCopies(courseCodes.size(), "?"));
+        String sql = "SELECT DISTINCT po.po_number FROM Course_PO cp JOIN PO po ON cp.po_id=po.id WHERE cp.programme=? AND cp.course_code IN (" + in + ")";
+        Set<String> present = new HashSet<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, programme);
+            int idx = 2;
+            for (String code : courseCodes) ps.setString(idx++, code);
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) present.add(rs.getString(1)); }
+        }
+        List<String> missing = new ArrayList<>();
+        for (int i = 1; i <= totalPOs; i++) {
+            String label = "PO" + i;
+            if (!present.contains(label)) missing.add(label);
+        }
+        return missing;
+    }
+
+    public void saveCulminationCourses(String programme, List<String> courseCodes) throws SQLException {
+        if (programme == null || programme.isBlank()) throw new SQLException("Programme required");
+        if (courseCodes == null) courseCodes = java.util.Collections.emptyList();
+        try (Connection c = getConnection()) {
+            c.setAutoCommit(false);
+            try {
+                try (PreparedStatement del = c.prepareStatement("DELETE FROM CulminationCourse WHERE programme=?")) {
+                    del.setString(1, programme);
+                    del.executeUpdate();
+                }
+                if (!courseCodes.isEmpty()) {
+                    String insSql = "INSERT INTO CulminationCourse (course_code, programme) VALUES (?,?)";
+                    try (PreparedStatement ins = c.prepareStatement(insSql)) {
+                        for (String code : new LinkedHashSet<>(courseCodes)) { // dedupe
+                            ins.setString(1, code);
+                            ins.setString(2, programme);
+                            ins.addBatch();
+                        }
+                        ins.executeBatch();
+                    }
+                }
+                c.commit();
+            } catch (SQLException ex) {
+                c.rollback();
+                throw ex;
+            } finally {
+                c.setAutoCommit(true);
+            }
+        }
+    }
+}

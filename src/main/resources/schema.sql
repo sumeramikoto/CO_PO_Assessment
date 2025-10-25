@@ -77,6 +77,11 @@ CREATE TABLE Student (
                          programme VARCHAR(11)
 );
 
+CREATE TABLE GraduatingStudent (
+                            id VARCHAR(9) PRIMARY KEY,
+                            FOREIGN KEY (id) REFERENCES Student(id)
+);
+
 -- Added academic_year to support multi-year enrollments (UI requirement)
 -- Added programme to reference composite key in Course
 CREATE TABLE Enrollment (

@@ -100,6 +100,15 @@ public class POReportDialogController implements Initializable {
         String academicYear = selected.getAcademicYear();
         String programme = selected.getProgramme();
 
+        // Load thresholds from DB (percentages -> fractions). Fallback to defaults on error/missing keys.
+        try {
+            Map<String, Double> t = db.getThresholds();
+            this.poThreshold = t.getOrDefault("PO_INDIVIDUAL", 40.0) / 100.0;
+            this.coThreshold = t.getOrDefault("CO_INDIVIDUAL", 60.0) / 100.0;
+        } catch (Exception ex) {
+            // keep defaults 0.40 and 0.60
+        }
+
         List<DatabaseService.QuestionData> quiz1 = db.getQuizQuestions(courseCode, programme, 1, academicYear);
         List<DatabaseService.QuestionData> quiz2 = db.getQuizQuestions(courseCode, programme, 2, academicYear);
         List<DatabaseService.QuestionData> quiz3 = db.getQuizQuestions(courseCode, programme, 3, academicYear);

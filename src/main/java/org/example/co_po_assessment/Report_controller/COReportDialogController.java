@@ -153,7 +153,16 @@ public class COReportDialogController implements Initializable {
         if (graded == 0) throw new IllegalStateException("No marks have been entered yet. Please enter marks before viewing the CO report.");
         if (graded < totalRequired) throw new IllegalStateException("Cannot view CO report. Some required mark entries are still ungraded.");
 
-        final double THRESHOLD = 0.60;
+        // Load CO individual threshold from database (percentage 0..100 -> fraction 0..1). Default to 60% if missing.
+        double THRESHOLD;
+        try {
+            Map<String, Double> t = db.getThresholds();
+            THRESHOLD = t.getOrDefault("CO_INDIVIDUAL", 60.0) / 100.0;
+        } catch (Exception ex) {
+            // Fallback to sensible default on any DB error
+            THRESHOLD = 0.60;
+        }
+
         Map<String,Integer> attainedCounts = new HashMap<>(); for (String co: coTotal.keySet()) attainedCounts.put(co,0);
         for (DatabaseService.StudentData sd : students) {
             Map<String,Double> gotMap = studentCOObtained.get(sd.id);

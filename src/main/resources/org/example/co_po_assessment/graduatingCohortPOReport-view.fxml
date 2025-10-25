@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.co_po_assessment.Report_controller.GraduatingCohortPOReportController"
+            prefWidth="900.0" prefHeight="600.0">
+    <top>
+        <VBox spacing="8.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Graduating Cohort PO Report">
+                    <font><Font size="18.0"/></font>
+                </Label>
+                <HBox spacing="12.0">
+                    <children>
+                        <Label text="Programme:"/>
+                        <ComboBox fx:id="programmeCombo" prefWidth="160"/>
+                        <Label text="Batch:"/>
+                        <ComboBox fx:id="batchCombo" prefWidth="120"/>
+                        <Button text="Load Cohort" onAction="#onLoadCohort"/>
+                        <Button text="Generate Report" onAction="#onGenerate"/>
+                    </children>
+                </HBox>
+            </children>
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+        </VBox>
+    </top>
+    <left>
+        <VBox spacing="6.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Graduating Students (Loaded)"/>
+                <ListView fx:id="studentsList" prefWidth="280"/>
+            </children>
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+        </VBox>
+    </left>
+    <center>
+        <VBox spacing="8.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Cohort PO Attainment (%)"/>
+                <TableView fx:id="resultsTable" prefHeight="400">
+                    <columns>
+                        <TableColumn fx:id="poCol" text="PO" prefWidth="120"/>
+                        <TableColumn fx:id="percentCol" text="Attained %" prefWidth="160"/>
+                    </columns>
+                </TableView>
+                <Label text="Status / Validation Messages"/>
+                <TextArea fx:id="statusArea" prefRowCount="6" wrapText="true"/>
+            </children>
+            <padding><Insets top="10" right="10" bottom="10" left="0"/></padding>
+        </VBox>
+    </center>
+</BorderPane>

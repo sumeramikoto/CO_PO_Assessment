@@ -510,7 +510,7 @@ public class DatabaseService {
     // Thresholds (CO/PO) CRUD
     // ------------------------------------------------------------------
     public Map<String, Double> getThresholds() throws SQLException {
-        String sql = "SELECT type, percentage FROM THRESHOLDS";
+        String sql = "SELECT type, percentage FROM Thresholds";
         Map<String, Double> map = new HashMap<>();
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -527,8 +527,8 @@ public class DatabaseService {
             boolean oldAuto = c.getAutoCommit();
             c.setAutoCommit(false);
             try {
-                String upSql = "UPDATE THRESHOLDS SET percentage=? WHERE type=?";
-                String insSql = "INSERT INTO THRESHOLDS (type, percentage) VALUES (?,?)";
+                String upSql = "UPDATE Thresholds SET percentage=? WHERE type=?";
+                String insSql = "INSERT INTO Thresholds (type, percentage) VALUES (?,?)";
                 try (PreparedStatement up = c.prepareStatement(upSql); PreparedStatement ins = c.prepareStatement(insSql)) {
                     for (Map.Entry<String, Double> e : updates.entrySet()) {
                         String type = e.getKey();
@@ -751,5 +751,33 @@ public class DatabaseService {
                 c.setAutoCommit(old);
             }
         }
+    }
+
+    // New helper: get a student's academic year of enrollment for a specific course/programme (latest if multiple)
+    public String getEnrollmentYearForStudentInCourse(String studentId, String courseCode, String programme) throws SQLException {
+        String sql = "SELECT academic_year FROM Enrollment WHERE student_id=? AND course_id=? AND programme=? ORDER BY academic_year DESC LIMIT 1";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, studentId);
+            ps.setString(2, courseCode);
+            ps.setString(3, programme);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString(1);
+            }
+        }
+        return null;
+    }
+
+    public List<StudentData> getStudentsByIds(List<String> ids) throws SQLException {
+        if (ids == null || ids.isEmpty()) return java.util.Collections.emptyList();
+        String placeholders = String.join(",", java.util.Collections.nCopies(ids.size(), "?"));
+        String sql = "SELECT id,name,email,batch,programme,department FROM Student WHERE id IN (" + placeholders + ") ORDER BY id";
+        List<StudentData> list = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            int i=1; for (String id : ids) ps.setString(i++, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(new StudentData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6)));
+            }
+        }
+        return list;
     }
 }

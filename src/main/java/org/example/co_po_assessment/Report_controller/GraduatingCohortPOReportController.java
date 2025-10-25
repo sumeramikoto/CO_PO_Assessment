@@ -330,7 +330,7 @@ public class GraduatingCohortPOReportController implements Initializable {
         if (!reportsDir.exists()) reportsDir.mkdirs();
         String safeProgramme = programme.replaceAll("[^A-Za-z0-9_-]", "");
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
-        File outFile = new File(reportsDir, "CohortPO_" + safeProgramme + "_B" + batch + "_" + timestamp + ".pdf");
+        File outFile = new File(reportsDir, "CohortPO_" + safeProgramme + "_Batch" + batch + "_" + timestamp + ".pdf");
 
         try (PdfWriter writer = new PdfWriter(new FileOutputStream(outFile));
              PdfDocument pdf = new PdfDocument(writer);
@@ -342,7 +342,6 @@ public class GraduatingCohortPOReportController implements Initializable {
             doc.add(new Paragraph("Batch: " + batch));
             doc.add(new Paragraph("Cohort size: " + cohortSize));
             doc.add(new Paragraph("Generated on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
-            doc.add(new Paragraph("Threshold: PO " + String.format(java.util.Locale.US, "%.0f%%", poThreshold*100)));
             doc.add(new Paragraph(" "));
 
             Image chartImg = new Image(ImageDataFactory.create(chartBytes)).setAutoScale(true);

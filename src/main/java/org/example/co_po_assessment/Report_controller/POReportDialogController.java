@@ -245,7 +245,6 @@ public class POReportDialogController implements Initializable {
                 doc.add(new Paragraph("Programme: " + selected.getProgramme()));
                 DatabaseService.FacultyInfo fi = UserSession.getCurrentFaculty(); if (fi != null) doc.add(new Paragraph("Faculty: " + fi.fullName + " (" + fi.shortname + ")"));
                 doc.add(new Paragraph("Academic Year: " + selected.getAcademicYear()));
-                doc.add(new Paragraph(String.format("Thresholds: CO %.0f%%, PO %.0f%%", coThreshold*100, poThreshold*100)));
                 doc.add(new Paragraph("Generated on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
                 doc.add(new Paragraph(" "));
 

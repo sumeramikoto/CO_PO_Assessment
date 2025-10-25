@@ -94,7 +94,7 @@ CREATE TABLE Enrollment (
                             UNIQUE (student_id, course_id, programme, academic_year)
 );
 
-CREATE TABLE THRESHOLDS (
+CREATE TABLE Thresholds (
                         type VARCHAR(25),
                         percentage DECIMAL(4, 2)
 );

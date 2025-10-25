@@ -27,6 +27,7 @@ public class AdminDashboardController implements Initializable {
     @FXML Button viewReportsButton;
     @FXML Button culminationCoursesButton;
     @FXML Button manageThresholdsButton;
+    @FXML Button manageGraduatingStudentsButton;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -41,6 +42,9 @@ public class AdminDashboardController implements Initializable {
     public void onViewReportsButton(ActionEvent event) { openWindow("reports-view.fxml", "CO / PO Reports", 500, 400); }
     public void onCulminationCoursesButton(ActionEvent actionEvent) {
         openWindow("manageCulminationCourses-view.fxml", "Manage Culmination Courses", 840, 520);
+    }
+    public void onManageGraduatingStudentsButton(ActionEvent actionEvent) {
+        openWindow("manageGraduatingStudents-view.fxml", "Manage Graduating Students", 840, 520);
     }
     public void onManageThresholdsButton(ActionEvent actionEvent) { openWindow("manageThresholds-view.fxml", "Manage Thresholds", 420, 260); }
 

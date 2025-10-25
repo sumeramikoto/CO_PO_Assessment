@@ -27,6 +27,8 @@ public class AdminDashboardController implements Initializable {
     @FXML Button viewReportsButton;
     @FXML Button culminationCoursesButton;
     @FXML Button manageThresholdsButton;
+    @FXML Button manageGraduatingStudentsButton;
+    @FXML Button graduatingCohortPOReportButton; // New button for Graduating Cohort PO Report
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -42,7 +44,13 @@ public class AdminDashboardController implements Initializable {
     public void onCulminationCoursesButton(ActionEvent actionEvent) {
         openWindow("manageCulminationCourses-view.fxml", "Manage Culmination Courses", 840, 520);
     }
+    public void onManageGraduatingStudentsButton(ActionEvent actionEvent) {
+        openWindow("manageGraduatingStudents-view.fxml", "Manage Graduating Students", 840, 520);
+    }
     public void onManageThresholdsButton(ActionEvent actionEvent) { openWindow("manageThresholds-view.fxml", "Manage Thresholds", 420, 260); }
+    public void onGraduatingCohortPOReportButton(ActionEvent actionEvent) { // Handler to open Graduating Cohort PO Report
+        openWindow("graduatingCohortPOReport-view.fxml", "Graduating Cohort PO Report", 900, 600);
+    }
 
     private void openWindow(String fxml, String title, int w, int h) {
         try {

@@ -510,7 +510,7 @@ public class DatabaseService {
     // Thresholds (CO/PO) CRUD
     // ------------------------------------------------------------------
     public Map<String, Double> getThresholds() throws SQLException {
-        String sql = "SELECT type, percentage FROM THRESHOLDS";
+        String sql = "SELECT type, percentage FROM Thresholds";
         Map<String, Double> map = new HashMap<>();
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -527,8 +527,8 @@ public class DatabaseService {
             boolean oldAuto = c.getAutoCommit();
             c.setAutoCommit(false);
             try {
-                String upSql = "UPDATE THRESHOLDS SET percentage=? WHERE type=?";
-                String insSql = "INSERT INTO THRESHOLDS (type, percentage) VALUES (?,?)";
+                String upSql = "UPDATE Thresholds SET percentage=? WHERE type=?";
+                String insSql = "INSERT INTO Thresholds (type, percentage) VALUES (?,?)";
                 try (PreparedStatement up = c.prepareStatement(upSql); PreparedStatement ins = c.prepareStatement(insSql)) {
                     for (Map.Entry<String, Double> e : updates.entrySet()) {
                         String type = e.getKey();
@@ -681,5 +681,103 @@ public class DatabaseService {
                 c.setAutoCommit(true);
             }
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Graduating Students helpers
+    // ------------------------------------------------------------------
+    public List<String> getDistinctProgrammesFromStudents() throws SQLException {
+        String sql = "SELECT DISTINCT programme FROM Student WHERE programme IS NOT NULL AND programme<>'' ORDER BY programme";
+        List<String> list = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) list.add(rs.getString(1));
+        }
+        return list;
+    }
+
+    public List<Integer> getBatchesForProgramme(String programme) throws SQLException {
+        String sql = "SELECT DISTINCT batch FROM Student WHERE programme=? ORDER BY batch";
+        List<Integer> list = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, programme);
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(rs.getInt(1)); }
+        }
+        return list;
+    }
+
+    public List<StudentData> getStudentsByProgrammeAndBatch(String programme, int batch) throws SQLException {
+        String sql = "SELECT id,name,email,batch,programme,department FROM Student WHERE programme=? AND batch=? ORDER BY id";
+        List<StudentData> list = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, programme); ps.setInt(2, batch);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(new StudentData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6)));
+            }
+        }
+        return list;
+    }
+
+    public List<String> getGraduatingStudentIds(String programme, int batch) throws SQLException {
+        String sql = "SELECT gs.id FROM GraduatingStudent gs JOIN Student s ON s.id=gs.id WHERE s.programme=? AND s.batch=? ORDER BY gs.id";
+        List<String> ids = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, programme); ps.setInt(2, batch);
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) ids.add(rs.getString(1)); }
+        }
+        return ids;
+    }
+
+    public void saveGraduatingStudents(String programme, int batch, List<String> studentIds) throws SQLException {
+        if (programme == null || programme.isBlank()) throw new SQLException("Programme required");
+        try (Connection c = getConnection()) {
+            boolean old = c.getAutoCommit();
+            c.setAutoCommit(false);
+            try {
+                // Clear any existing graduating flags for this programme+batch
+                String delSql = "DELETE FROM GraduatingStudent WHERE id IN (SELECT id FROM Student WHERE programme=? AND batch=?)";
+                try (PreparedStatement del = c.prepareStatement(delSql)) { del.setString(1, programme); del.setInt(2, batch); del.executeUpdate(); }
+                if (studentIds != null && !studentIds.isEmpty()) {
+                    String insSql = "INSERT IGNORE INTO GraduatingStudent (id) VALUES (?)";
+                    try (PreparedStatement ins = c.prepareStatement(insSql)) {
+                        for (String sid : new LinkedHashSet<>(studentIds)) { ins.setString(1, sid); ins.addBatch(); }
+                        ins.executeBatch();
+                    }
+                }
+                c.commit();
+            } catch (SQLException ex) {
+                c.rollback();
+                throw ex;
+            } finally {
+                c.setAutoCommit(old);
+            }
+        }
+    }
+
+    // New helper: get a student's academic year of enrollment for a specific course/programme (latest if multiple)
+    public String getEnrollmentYearForStudentInCourse(String studentId, String courseCode, String programme) throws SQLException {
+        String sql = "SELECT academic_year FROM Enrollment WHERE student_id=? AND course_id=? AND programme=? ORDER BY academic_year DESC LIMIT 1";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, studentId);
+            ps.setString(2, courseCode);
+            ps.setString(3, programme);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString(1);
+            }
+        }
+        return null;
+    }
+
+    public List<StudentData> getStudentsByIds(List<String> ids) throws SQLException {
+        if (ids == null || ids.isEmpty()) return java.util.Collections.emptyList();
+        String placeholders = String.join(",", java.util.Collections.nCopies(ids.size(), "?"));
+        String sql = "SELECT id,name,email,batch,programme,department FROM Student WHERE id IN (" + placeholders + ") ORDER BY id";
+        List<StudentData> list = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            int i=1; for (String id : ids) ps.setString(i++, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(new StudentData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6)));
+            }
+        }
+        return list;
     }
 }

@@ -8,6 +8,9 @@ public class Course {
     private double credit;
     private String programme; // renamed from program
     private String department;
+    // New: display strings for COs and POs mapped to this course
+    private String coNumbers; // e.g., "1,2,5"
+    private String poNumbers; // e.g., "1-3,6"
 
     public Course(String code, String title, String instructor, String academicYear,
                   double credit, String programme, String department) {
@@ -18,6 +21,8 @@ public class Course {
         this.credit = credit;
         this.programme = programme;
         this.department = department;
+        this.coNumbers = "";
+        this.poNumbers = "";
     }
 
     public String getCode() { return code; }
@@ -29,6 +34,8 @@ public class Course {
     // Backward compatibility
     public String getProgram() { return programme; }
     public String getDepartment() { return department; }
+    public String getCoNumbers() { return coNumbers; }
+    public String getPoNumbers() { return poNumbers; }
 
     public void setCode(String code) { this.code = code; }
     public void setTitle(String title) { this.title = title; }
@@ -38,4 +45,6 @@ public class Course {
     public void setProgramme(String programme) { this.programme = programme; }
     public void setProgram(String programme) { this.programme = programme; }
     public void setDepartment(String department) { this.department = department; }
+    public void setCoNumbers(String coNumbers) { this.coNumbers = coNumbers; }
+    public void setPoNumbers(String poNumbers) { this.poNumbers = poNumbers; }
 }

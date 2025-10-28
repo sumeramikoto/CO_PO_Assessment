@@ -17,6 +17,9 @@
             <!-- Newly added columns -->
             <TableColumn fx:id="departmentColumn" prefWidth="100.0" text="Department" />
             <TableColumn fx:id="programmeColumn" prefWidth="140.0" text="Programme" />
+            <!-- New: show mapped COs and POs -->
+            <TableColumn fx:id="coNumbersColumn" prefWidth="120.0" text="COs" />
+            <TableColumn fx:id="poNumbersColumn" prefWidth="120.0" text="POs" />
         </columns>
     </TableView>
 

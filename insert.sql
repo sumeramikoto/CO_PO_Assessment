@@ -5,4 +5,4 @@ INSERT INTO PO (po_number) VALUES ('PO1'), ('PO2'), ('PO3'), ('PO4'), ('PO5'), (
 -- Insert admin data (hashed password for 'admin123')
 INSERT INTO Admin (email, password) VALUES ('admin@iut-dhaka.edu', 'sha256$JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=');
 
-INSERT INTO THRESHOLDS (type, percentage) VALUES ('CO_INDIVIDUAL', 60), ('PO_INDIVIDUAL', 40), ('CO_COHORTSET', 50), ('PO_COHORTSET', 50);
+INSERT INTO Thresholds (type, percentage) VALUES ('CO_INDIVIDUAL', 60), ('PO_INDIVIDUAL', 40), ('CO_COHORTSET', 50), ('PO_COHORTSET', 50);

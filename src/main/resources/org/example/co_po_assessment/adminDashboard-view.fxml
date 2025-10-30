@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane dividerPositions="0.12060301507537688" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="400.0" prefWidth="732.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.dashboard_controller.AdminDashboardController">
+<SplitPane dividerPositions="0.12060301507537688" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="400.0" prefWidth="732.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.dashboard_controller.AdminDashboardController">
   <items>
     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
          <children>
@@ -27,6 +27,8 @@
             <Button fx:id="manageEnrollmentsButton" layoutX="180.0" layoutY="115.0" mnemonicParsing="false" onAction="#onManageEnrollmentsButton" prefHeight="59.0" prefWidth="152.0" text="Manage Enrollments" />
             <Button fx:id="culminationCoursesButton" layoutX="348.0" layoutY="115.0" mnemonicParsing="false" onAction="#onCulminationCoursesButton" prefHeight="59.0" prefWidth="199.0" text="Manage Culmination Courses" />
             <Button fx:id="manageThresholdsButton" layoutX="578.0" layoutY="115.0" mnemonicParsing="false" onAction="#onManageThresholdsButton" prefHeight="59.0" prefWidth="138.0" text="Manage Thresholds" />
+            <Button fx:id="manageGraduatingStudentsButton" layoutX="14.0" layoutY="200.0" mnemonicParsing="false" onAction="#onManageGraduatingStudentsButton" prefHeight="59.0" prefWidth="214.0" text="Manage Graduating Students" />
+            <Button fx:id="graduatingCohortPOReportButton" layoutX="248.0" layoutY="200.0" mnemonicParsing="false" onAction="#onGraduatingCohortPOReportButton" prefHeight="59.0" prefWidth="300.0" text="Graduating Cohort PO Report" />
          </children></AnchorPane>
   </items>
 </SplitPane>

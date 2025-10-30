@@ -100,6 +100,15 @@ public class POReportDialogController implements Initializable {
         String academicYear = selected.getAcademicYear();
         String programme = selected.getProgramme();
 
+        // Load thresholds from DB (percentages -> fractions). Fallback to defaults on error/missing keys.
+        try {
+            Map<String, Double> t = db.getThresholds();
+            this.poThreshold = t.getOrDefault("PO_INDIVIDUAL", 40.0) / 100.0;
+            this.coThreshold = t.getOrDefault("CO_INDIVIDUAL", 60.0) / 100.0;
+        } catch (Exception ex) {
+            // keep defaults 0.40 and 0.60
+        }
+
         List<DatabaseService.QuestionData> quiz1 = db.getQuizQuestions(courseCode, programme, 1, academicYear);
         List<DatabaseService.QuestionData> quiz2 = db.getQuizQuestions(courseCode, programme, 2, academicYear);
         List<DatabaseService.QuestionData> quiz3 = db.getQuizQuestions(courseCode, programme, 3, academicYear);
@@ -236,7 +245,6 @@ public class POReportDialogController implements Initializable {
                 doc.add(new Paragraph("Programme: " + selected.getProgramme()));
                 DatabaseService.FacultyInfo fi = UserSession.getCurrentFaculty(); if (fi != null) doc.add(new Paragraph("Faculty: " + fi.fullName + " (" + fi.shortname + ")"));
                 doc.add(new Paragraph("Academic Year: " + selected.getAcademicYear()));
-                doc.add(new Paragraph(String.format("Thresholds: CO %.0f%%, PO %.0f%%", coThreshold*100, poThreshold*100)));
                 doc.add(new Paragraph("Generated on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
                 doc.add(new Paragraph(" "));
 

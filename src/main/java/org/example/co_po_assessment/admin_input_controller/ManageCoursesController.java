@@ -43,12 +43,20 @@ public class ManageCoursesController implements Initializable {
     TableColumn<Course, String> departmentColumn;
     @FXML
     TableColumn<Course, String> programmeColumn;
+    // New columns for COs and POs
+    @FXML
+    TableColumn<Course, String> coNumbersColumn;
+    @FXML
+    TableColumn<Course, String> poNumbersColumn;
     @FXML
     Button addCourseButton;
     @FXML
     Button removeCourseButton;
     @FXML
     Button backButton;
+    // New: referenced by FXML buttons
+    @FXML Button excelTemplateButton;
+    @FXML Button bulkImportCoursesButton;
 
     private ObservableList<Course> courseList;
     private CoursesDatabaseHelper databaseHelper;
@@ -66,6 +74,12 @@ public class ManageCoursesController implements Initializable {
         }
         if (programmeColumn != null) {
             programmeColumn.setCellValueFactory(new PropertyValueFactory<>("programme"));
+        }
+        if (coNumbersColumn != null) {
+            coNumbersColumn.setCellValueFactory(new PropertyValueFactory<>("coNumbers"));
+        }
+        if (poNumbersColumn != null) {
+            poNumbersColumn.setCellValueFactory(new PropertyValueFactory<>("poNumbers"));
         }
 
         // Initialize course list
@@ -383,6 +397,11 @@ public class ManageCoursesController implements Initializable {
             if (coNumbers != null && !coNumbers.isEmpty()) databaseHelper.assignCOsToCourse(courseCode, programme, coNumbers);
             if (poNumbers != null && !poNumbers.isEmpty()) databaseHelper.assignPOsToCourse(courseCode, programme, poNumbers);
             Course newCourse = new Course(courseCode, courseName, "", "", credits, programme, department);
+            // Populate display values for COs/POs
+            if (coNumbers != null && !coNumbers.isEmpty()) newCourse.setCoNumbers(joinInts(new ArrayList<>(new LinkedHashSet<>(coNumbers))));
+            else newCourse.setCoNumbers(joinInts(getCourseCOs(courseCode, programme)));
+            if (poNumbers != null && !poNumbers.isEmpty()) newCourse.setPoNumbers(joinInts(new ArrayList<>(new LinkedHashSet<>(poNumbers))));
+            else newCourse.setPoNumbers(joinInts(getCoursePOs(courseCode, programme)));
             courseList.add(newCourse);
             showInfoAlert("Success", "Course added successfully.");
         } catch (SQLException e) {
@@ -584,7 +603,7 @@ public class ManageCoursesController implements Initializable {
             var courseData = databaseHelper.getAllCourses();
             courseList.clear();
             for (var course : courseData) {
-                courseList.add(new Course(
+                Course c = new Course(
                     course.getCourseCode(),
                     course.getCourseName(),
                     "", // instructor
@@ -592,7 +611,18 @@ public class ManageCoursesController implements Initializable {
                     course.getCredits(),
                     course.getProgramme(),
                     course.getDepartment()
-                ));
+                );
+                // Populate COs and POs for display
+                try {
+                    List<Integer> coNums = getCourseCOs(course.getCourseCode(), course.getProgramme());
+                    List<Integer> poNums = getCoursePOs(course.getCourseCode(), course.getProgramme());
+                    c.setCoNumbers(joinInts(coNums));
+                    c.setPoNumbers(joinInts(poNums));
+                } catch (SQLException e) {
+                    c.setCoNumbers("");
+                    c.setPoNumbers("");
+                }
+                courseList.add(c);
             }
         } catch (SQLException e) {
             showErrorAlert("Database Error", "Failed to load course data: " + e.getMessage());

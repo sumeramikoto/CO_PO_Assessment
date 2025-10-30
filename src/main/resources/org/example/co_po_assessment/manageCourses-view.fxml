@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
-<AnchorPane prefHeight="540.0" prefWidth="772.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.admin_input_controller.ManageCoursesController">
+<AnchorPane prefHeight="540.0" prefWidth="772.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.admin_input_controller.ManageCoursesController">
 
     <TableView fx:id="courseTableView" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="82.0">
         <columns>
@@ -17,6 +17,9 @@
             <!-- Newly added columns -->
             <TableColumn fx:id="departmentColumn" prefWidth="100.0" text="Department" />
             <TableColumn fx:id="programmeColumn" prefWidth="140.0" text="Programme" />
+            <!-- New: show mapped COs and POs -->
+            <TableColumn fx:id="coNumbersColumn" prefWidth="120.0" text="COs" />
+            <TableColumn fx:id="poNumbersColumn" prefWidth="120.0" text="POs" />
         </columns>
     </TableView>
 

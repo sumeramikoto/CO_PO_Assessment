@@ -14,7 +14,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.application.Platform;
 import org.example.co_po_assessment.DashboardPanels.AssessmentSystem;
-import org.example.co_po_assessment.utilities.WindowUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -128,10 +127,11 @@ public class AdminDashboardController implements Initializable {
             StackPane.setAlignment(toast, Pos.BOTTOM_RIGHT);
             stack.getChildren().add(toast);
             final Label toastRef = toast; // ensure effectively final capture
+            final StackPane stackRef = stack; // ensure effectively final capture for lambda below
             // auto-dismiss
             new Thread(() -> {
                 try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
-                Platform.runLater(() -> stack.getChildren().remove(toastRef));
+                Platform.runLater(() -> stackRef.getChildren().remove(toastRef));
             }).start();
         });
     }

@@ -29,10 +29,10 @@ import org.example.co_po_assessment.faculty_input_controller.DetailedMarksContro
 import org.example.co_po_assessment.faculty_input_controller.ManageCourseQuestionsController;
 import org.example.co_po_assessment.utilities.WindowUtils;
 
-
 public class FacultyDashboardController {
     @FXML Button logoutButton;
     @FXML Label facultyLabel;
+    @FXML Label breadcrumbLabel; // optional breadcrumb label from shell layout
     @FXML TableView<DatabaseService.FacultyCourseAssignment> assignedCoursesTableView;
     @FXML TableColumn<DatabaseService.FacultyCourseAssignment, String> courseCodeColumn;
     @FXML TableColumn<DatabaseService.FacultyCourseAssignment, String> courseNameColumn;
@@ -55,8 +55,11 @@ public class FacultyDashboardController {
         if (assignedCoursesTableView != null) {
             assignedCoursesTableView.setItems(assignments);
         }
+        if (breadcrumbLabel != null) breadcrumbLabel.setText("Home");
         loadFacultyData();
     }
+
+    private void setBreadcrumb(String text) { if (breadcrumbLabel != null) breadcrumbLabel.setText(text); }
 
     private void loadFacultyData() {
         DatabaseService.FacultyInfo info = UserSession.getCurrentFaculty();
@@ -93,6 +96,7 @@ public class FacultyDashboardController {
     }
 
     public void onQuestionsButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > Course Questions");
         // opens a window that'll show the questions for the selected course and each respective exam
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
@@ -119,6 +123,7 @@ public class FacultyDashboardController {
     }
 
     public void onMarksButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > Student Marks");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -151,6 +156,7 @@ public class FacultyDashboardController {
     }
 
     public void onCOReportButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > CO Report");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -176,6 +182,7 @@ public class FacultyDashboardController {
     }
 
     public void onPOReportButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > PO Report");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -201,6 +208,7 @@ public class FacultyDashboardController {
     }
 
     public void onExcelExportButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > Export Questions");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -376,6 +384,7 @@ public class FacultyDashboardController {
     }
 
     public void onExcelImportButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > Import Marks");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);

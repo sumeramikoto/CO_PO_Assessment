@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 
 public class AdminDashboardController implements Initializable {
     @FXML Label headerLabel;
+    @FXML Label breadcrumbLabel; // optional breadcrumb label from shell layout
     @FXML Button logoutButton;
     @FXML Button manageFacultiesButton;
     @FXML Button manageStudentsButton;
@@ -32,25 +33,20 @@ public class AdminDashboardController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        headerLabel.setText("Welcome, Administrator!");
+        if (headerLabel != null) headerLabel.setText("Welcome, Administrator!");
+        if (breadcrumbLabel != null) breadcrumbLabel.setText("Home");
     }
 
-    public void onManageFacultiesButton(ActionEvent event) { openWindow("manageFaculties-view.fxml", "Manage Faculty Information", -1, -1); }
-    public void onManageStudentsButton(ActionEvent event) { openWindow("manageStudents-view.fxml", "Manage Student Info", 345, 380); }
-    public void onManageCoursesButton(ActionEvent event) { openWindow("manageCourses-view.fxml", "New Course Manage", 345, 380); }
-    public void onManageCourseAssignmentsButton(ActionEvent event) { openWindow("manageCourseAssignments-view.fxml", "Manage Course Assignments", 345, 380); }
-    public void onManageEnrollmentsButton(ActionEvent event) { openWindow("manageEnrollments-view.fxml", "Manage Enrollments", 840, 520); }
-    public void onViewReportsButton(ActionEvent event) { openWindow("reports-view.fxml", "CO / PO Reports", 500, 400); }
-    public void onCulminationCoursesButton(ActionEvent actionEvent) {
-        openWindow("manageCulminationCourses-view.fxml", "Manage Culmination Courses", 840, 520);
-    }
-    public void onManageGraduatingStudentsButton(ActionEvent actionEvent) {
-        openWindow("manageGraduatingStudents-view.fxml", "Manage Graduating Students", 840, 520);
-    }
-    public void onManageThresholdsButton(ActionEvent actionEvent) { openWindow("manageThresholds-view.fxml", "Manage Thresholds", 420, 260); }
-    public void onGraduatingCohortPOReportButton(ActionEvent actionEvent) { // Handler to open Graduating Cohort PO Report
-        openWindow("graduatingCohortPOReport-view.fxml", "Graduating Cohort PO Report", 900, 600);
-    }
+    public void onManageFacultiesButton(ActionEvent event) { setBreadcrumb("Home > Manage Faculties"); openWindow("manageFaculties-view.fxml", "Manage Faculty Information", -1, -1); }
+    public void onManageStudentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Students"); openWindow("manageStudents-view.fxml", "Manage Student Info", 345, 380); }
+    public void onManageCoursesButton(ActionEvent event) { setBreadcrumb("Home > Manage Courses"); openWindow("manageCourses-view.fxml", "New Course Manage", 345, 380); }
+    public void onManageCourseAssignmentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Course Assignments"); openWindow("manageCourseAssignments-view.fxml", "Manage Course Assignments", 345, 380); }
+    public void onManageEnrollmentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Enrollments"); openWindow("manageEnrollments-view.fxml", "Manage Enrollments", 840, 520); }
+    public void onViewReportsButton(ActionEvent event) { setBreadcrumb("Home > Reports"); openWindow("reports-view.fxml", "CO / PO Reports", 500, 400); }
+    public void onCulminationCoursesButton(ActionEvent actionEvent) { setBreadcrumb("Home > Culmination Courses"); openWindow("manageCulminationCourses-view.fxml", "Manage Culmination Courses", 840, 520); }
+    public void onManageGraduatingStudentsButton(ActionEvent actionEvent) { setBreadcrumb("Home > Graduating Students"); openWindow("manageGraduatingStudents-view.fxml", "Manage Graduating Students", 840, 520); }
+    public void onManageThresholdsButton(ActionEvent actionEvent) { setBreadcrumb("Home > Thresholds"); openWindow("manageThresholds-view.fxml", "Manage Thresholds", 420, 260); }
+    public void onGraduatingCohortPOReportButton(ActionEvent actionEvent) { setBreadcrumb("Home > Graduating Cohort PO Report"); openWindow("graduatingCohortPOReport-view.fxml", "Graduating Cohort PO Report", 900, 600); }
 
     private void openWindow(String fxml, String title, int w, int h) {
         try {
@@ -62,6 +58,10 @@ public class AdminDashboardController implements Initializable {
             WindowUtils.setSceneAndMaximize(stage, scene);
             stage.show();
         } catch (IOException e) { showErrorAlert("Navigation Error", "Failed to open " + title + ": " + e.getMessage()); }
+    }
+
+    private void setBreadcrumb(String text) {
+        if (breadcrumbLabel != null) breadcrumbLabel.setText(text);
     }
 
     public void onLogoutButton(ActionEvent event) {

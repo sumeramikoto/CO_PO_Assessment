@@ -7,8 +7,10 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.Scene?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.dashboard_controller.AdminDashboardController" style="-fx-font-size: 14px; -fx-font-weight: bold;">
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.dashboard_controller.AdminDashboardController" stylesheets="@styles.css" style="-fx-font-size: 14px; -fx-font-weight: bold;">
     <!-- Top bar with title and breadcrumbs -->
     <top>
         <HBox spacing="20.0" style="-fx-background-color: #f7f7fb; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT">
@@ -24,7 +26,7 @@
                     </font>
                 </Label>
                 <HBox HBox.hgrow="ALWAYS" />
-                <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButton" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0; -fx-padding: 8 16;" />
+                <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButton" styleClass="dashboard-button" />
             </children>
             <padding>
                 <Insets top="12" right="16" bottom="12" left="16" />
@@ -41,16 +43,16 @@
                         <Font size="16.0" />
                     </font>
                 </Label>
-                <Button fx:id="manageFacultiesButton" text="Manage Faculties" onAction="#onManageFacultiesButton" prefHeight="40.0" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0;" />
-                <Button fx:id="manageStudentsButton" text="Manage Students" onAction="#onManageStudentsButton" prefHeight="40.0" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0;" />
-                <Button fx:id="manageCoursesButton" text="Manage Courses" onAction="#onManageCoursesButton" prefHeight="40.0" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0;" />
-                <Button fx:id="manageEnrollmentsButton" text="Manage Enrollments" onAction="#onManageEnrollmentsButton" prefHeight="40.0" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0;" />
-                <Button fx:id="manageCourseAssignmentsButton" text="Manage Course Assignments" onAction="#onManageCourseAssignmentsButton" wrapText="true" prefHeight="48.0" style="-fx-background-radius: 24; -fx-border-radius: 24; -fx-background-insets: 0;" />
-                <Button fx:id="culminationCoursesButton" text="Manage Culmination Courses" onAction="#onCulminationCoursesButton" wrapText="true" prefHeight="48.0" style="-fx-background-radius: 24; -fx-border-radius: 24; -fx-background-insets: 0;" />
-                <Button fx:id="manageThresholdsButton" text="Manage Thresholds" onAction="#onManageThresholdsButton" prefHeight="40.0" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0;" />
-                <Button fx:id="manageGraduatingStudentsButton" text="Manage Graduating Students" onAction="#onManageGraduatingStudentsButton" wrapText="true" prefHeight="48.0" style="-fx-background-radius: 24; -fx-border-radius: 24; -fx-background-insets: 0;" />
-                <Button fx:id="graduatingCohortPOReportButton" text="Graduating Cohort PO Report" onAction="#onGraduatingCohortPOReportButton" wrapText="true" prefHeight="48.0" style="-fx-background-radius: 24; -fx-border-radius: 24; -fx-background-insets: 0;" />
-                <Button fx:id="viewReportsButton" text="View Reports" onAction="#onViewReportsButton" prefHeight="40.0" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0;" />
+                <Button fx:id="manageFacultiesButton" text="Manage Faculties" onAction="#onManageFacultiesButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="manageStudentsButton" text="Manage Students" onAction="#onManageStudentsButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="manageCoursesButton" text="Manage Courses" onAction="#onManageCoursesButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="manageEnrollmentsButton" text="Manage Enrollments" onAction="#onManageEnrollmentsButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="manageCourseAssignmentsButton" text="Manage Course Assignments" onAction="#onManageCourseAssignmentsButton" wrapText="true" prefHeight="48.0" styleClass="dashboard-button" />
+                <Button fx:id="culminationCoursesButton" text="Manage Culmination Courses" onAction="#onCulminationCoursesButton" wrapText="true" prefHeight="48.0" styleClass="dashboard-button" />
+                <Button fx:id="manageThresholdsButton" text="Manage Thresholds" onAction="#onManageThresholdsButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="manageGraduatingStudentsButton" text="Manage Graduating Students" onAction="#onManageGraduatingStudentsButton" wrapText="true" prefHeight="48.0" styleClass="dashboard-button" />
+                <Button fx:id="graduatingCohortPOReportButton" text="Graduating Cohort PO Report" onAction="#onGraduatingCohortPOReportButton" wrapText="true" prefHeight="48.0" styleClass="dashboard-button" />
+                <Button fx:id="viewReportsButton" text="View Reports" onAction="#onViewReportsButton" prefHeight="40.0" styleClass="dashboard-button" />
             </children>
             <padding>
                 <Insets top="16" right="12" bottom="16" left="12" />

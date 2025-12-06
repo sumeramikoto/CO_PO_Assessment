@@ -1,0 +1,34 @@
+/* Shared styles for dashboard buttons */
+.dashboard-button {
+  -fx-background-color: #ffffff;
+  -fx-text-fill: #1f2937;
+  -fx-border-color: #d1d5db;
+  -fx-border-width: 1;
+  -fx-background-radius: 20;
+  -fx-border-radius: 20;
+  -fx-background-insets: 0;
+  -fx-padding: 8 16;
+}
+
+/* Hover: slightly darker background and border */
+.dashboard-button:hover {
+  -fx-background-color: #f3f4f6;
+  -fx-border-color: #c0c8d2;
+}
+
+/* Pressed: darker background and subtle inset effect */
+.dashboard-button:pressed {
+  -fx-background-color: #e5e7eb;
+  -fx-border-color: #b6bec9;
+  -fx-background-insets: 1;
+}
+
+/* Emphasis for primary actions if needed */
+.dashboard-button.primary {
+  -fx-background-color: #2563eb;
+  -fx-text-fill: white;
+  -fx-border-color: transparent;
+}
+.dashboard-button.primary:hover { -fx-background-color: #1d4ed8; }
+.dashboard-button.primary:pressed { -fx-background-color: #1e40af; }
+

@@ -1,0 +1,308 @@
+Index: src/main/resources/org/example/co_po_assessment/facultyDashboard-shell.fxml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n\r\n<?import javafx.geometry.Insets?>\r\n<?import javafx.scene.control.Button?>\r\n<?import javafx.scene.control.Label?>\r\n<?import javafx.scene.control.TableColumn?>\r\n<?import javafx.scene.control.TableView?>\r\n<?import javafx.scene.layout.BorderPane?>\r\n<?import javafx.scene.layout.HBox?>\r\n<?import javafx.scene.layout.VBox?>\r\n<?import javafx.scene.text.Font?>\r\n\r\n<BorderPane xmlns=\"http://javafx.com/javafx/17\" xmlns:fx=\"http://javafx.com/fxml/1\" fx:controller=\"org.example.co_po_assessment.dashboard_controller.FacultyDashboardController\" style=\"-fx-font-size: 14px; -fx-font-weight: bold;\">\r\n    <!-- Top bar with title and breadcrumbs -->\r\n    <top>\r\n        <HBox spacing=\"20.0\" style=\"-fx-background-color: #f7f7fb; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;\" alignment=\"CENTER_LEFT\">\r\n            <children>\r\n                <Label fx:id=\"facultyLabel\" text=\"Faculty\" style=\"-fx-text-fill: #1f2937;\">\r\n                    <font>\r\n                        <Font size=\"24.0\" />\r\n                    </font>\r\n                </Label>\r\n                <Label fx:id=\"breadcrumbLabel\" text=\"Home\" style=\"-fx-text-fill: #6b7280; -fx-font-weight: bold;\">\r\n                    <font>\r\n                        <Font size=\"16.0\" />\r\n                    </font>\r\n                </Label>\r\n                <HBox HBox.hgrow=\"ALWAYS\" />\r\n                <Button fx:id=\"logoutButton\" text=\"Logout\" onAction=\"#onLogoutButton\" />\r\n            </children>\r\n            <padding>\r\n                <Insets top=\"12\" right=\"16\" bottom=\"12\" left=\"16\" />\r\n            </padding>\r\n        </HBox>\r\n    </top>\r\n\r\n    <!-- Left navigation sidebar -->\r\n    <left>\r\n        <VBox spacing=\"12.0\" style=\"-fx-background-color: #ffffff; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0;\" prefWidth=\"280.0\">\r\n            <children>\r\n                <Label text=\"Navigation\" style=\"-fx-text-fill: #374151; -fx-font-weight: bold;\">\r\n                    <font>\r\n                        <Font size=\"16.0\" />\r\n                    </font>\r\n                </Label>\r\n                <Button fx:id=\"questionsButton\" text=\"View Course Questions\" onAction=\"#onQuestionsButton\" prefHeight=\"40.0\" />\r\n                <Button fx:id=\"marksButton\" text=\"View Student Marks\" onAction=\"#onMarksButton\" prefHeight=\"40.0\" />\r\n                <Button fx:id=\"COReportButton\" text=\"Open CO Report\" onAction=\"#onCOReportButton\" prefHeight=\"40.0\" />\r\n                <Button fx:id=\"POReportButton\" text=\"Open PO Report\" onAction=\"#onPOReportButton\" prefHeight=\"40.0\" />\r\n                <Button fx:id=\"excelExportButton\" text=\"Export Questions to Excel\" onAction=\"#onExcelExportButton\" wrapText=\"true\" prefHeight=\"48.0\" />\r\n                <Button fx:id=\"excelImportButton\" text=\"Import Excel Marks\" onAction=\"#onExcelImportButton\" prefHeight=\"40.0\" />\r\n            </children>\r\n            <padding>\r\n                <Insets top=\"16\" right=\"12\" bottom=\"16\" left=\"12\" />\r\n            </padding>\r\n        </VBox>\r\n    </left>\r\n\r\n    <!-- Center content area becomes a swappable container -->\r\n    <center>\r\n        <VBox fx:id=\"centerContent\" spacing=\"8.0\">\r\n            <children>\r\n                <!-- Default pane showing assigned courses; controller can restore this -->\r\n                <VBox fx:id=\"coursesListPane\" spacing=\"8.0\">\r\n                    <children>\r\n                        <Label fx:id=\"listLabel\" text=\"List of Assigned Courses\" style=\"-fx-text-fill: #374151;\" alignment=\"CENTER\" textAlignment=\"CENTER\">\r\n                            <font>\r\n                                <Font size=\"20.0\" />\r\n                            </font>\r\n                        </Label>\r\n                        <TableView fx:id=\"assignedCoursesTableView\">\r\n                            <columns>\r\n                                <TableColumn fx:id=\"courseCodeColumn\" text=\"Course Code\" prefWidth=\"120.0\" />\r\n                                <TableColumn fx:id=\"courseNameColumn\" text=\"Course Name\" prefWidth=\"260.0\" />\r\n                                <TableColumn fx:id=\"academicYearColumn\" text=\"Academic Year\" prefWidth=\"140.0\" />\r\n                                <TableColumn fx:id=\"departmentColumn\" text=\"Department\" prefWidth=\"140.0\" />\r\n                                <TableColumn fx:id=\"programmeColumn\" text=\"Programme\" prefWidth=\"220.0\" />\r\n                            </columns>\r\n                        </TableView>\r\n                    </children>\r\n                    <padding>\r\n                        <Insets top=\"12\" right=\"12\" bottom=\"12\" left=\"12\" />\r\n                    </padding>\r\n                </VBox>\r\n            </children>\r\n            <padding>\r\n                <Insets top=\"12\" right=\"12\" bottom=\"12\" left=\"12\" />\r\n            </padding>\r\n        </VBox>\r\n    </center>\r\n</BorderPane>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/resources/org/example/co_po_assessment/facultyDashboard-shell.fxml b/src/main/resources/org/example/co_po_assessment/facultyDashboard-shell.fxml
+--- a/src/main/resources/org/example/co_po_assessment/facultyDashboard-shell.fxml	(revision 009bcfc6a3c12f313efea602dc8ac1cc31645f16)
++++ b/src/main/resources/org/example/co_po_assessment/facultyDashboard-shell.fxml	(date 1764993483946)
+@@ -26,7 +26,7 @@
+                     </font>
+                 </Label>
+                 <HBox HBox.hgrow="ALWAYS" />
+-                <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButton" />
++                <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButton" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0; -fx-padding: 8 16;" />
+             </children>
+             <padding>
+                 <Insets top="12" right="16" bottom="12" left="16" />
+@@ -43,12 +43,12 @@
+                         <Font size="16.0" />
+                     </font>
+                 </Label>
+-                <Button fx:id="questionsButton" text="View Course Questions" onAction="#onQuestionsButton" prefHeight="40.0" />
+-                <Button fx:id="marksButton" text="View Student Marks" onAction="#onMarksButton" prefHeight="40.0" />
+-                <Button fx:id="COReportButton" text="Open CO Report" onAction="#onCOReportButton" prefHeight="40.0" />
+-                <Button fx:id="POReportButton" text="Open PO Report" onAction="#onPOReportButton" prefHeight="40.0" />
+-                <Button fx:id="excelExportButton" text="Export Questions to Excel" onAction="#onExcelExportButton" wrapText="true" prefHeight="48.0" />
+-                <Button fx:id="excelImportButton" text="Import Excel Marks" onAction="#onExcelImportButton" prefHeight="40.0" />
++                <Button fx:id="questionsButton" text="View Course Questions" onAction="#onQuestionsButton" prefHeight="40.0" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0;" />
++                <Button fx:id="marksButton" text="View Student Marks" onAction="#onMarksButton" prefHeight="40.0" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0;" />
++                <Button fx:id="COReportButton" text="Open CO Report" onAction="#onCOReportButton" prefHeight="40.0" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0;" />
++                <Button fx:id="POReportButton" text="Open PO Report" onAction="#onPOReportButton" prefHeight="40.0" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0;" />
++                <Button fx:id="excelExportButton" text="Export Questions to Excel" onAction="#onExcelExportButton" wrapText="true" prefHeight="48.0" style="-fx-background-radius: 24; -fx-border-radius: 24; -fx-background-insets: 0;" />
++                <Button fx:id="excelImportButton" text="Import Excel Marks" onAction="#onExcelImportButton" prefHeight="40.0" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-insets: 0;" />
+             </children>
+             <padding>
+                 <Insets top="16" right="12" bottom="16" left="12" />
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"fd93eeae-2466-4e81-996c-0941a40f5778\" name=\"Changes\" comment=\"added search box and filters for course assignments\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/dataSources.local.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/dataSources.local.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/admin_input_controller/ManageCourseAssignmentsController.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/admin_input_controller/ManageCourseAssignmentsController.java\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"PUSH_AUTO_UPDATE\" value=\"true\" />\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"main\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;SinhaWiz&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/sumeramikoto/CO_PO_Assessment.git&quot;,\r\n    &quot;accountId&quot;: &quot;c093b2b0-cfa0-4d21-bdcb-2361f7a3d711&quot;\r\n  }\r\n}</component>\r\n  <component name=\"MavenImportPreferences\">\r\n    <option name=\"generalSettings\">\r\n      <MavenGeneralSettings>\r\n        <option name=\"mavenHomeTypeForPersistence\" value=\"WRAPPER\" />\r\n      </MavenGeneralSettings>\r\n    </option>\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 7\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"31Ly11PkJgy53Wj6uvshQ1hWmjD\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;Application.AdminDashboardWindow.executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.AdminsDashboard.executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.AssessmentSystem.executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.FacultyDashboard.executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.FacultyDashboardView.executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.FacultyInfoInputView.executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.ManageCoursesView.executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.ManageStudentsView.executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.Manual.executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.ManualExcel (1).executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.ManualExcel.executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.QuestionInputWindow.executor&quot;: &quot;Run&quot;,\r\n    &quot;Application.org.example.co_po_assessment.AssessmentSystem.executor&quot;: &quot;Run&quot;,\r\n    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,\r\n    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,\r\n    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,\r\n    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;sinha&quot;,\r\n    &quot;ignore.preview.features.used&quot;: &quot;true&quot;,\r\n    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,\r\n    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\r\n    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,\r\n    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,\r\n    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,\r\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\r\n  },\r\n  &quot;keyToStringList&quot;: {\r\n    &quot;DatabaseDriversLRU&quot;: [\r\n      &quot;mysql&quot;\r\n    ]\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\SinhaWiz\\IdeaProjects\\CO_PO_As\\src\\main\\java\\org\\example\\co_po_assessment\\DB_Services\" />\r\n    </key>\r\n    <key name=\"MoveInnerDialog.RECENTS_KEY\">\r\n      <recent name=\"depricatedClasses\" />\r\n    </key>\r\n    <key name=\"MoveClassesOrPackagesDialog.RECENTS_KEY\">\r\n      <recent name=\"org.example.co_po_assessment\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"RunManager\" selected=\"Application.AssessmentSystem\">\r\n    <configuration name=\"AdminDashboardWindow\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"org.example.co_po_assessment.AdminDashboardWindow\" />\r\n      <module name=\"CO_PO_Assessment\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"org.example.co_po_assessment.dashboard_controller.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"AssessmentSystem\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"org.example.co_po_assessment.DashboardPanels.AssessmentSystem\" />\r\n      <module name=\"CO_PO_Assessment\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"org.example.co_po_assessment.dashboard_controller.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"FacultyInfoInputView\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"org.example.co_po_assessment.FacultyInfoInputView\" />\r\n      <module name=\"CO_PO_Assessment\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"org.example.co_po_assessment.dashboard_controller.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"Manual\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"org.example.co_po_assessment.Manual\" />\r\n      <module name=\"CO_PO_Assessment\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"org.example.co_po_assessment.dashboard_controller.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"QuestionInputWindow\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"org.example.co_po_assessment.QuestionInputWindow\" />\r\n      <module name=\"CO_PO_Assessment\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"org.example.co_po_assessment.dashboard_controller.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <recent_temporary>\r\n      <list>\r\n        <item itemvalue=\"Application.AssessmentSystem\" />\r\n        <item itemvalue=\"Application.AdminDashboardWindow\" />\r\n        <item itemvalue=\"Application.Manual\" />\r\n        <item itemvalue=\"Application.QuestionInputWindow\" />\r\n        <item itemvalue=\"Application.FacultyInfoInputView\" />\r\n      </list>\r\n    </recent_temporary>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26574.91\" />\r\n        <option value=\"bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26574.91\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"fd93eeae-2466-4e81-996c-0941a40f5778\" name=\"Changes\" comment=\"\" />\r\n      <created>1755317428300</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1755317428300</updated>\r\n      <workItem from=\"1755317429412\" duration=\"1035000\" />\r\n      <workItem from=\"1755318830333\" duration=\"1893000\" />\r\n      <workItem from=\"1755324446904\" duration=\"35000\" />\r\n      <workItem from=\"1755390211854\" duration=\"4924000\" />\r\n      <workItem from=\"1755413829745\" duration=\"1399000\" />\r\n      <workItem from=\"1755416811322\" duration=\"1795000\" />\r\n      <workItem from=\"1755422126072\" duration=\"311000\" />\r\n      <workItem from=\"1755430578861\" duration=\"1597000\" />\r\n      <workItem from=\"1755438509657\" duration=\"283000\" />\r\n      <workItem from=\"1755616701396\" duration=\"143000\" />\r\n      <workItem from=\"1756047265956\" duration=\"120000\" />\r\n      <workItem from=\"1756376355504\" duration=\"430000\" />\r\n      <workItem from=\"1756430329067\" duration=\"1565000\" />\r\n      <workItem from=\"1756467712263\" duration=\"9095000\" />\r\n      <workItem from=\"1756512672457\" duration=\"4000\" />\r\n      <workItem from=\"1756529476628\" duration=\"4208000\" />\r\n      <workItem from=\"1756534816691\" duration=\"6388000\" />\r\n      <workItem from=\"1756630930565\" duration=\"6195000\" />\r\n      <workItem from=\"1756814730542\" duration=\"6486000\" />\r\n      <workItem from=\"1760153519993\" duration=\"968000\" />\r\n      <workItem from=\"1760154533701\" duration=\"6059000\" />\r\n      <workItem from=\"1760539545068\" duration=\"2581000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"updated course_id data type\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1755390857523</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1755390857523</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"changed the usage of question number to question title everywhere\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1755391020995</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1755391020995</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00006\" summary=\"updated schema (Mid &amp; Final are MySQL defined keywords and was causing syntax error when creating table)\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1755394317943</created>\r\n      <option name=\"number\" value=\"00006\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1755394317943</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00007\" summary=\"some input output formats changed\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1755396252981</created>\r\n      <option name=\"number\" value=\"00007\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1755396252981</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00008\" summary=\"some input output formats changed\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1755414075084</created>\r\n      <option name=\"number\" value=\"00008\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1755414075084</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00009\" summary=\"fixed some compilation errors\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1755420354292</created>\r\n      <option name=\"number\" value=\"00009\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00009\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1755420354292</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00010\" summary=\"database connection class to main\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1755422213523</created>\r\n      <option name=\"number\" value=\"00010\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00010\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1755422213523</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00011\" summary=\"database connection class to main\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1755422316570</created>\r\n      <option name=\"number\" value=\"00011\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00011\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1755422316570</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00012\" summary=\"added a faculty info for testing\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1755431388062</created>\r\n      <option name=\"number\" value=\"00012\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00012\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1755431388062</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00013\" summary=\"DBservice updated for retrieving data\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1755432070842</created>\r\n      <option name=\"number\" value=\"00013\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00013\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1755432070842</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00014\" summary=\"fixed the schema for couse code\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756431665102</created>\r\n      <option name=\"number\" value=\"00014\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00014\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756431665102</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00015\" summary=\"moving old classes\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756468370823</created>\r\n      <option name=\"number\" value=\"00015\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00015\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756468370823</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00016\" summary=\"Rewritten the DatabaseService.java to align with the updated sql files\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756469716402</created>\r\n      <option name=\"number\" value=\"00016\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00016\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756469716402</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00017\" summary=\"implemented AdminDashboard main panel Buttons\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756470088877</created>\r\n      <option name=\"number\" value=\"00017\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00017\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756470088877</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00018\" summary=\"implemented AdminDashboard main trying to fix faculty info\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756471450913</created>\r\n      <option name=\"number\" value=\"00018\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00018\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756471450913</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00019\" summary=\"trying to fix faculty info\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756473087778</created>\r\n      <option name=\"number\" value=\"00019\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00019\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756473087778</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00020\" summary=\"Now I can successfully add and remove faculty (also gets stored in DB)\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756473996024</created>\r\n      <option name=\"number\" value=\"00020\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00020\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756473996024</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00021\" summary=\"added functionality for student info panel\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756475206566</created>\r\n      <option name=\"number\" value=\"00021\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00021\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756475206566</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00022\" summary=\"course assignment functionalities implemented\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756477207108</created>\r\n      <option name=\"number\" value=\"00022\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00022\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756477207108</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00023\" summary=\"course assignment functionalities implemented\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756477232274</created>\r\n      <option name=\"number\" value=\"00023\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00023\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756477232274</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00024\" summary=\"changed confusing course assignment panel name\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756531880135</created>\r\n      <option name=\"number\" value=\"00024\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00024\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756531880135</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00025\" summary=\"implementing new course adding\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756533915399</created>\r\n      <option name=\"number\" value=\"00025\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00025\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756533915399</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00026\" summary=\"implementing new course adding\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756533927698</created>\r\n      <option name=\"number\" value=\"00026\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00026\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756533927698</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00027\" summary=\"new insertions added for testing\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756562267239</created>\r\n      <option name=\"number\" value=\"00027\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00027\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756562267239</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00028\" summary=\"unnecessary typecasting removed\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756562480377</created>\r\n      <option name=\"number\" value=\"00028\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00028\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756562480377</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00029\" summary=\"students info now showing currectly in the asessment panel\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756563830932</created>\r\n      <option name=\"number\" value=\"00029\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00029\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756563830933</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00030\" summary=\"now quiz marks are correctly being assigned\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756564670053</created>\r\n      <option name=\"number\" value=\"00030\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00030\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756564670053</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00031\" summary=\"updated readme file\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756565493037</created>\r\n      <option name=\"number\" value=\"00031\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00031\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756565493037</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00032\" summary=\"course assignment table now has dept and programme attribute\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756631321257</created>\r\n      <option name=\"number\" value=\"00032\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00032\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756631321257</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00033\" summary=\"course class has now these two extra fields\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756631377118</created>\r\n      <option name=\"number\" value=\"00033\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00033\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756631377118</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00034\" summary=\"DB service now incorporates the sql update\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756631482002</created>\r\n      <option name=\"number\" value=\"00034\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00034\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756631482002</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00035\" summary=\"course db and input controller updated\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756631559312</created>\r\n      <option name=\"number\" value=\"00035\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00035\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756631559312</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00036\" summary=\"updated\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756631796220</created>\r\n      <option name=\"number\" value=\"00036\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00036\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756631796220</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00037\" summary=\"course and course assignment updated properly\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1756638740547</created>\r\n      <option name=\"number\" value=\"00037\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00037\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1756638740547</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00038\" summary=\"utilities seperated\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760158819193</created>\r\n      <option name=\"number\" value=\"00038\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00038\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760158819193</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00039\" summary=\" dashboards seperated\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760158857944</created>\r\n      <option name=\"number\" value=\"00039\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00039\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760158857944</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00040\" summary=\" dashboard controllers seperated\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760158879793</created>\r\n      <option name=\"number\" value=\"00040\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00040\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760158879793</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00041\" summary=\"report controllers seperated\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760158941985</created>\r\n      <option name=\"number\" value=\"00041\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00041\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760158941985</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00042\" summary=\"model classes  seperated\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760158984135</created>\r\n      <option name=\"number\" value=\"00042\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00042\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760158984135</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00043\" summary=\"database access classes  seperated\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760159034452</created>\r\n      <option name=\"number\" value=\"00043\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00043\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760159034452</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00044\" summary=\"a test class for fxml file paths\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760159066170</created>\r\n      <option name=\"number\" value=\"00044\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00044\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760159066170</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00045\" summary=\"Admin input controllers seperated\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760159140109</created>\r\n      <option name=\"number\" value=\"00045\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00045\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760159140109</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00046\" summary=\"faculty input controller separated\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760159172463</created>\r\n      <option name=\"number\" value=\"00046\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00046\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760159172463</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00047\" summary=\"dashboard controller moved\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760159196608</created>\r\n      <option name=\"number\" value=\"00047\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00047\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760159196608</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00048\" summary=\"search field added in manageFaculties-view.fxml\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760540542275</created>\r\n      <option name=\"number\" value=\"00048\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00048\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760540542275</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00049\" summary=\"search field added in manageStudents-view.fxml\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760540961908</created>\r\n      <option name=\"number\" value=\"00049\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00049\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760540961908</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00050\" summary=\"ManageFacultiesController.java to wire a FilteredList/SortedList using the search field\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760541230147</created>\r\n      <option name=\"number\" value=\"00050\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00050\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760541230147</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00051\" summary=\"ManageStudentsController.java to wire search and batch filtering with FilteredList/SortedList and keep filter options refreshed after data loads.\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760541260224</created>\r\n      <option name=\"number\" value=\"00051\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00051\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760541260224</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00052\" summary=\"added search box and filters for course assignments\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1760541853436</created>\r\n      <option name=\"number\" value=\"00052\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00052\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1760541853436</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"53\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State>\r\n              <option name=\"FILTERS\">\r\n                <map>\r\n                  <entry key=\"branch\">\r\n                    <value>\r\n                      <list>\r\n                        <option value=\"origin/sinha\" />\r\n                      </list>\r\n                    </value>\r\n                  </entry>\r\n                </map>\r\n              </option>\r\n            </State>\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"unnecessary typecasting removed\" />\r\n    <MESSAGE value=\"students info now showing currectly in the asessment panel\" />\r\n    <MESSAGE value=\"now quiz marks are correctly being assigned\" />\r\n    <MESSAGE value=\"updated readme file\" />\r\n    <MESSAGE value=\"course assignment table now has dept and programme attribute\" />\r\n    <MESSAGE value=\"course class has now these two extra fields\" />\r\n    <MESSAGE value=\"DB service now incorporates the sql update\" />\r\n    <MESSAGE value=\"course db and input controller updated\" />\r\n    <MESSAGE value=\"updated\" />\r\n    <MESSAGE value=\"course and course assignment updated properly\" />\r\n    <MESSAGE value=\"utilities seperated\" />\r\n    <MESSAGE value=\" dashboards seperated\" />\r\n    <MESSAGE value=\" dashboard controllers seperated\" />\r\n    <MESSAGE value=\"report controllers seperated\" />\r\n    <MESSAGE value=\"model classes  seperated\" />\r\n    <MESSAGE value=\"database access classes  seperated\" />\r\n    <MESSAGE value=\"a test class for fxml file paths\" />\r\n    <MESSAGE value=\"Admin input controllers seperated\" />\r\n    <MESSAGE value=\"faculty input controller separated\" />\r\n    <MESSAGE value=\"dashboard controller moved\" />\r\n    <MESSAGE value=\"search field added in manageFaculties-view.fxml\" />\r\n    <MESSAGE value=\"search field added in manageStudents-view.fxml\" />\r\n    <MESSAGE value=\"ManageFacultiesController.java to wire a FilteredList/SortedList using the search field\" />\r\n    <MESSAGE value=\"ManageStudentsController.java to wire search and batch filtering with FilteredList/SortedList and keep filter options refreshed after data loads.\" />\r\n    <MESSAGE value=\"added search box and filters for course assignments\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"added search box and filters for course assignments\" />\r\n  </component>\r\n  <component name=\"XDebuggerManager\">\r\n    <breakpoint-manager>\r\n      <breakpoints>\r\n        <line-breakpoint enabled=\"true\" type=\"java-line\">\r\n          <url>file://$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/excelTemplate/COPOThresholdGenerator.java</url>\r\n          <line>32</line>\r\n          <option name=\"timeStamp\" value=\"1\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"java-line\">\r\n          <url>file://$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/QuestionInputWindow.java</url>\r\n          <line>9</line>\r\n          <option name=\"timeStamp\" value=\"2\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"java-line\">\r\n          <url>file://$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/DashboardPanels/FacultyDashboardView.java</url>\r\n          <line>9</line>\r\n          <option name=\"timeStamp\" value=\"3\" />\r\n        </line-breakpoint>\r\n      </breakpoints>\r\n    </breakpoint-manager>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 009bcfc6a3c12f313efea602dc8ac1cc31645f16)
++++ b/.idea/workspace.xml	(date 1764993300932)
+@@ -4,10 +4,10 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="fd93eeae-2466-4e81-996c-0941a40f5778" name="Changes" comment="added search box and filters for course assignments">
++    <list default="true" id="fd93eeae-2466-4e81-996c-0941a40f5778" name="Changes" comment="all windows open in side panel">
+       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/dataSources/26d1fd7c-8836-410d-89e5-a1cdc7142165.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/26d1fd7c-8836-410d-89e5-a1cdc7142165.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/admin_input_controller/ManageCourseAssignmentsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/admin_input_controller/ManageCourseAssignmentsController.java" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -25,7 +25,7 @@
+     <option name="PUSH_AUTO_UPDATE" value="true" />
+     <option name="RECENT_BRANCH_BY_REPOSITORY">
+       <map>
+-        <entry key="$PROJECT_DIR$" value="main" />
++        <entry key="$PROJECT_DIR$" value="sinha" />
+       </map>
+     </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+@@ -65,6 +65,7 @@
+     &quot;Application.FacultyDashboard.executor&quot;: &quot;Run&quot;,
+     &quot;Application.FacultyDashboardView.executor&quot;: &quot;Run&quot;,
+     &quot;Application.FacultyInfoInputView.executor&quot;: &quot;Run&quot;,
++    &quot;Application.Launcher.executor&quot;: &quot;Run&quot;,
+     &quot;Application.ManageCoursesView.executor&quot;: &quot;Run&quot;,
+     &quot;Application.ManageStudentsView.executor&quot;: &quot;Run&quot;,
+     &quot;Application.Manual.executor&quot;: &quot;Run&quot;,
+@@ -78,7 +79,7 @@
+     &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
+     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;sinha&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+     &quot;ignore.preview.features.used&quot;: &quot;true&quot;,
+     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+@@ -109,7 +110,7 @@
+       <recent name="org.example.co_po_assessment" />
+     </key>
+   </component>
+-  <component name="RunManager" selected="Application.AssessmentSystem">
++  <component name="RunManager" selected="Application.Launcher">
+     <configuration name="AdminDashboardWindow" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+       <option name="MAIN_CLASS_NAME" value="org.example.co_po_assessment.AdminDashboardWindow" />
+       <module name="CO_PO_Assessment" />
+@@ -136,12 +137,12 @@
+         <option name="Make" enabled="true" />
+       </method>
+     </configuration>
+-    <configuration name="FacultyInfoInputView" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+-      <option name="MAIN_CLASS_NAME" value="org.example.co_po_assessment.FacultyInfoInputView" />
++    <configuration name="Launcher" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
++      <option name="MAIN_CLASS_NAME" value="org.example.co_po_assessment.Launcher" />
+       <module name="CO_PO_Assessment" />
+       <extension name="coverage">
+         <pattern>
+-          <option name="PATTERN" value="org.example.co_po_assessment.dashboard_controller.*" />
++          <option name="PATTERN" value="org.example.co_po_assessment.*" />
+           <option name="ENABLED" value="true" />
+         </pattern>
+       </extension>
+@@ -177,19 +178,19 @@
+     </configuration>
+     <recent_temporary>
+       <list>
++        <item itemvalue="Application.Launcher" />
++        <item itemvalue="Application.QuestionInputWindow" />
++        <item itemvalue="Application.Manual" />
+         <item itemvalue="Application.AssessmentSystem" />
+         <item itemvalue="Application.AdminDashboardWindow" />
+-        <item itemvalue="Application.Manual" />
+-        <item itemvalue="Application.QuestionInputWindow" />
+-        <item itemvalue="Application.FacultyInfoInputView" />
+       </list>
+     </recent_temporary>
+   </component>
+   <component name="SharedIndexes">
+     <attachedChunks>
+       <set>
+-        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26574.91" />
+-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26574.91" />
++        <option value="bundled-jdk-9823dce3aa75-84258761d1cc-intellij.indexing.shared.core-IU-243.28141.18" />
++        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.28141.18" />
+       </set>
+     </attachedChunks>
+   </component>
+@@ -223,54 +224,8 @@
+       <workItem from="1760153519993" duration="968000" />
+       <workItem from="1760154533701" duration="6059000" />
+       <workItem from="1760539545068" duration="2581000" />
+-    </task>
+-    <task id="LOCAL-00004" summary="updated course_id data type">
+-      <option name="closed" value="true" />
+-      <created>1755390857523</created>
+-      <option name="number" value="00004" />
+-      <option name="presentableId" value="LOCAL-00004" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1755390857523</updated>
+-    </task>
+-    <task id="LOCAL-00005" summary="changed the usage of question number to question title everywhere">
+-      <option name="closed" value="true" />
+-      <created>1755391020995</created>
+-      <option name="number" value="00005" />
+-      <option name="presentableId" value="LOCAL-00005" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1755391020995</updated>
+-    </task>
+-    <task id="LOCAL-00006" summary="updated schema (Mid &amp; Final are MySQL defined keywords and was causing syntax error when creating table)">
+-      <option name="closed" value="true" />
+-      <created>1755394317943</created>
+-      <option name="number" value="00006" />
+-      <option name="presentableId" value="LOCAL-00006" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1755394317943</updated>
+-    </task>
+-    <task id="LOCAL-00007" summary="some input output formats changed">
+-      <option name="closed" value="true" />
+-      <created>1755396252981</created>
+-      <option name="number" value="00007" />
+-      <option name="presentableId" value="LOCAL-00007" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1755396252981</updated>
+-    </task>
+-    <task id="LOCAL-00008" summary="some input output formats changed">
+-      <option name="closed" value="true" />
+-      <created>1755414075084</created>
+-      <option name="number" value="00008" />
+-      <option name="presentableId" value="LOCAL-00008" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1755414075084</updated>
+-    </task>
+-    <task id="LOCAL-00009" summary="fixed some compilation errors">
+-      <option name="closed" value="true" />
+-      <created>1755420354292</created>
+-      <option name="number" value="00009" />
+-      <option name="presentableId" value="LOCAL-00009" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1755420354292</updated>
++      <workItem from="1764953354000" duration="1025000" />
++      <workItem from="1764992462392" duration="837000" />
+     </task>
+     <task id="LOCAL-00010" summary="database connection class to main">
+       <option name="closed" value="true" />
+@@ -616,7 +571,55 @@
+       <option name="project" value="LOCAL" />
+       <updated>1760541853436</updated>
+     </task>
+-    <option name="localTasksCounter" value="53" />
++    <task id="LOCAL-00053" summary="nav panel added">
++      <option name="closed" value="true" />
++      <created>1764992675154</created>
++      <option name="number" value="00053" />
++      <option name="presentableId" value="LOCAL-00053" />
++      <option name="project" value="LOCAL" />
++      <updated>1764992675154</updated>
++    </task>
++    <task id="LOCAL-00054" summary="nav panel added">
++      <option name="closed" value="true" />
++      <created>1764992680443</created>
++      <option name="number" value="00054" />
++      <option name="presentableId" value="LOCAL-00054" />
++      <option name="project" value="LOCAL" />
++      <updated>1764992680443</updated>
++    </task>
++    <task id="LOCAL-00055" summary="nav panel added">
++      <option name="closed" value="true" />
++      <created>1764992684715</created>
++      <option name="number" value="00055" />
++      <option name="presentableId" value="LOCAL-00055" />
++      <option name="project" value="LOCAL" />
++      <updated>1764992684715</updated>
++    </task>
++    <task id="LOCAL-00056" summary="nav panel added">
++      <option name="closed" value="true" />
++      <created>1764992690236</created>
++      <option name="number" value="00056" />
++      <option name="presentableId" value="LOCAL-00056" />
++      <option name="project" value="LOCAL" />
++      <updated>1764992690236</updated>
++    </task>
++    <task id="LOCAL-00057" summary="push ui update">
++      <option name="closed" value="true" />
++      <created>1764992749059</created>
++      <option name="number" value="00057" />
++      <option name="presentableId" value="LOCAL-00057" />
++      <option name="project" value="LOCAL" />
++      <updated>1764992749059</updated>
++    </task>
++    <task id="LOCAL-00058" summary="all windows open in side panel">
++      <option name="closed" value="true" />
++      <created>1764993159970</created>
++      <option name="number" value="00058" />
++      <option name="presentableId" value="LOCAL-00058" />
++      <option name="project" value="LOCAL" />
++      <updated>1764993159970</updated>
++    </task>
++    <option name="localTasksCounter" value="59" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -646,9 +649,6 @@
+     </option>
+   </component>
+   <component name="VcsManagerConfiguration">
+-    <MESSAGE value="unnecessary typecasting removed" />
+-    <MESSAGE value="students info now showing currectly in the asessment panel" />
+-    <MESSAGE value="now quiz marks are correctly being assigned" />
+     <MESSAGE value="updated readme file" />
+     <MESSAGE value="course assignment table now has dept and programme attribute" />
+     <MESSAGE value="course class has now these two extra fields" />
+@@ -671,7 +671,10 @@
+     <MESSAGE value="ManageFacultiesController.java to wire a FilteredList/SortedList using the search field" />
+     <MESSAGE value="ManageStudentsController.java to wire search and batch filtering with FilteredList/SortedList and keep filter options refreshed after data loads." />
+     <MESSAGE value="added search box and filters for course assignments" />
+-    <option name="LAST_COMMIT_MESSAGE" value="added search box and filters for course assignments" />
++    <MESSAGE value="nav panel added" />
++    <MESSAGE value="push ui update" />
++    <MESSAGE value="all windows open in side panel" />
++    <option name="LAST_COMMIT_MESSAGE" value="all windows open in side panel" />
+   </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+@@ -685,11 +688,6 @@
+           <url>file://$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/QuestionInputWindow.java</url>
+           <line>9</line>
+           <option name="timeStamp" value="2" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" type="java-line">
+-          <url>file://$PROJECT_DIR$/src/main/java/org/example/co_po_assessment/DashboardPanels/FacultyDashboardView.java</url>
+-          <line>9</line>
+-          <option name="timeStamp" value="3" />
+         </line-breakpoint>
+       </breakpoints>
+     </breakpoint-manager>
+Index: .idea/dataSources.local.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"dataSourceStorageLocal\" created-in=\"IU-243.26574.91\">\r\n    <data-source name=\"SPL2\" uuid=\"26d1fd7c-8836-410d-89e5-a1cdc7142165\">\r\n      <database-info product=\"MySQL\" version=\"8.0.41\" jdbc-version=\"4.2\" driver-name=\"MySQL Connector/J\" driver-version=\"mysql-connector-j-8.2.0 (Revision: 06a1f724497fd81c6a659131fda822c9e5085b6c)\" dbms=\"MYSQL\" exact-version=\"8.0.41\" exact-driver-version=\"8.2\">\r\n        <extra-name-characters>#@</extra-name-characters>\r\n        <identifier-quote-string>`</identifier-quote-string>\r\n        <jdbc-catalog-is-schema>true</jdbc-catalog-is-schema>\r\n      </database-info>\r\n      <case-sensitivity plain-identifiers=\"lower\" quoted-identifiers=\"lower\" />\r\n      <secret-storage>master_key</secret-storage>\r\n      <user-name>root</user-name>\r\n      <schema-mapping>\r\n        <introspection-scope>\r\n          <node kind=\"schema\" qname=\"@\" />\r\n        </introspection-scope>\r\n      </schema-mapping>\r\n    </data-source>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/dataSources.local.xml b/.idea/dataSources.local.xml
+--- a/.idea/dataSources.local.xml	(revision 009bcfc6a3c12f313efea602dc8ac1cc31645f16)
++++ b/.idea/dataSources.local.xml	(date 1764953380689)
+@@ -1,11 +1,10 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="dataSourceStorageLocal" created-in="IU-243.26574.91">
++  <component name="dataSourceStorageLocal" created-in="IU-243.28141.18">
+     <data-source name="SPL2" uuid="26d1fd7c-8836-410d-89e5-a1cdc7142165">
+       <database-info product="MySQL" version="8.0.41" jdbc-version="4.2" driver-name="MySQL Connector/J" driver-version="mysql-connector-j-8.2.0 (Revision: 06a1f724497fd81c6a659131fda822c9e5085b6c)" dbms="MYSQL" exact-version="8.0.41" exact-driver-version="8.2">
+         <extra-name-characters>#@</extra-name-characters>
+         <identifier-quote-string>`</identifier-quote-string>
+-        <jdbc-catalog-is-schema>true</jdbc-catalog-is-schema>
+       </database-info>
+       <case-sensitivity plain-identifiers="lower" quoted-identifiers="lower" />
+       <secret-storage>master_key</secret-storage>

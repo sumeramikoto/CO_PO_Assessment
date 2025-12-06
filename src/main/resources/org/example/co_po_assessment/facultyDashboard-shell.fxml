@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.dashboard_controller.FacultyDashboardController" style="-fx-font-size: 14px; -fx-font-weight: bold;">
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.dashboard_controller.FacultyDashboardController" stylesheets="@styles.css" style="-fx-font-size: 14px; -fx-font-weight: bold;">
     <!-- Top bar with title and breadcrumbs -->
     <top>
         <HBox spacing="20.0" style="-fx-background-color: #f7f7fb; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT">
@@ -26,7 +26,7 @@
                     </font>
                 </Label>
                 <HBox HBox.hgrow="ALWAYS" />
-                <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButton" />
+                <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButton" styleClass="dashboard-button" />
             </children>
             <padding>
                 <Insets top="12" right="16" bottom="12" left="16" />
@@ -43,12 +43,12 @@
                         <Font size="16.0" />
                     </font>
                 </Label>
-                <Button fx:id="questionsButton" text="View Course Questions" onAction="#onQuestionsButton" prefHeight="40.0" />
-                <Button fx:id="marksButton" text="View Student Marks" onAction="#onMarksButton" prefHeight="40.0" />
-                <Button fx:id="COReportButton" text="Open CO Report" onAction="#onCOReportButton" prefHeight="40.0" />
-                <Button fx:id="POReportButton" text="Open PO Report" onAction="#onPOReportButton" prefHeight="40.0" />
-                <Button fx:id="excelExportButton" text="Export Questions to Excel" onAction="#onExcelExportButton" wrapText="true" prefHeight="48.0" />
-                <Button fx:id="excelImportButton" text="Import Excel Marks" onAction="#onExcelImportButton" prefHeight="40.0" />
+                <Button fx:id="questionsButton" text="View Course Questions" onAction="#onQuestionsButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="marksButton" text="View Student Marks" onAction="#onMarksButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="COReportButton" text="Open CO Report" onAction="#onCOReportButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="POReportButton" text="Open PO Report" onAction="#onPOReportButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="excelExportButton" text="Export Questions to Excel" onAction="#onExcelExportButton" wrapText="true" prefHeight="48.0" styleClass="dashboard-button" />
+                <Button fx:id="excelImportButton" text="Import Excel Marks" onAction="#onExcelImportButton" prefHeight="40.0" styleClass="dashboard-button" />
             </children>
             <padding>
                 <Insets top="16" right="12" bottom="16" left="12" />

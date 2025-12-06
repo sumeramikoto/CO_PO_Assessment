@@ -29,7 +29,6 @@ import org.example.co_po_assessment.faculty_input_controller.DetailedMarksContro
 import org.example.co_po_assessment.faculty_input_controller.ManageCourseQuestionsController;
 import org.example.co_po_assessment.utilities.WindowUtils;
 
-
 public class FacultyDashboardController {
     @FXML Button logoutButton;
     @FXML Label facultyLabel;

@@ -4,10 +4,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.application.Platform;
 import org.example.co_po_assessment.DashboardPanels.AssessmentSystem;
@@ -30,6 +31,8 @@ public class AdminDashboardController implements Initializable {
     @FXML Button manageThresholdsButton;
     @FXML Button manageGraduatingStudentsButton;
     @FXML Button graduatingCohortPOReportButton; // New button for Graduating Cohort PO Report
+    // Center content container from shell to embed child views
+    @FXML VBox centerContent;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -37,27 +40,24 @@ public class AdminDashboardController implements Initializable {
         if (breadcrumbLabel != null) breadcrumbLabel.setText("Home");
     }
 
-    public void onManageFacultiesButton(ActionEvent event) { setBreadcrumb("Home > Manage Faculties"); openWindow("manageFaculties-view.fxml", "Manage Faculty Information", -1, -1); }
-    public void onManageStudentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Students"); openWindow("manageStudents-view.fxml", "Manage Student Info", 345, 380); }
-    public void onManageCoursesButton(ActionEvent event) { setBreadcrumb("Home > Manage Courses"); openWindow("manageCourses-view.fxml", "New Course Manage", 345, 380); }
-    public void onManageCourseAssignmentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Course Assignments"); openWindow("manageCourseAssignments-view.fxml", "Manage Course Assignments", 345, 380); }
-    public void onManageEnrollmentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Enrollments"); openWindow("manageEnrollments-view.fxml", "Manage Enrollments", 840, 520); }
-    public void onViewReportsButton(ActionEvent event) { setBreadcrumb("Home > Reports"); openWindow("reports-view.fxml", "CO / PO Reports", 500, 400); }
-    public void onCulminationCoursesButton(ActionEvent actionEvent) { setBreadcrumb("Home > Culmination Courses"); openWindow("manageCulminationCourses-view.fxml", "Manage Culmination Courses", 840, 520); }
-    public void onManageGraduatingStudentsButton(ActionEvent actionEvent) { setBreadcrumb("Home > Graduating Students"); openWindow("manageGraduatingStudents-view.fxml", "Manage Graduating Students", 840, 520); }
-    public void onManageThresholdsButton(ActionEvent actionEvent) { setBreadcrumb("Home > Thresholds"); openWindow("manageThresholds-view.fxml", "Manage Thresholds", 420, 260); }
-    public void onGraduatingCohortPOReportButton(ActionEvent actionEvent) { setBreadcrumb("Home > Graduating Cohort PO Report"); openWindow("graduatingCohortPOReport-view.fxml", "Graduating Cohort PO Report", 900, 600); }
+    public void onManageFacultiesButton(ActionEvent event) { setBreadcrumb("Home > Manage Faculties"); setCenterFromFXML("manageFaculties-view.fxml"); }
+    public void onManageStudentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Students"); setCenterFromFXML("manageStudents-view.fxml"); }
+    public void onManageCoursesButton(ActionEvent event) { setBreadcrumb("Home > Manage Courses"); setCenterFromFXML("manageCourses-view.fxml"); }
+    public void onManageCourseAssignmentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Course Assignments"); setCenterFromFXML("manageCourseAssignments-view.fxml"); }
+    public void onManageEnrollmentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Enrollments"); setCenterFromFXML("manageEnrollments-view.fxml"); }
+    public void onViewReportsButton(ActionEvent event) { setBreadcrumb("Home > Reports"); setCenterFromFXML("reports-view.fxml"); }
+    public void onCulminationCoursesButton(ActionEvent actionEvent) { setBreadcrumb("Home > Culmination Courses"); setCenterFromFXML("manageCulminationCourses-view.fxml"); }
+    public void onManageGraduatingStudentsButton(ActionEvent actionEvent) { setBreadcrumb("Home > Graduating Students"); setCenterFromFXML("manageGraduatingStudents-view.fxml"); }
+    public void onManageThresholdsButton(ActionEvent actionEvent) { setBreadcrumb("Home > Thresholds"); setCenterFromFXML("manageThresholds-view.fxml"); }
+    public void onGraduatingCohortPOReportButton(ActionEvent actionEvent) { setBreadcrumb("Home > Graduating Cohort PO Report"); setCenterFromFXML("graduatingCohortPOReport-view.fxml"); }
 
-    private void openWindow(String fxml, String title, int w, int h) {
+    private void setCenterFromFXML(String fxml) {
         try {
             String resource = fxml.startsWith("/") ? fxml : "/org/example/co_po_assessment/" + fxml;
             FXMLLoader loader = new FXMLLoader(AdminDashboardController.class.getResource(resource));
-            Scene scene = (w > 0 && h > 0) ? new Scene(loader.load(), w, h) : new Scene(loader.load());
-            Stage stage = new Stage();
-            stage.setTitle(title);
-            WindowUtils.setSceneAndMaximize(stage, scene);
-            stage.show();
-        } catch (IOException e) { showErrorAlert("Navigation Error", "Failed to open " + title + ": " + e.getMessage()); }
+            Parent root = loader.load();
+            if (centerContent != null) centerContent.getChildren().setAll(root);
+        } catch (IOException e) { showErrorAlert("Navigation Error", "Failed to open view: " + e.getMessage()); }
     }
 
     private void setBreadcrumb(String text) {

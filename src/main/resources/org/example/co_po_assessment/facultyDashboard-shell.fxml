@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.dashboard_controller.FacultyDashboardController" stylesheets="@styles.css" style="-fx-font-size: 14px; -fx-font-weight: bold;">
+    <!-- Top bar with title and breadcrumbs -->
+    <top>
+        <HBox spacing="20.0" style="-fx-background-color: #f7f7fb; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT">
+            <children>
+                <Label fx:id="facultyLabel" text="Faculty" style="-fx-text-fill: #1f2937;">
+                    <font>
+                        <Font size="24.0" />
+                    </font>
+                </Label>
+                <Label fx:id="breadcrumbLabel" text="Home" style="-fx-text-fill: #6b7280; -fx-font-weight: bold;">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+                <HBox HBox.hgrow="ALWAYS" />
+                <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButton" styleClass="dashboard-button" />
+            </children>
+            <padding>
+                <Insets top="12" right="16" bottom="12" left="16" />
+            </padding>
+        </HBox>
+    </top>
+
+    <!-- Left navigation sidebar -->
+    <left>
+        <VBox spacing="12.0" style="-fx-background-color: #ffffff; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0;" prefWidth="280.0">
+            <children>
+                <Label text="Navigation" style="-fx-text-fill: #374151; -fx-font-weight: bold;">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+                <Button fx:id="questionsButton" text="View Course Questions" onAction="#onQuestionsButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="marksButton" text="View Student Marks" onAction="#onMarksButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="COReportButton" text="Open CO Report" onAction="#onCOReportButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="POReportButton" text="Open PO Report" onAction="#onPOReportButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="excelExportButton" text="Export Questions to Excel" onAction="#onExcelExportButton" wrapText="true" prefHeight="48.0" styleClass="dashboard-button" />
+                <Button fx:id="excelImportButton" text="Import Excel Marks" onAction="#onExcelImportButton" prefHeight="40.0" styleClass="dashboard-button" />
+            </children>
+            <padding>
+                <Insets top="16" right="12" bottom="16" left="12" />
+            </padding>
+        </VBox>
+    </left>
+
+    <!-- Center content area becomes a swappable container -->
+    <center>
+        <VBox fx:id="centerContent" spacing="8.0">
+            <children>
+                <!-- Default pane showing assigned courses; controller can restore this -->
+                <VBox fx:id="coursesListPane" spacing="8.0">
+                    <children>
+                        <Label fx:id="listLabel" text="List of Assigned Courses" style="-fx-text-fill: #374151;" alignment="CENTER" textAlignment="CENTER">
+                            <font>
+                                <Font size="20.0" />
+                            </font>
+                        </Label>
+                        <TableView fx:id="assignedCoursesTableView">
+                            <columns>
+                                <TableColumn fx:id="courseCodeColumn" text="Course Code" prefWidth="120.0" />
+                                <TableColumn fx:id="courseNameColumn" text="Course Name" prefWidth="260.0" />
+                                <TableColumn fx:id="academicYearColumn" text="Academic Year" prefWidth="140.0" />
+                                <TableColumn fx:id="departmentColumn" text="Department" prefWidth="140.0" />
+                                <TableColumn fx:id="programmeColumn" text="Programme" prefWidth="220.0" />
+                            </columns>
+                        </TableView>
+                    </children>
+                    <padding>
+                        <Insets top="12" right="12" bottom="12" left="12" />
+                    </padding>
+                </VBox>
+            </children>
+            <padding>
+                <Insets top="12" right="12" bottom="12" left="12" />
+            </padding>
+        </VBox>
+    </center>
+</BorderPane>

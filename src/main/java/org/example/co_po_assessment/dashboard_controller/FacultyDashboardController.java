@@ -533,6 +533,31 @@ public class FacultyDashboardController {
         }
     }
 
+    // Dark mode support
+    private static final String DARK_STYLESHEET = "/org/example/co_po_assessment/styles-dark.css";
+
+    @FXML
+    public void onDarkModeToggle(ActionEvent event) {
+        boolean enable = true;
+        Object src = event != null ? event.getSource() : null;
+        if (src instanceof javafx.scene.control.ToggleButton tb) enable = tb.isSelected();
+        else if (src instanceof javafx.scene.control.CheckBox cb) enable = cb.isSelected();
+        else { enable = !isDarkModeEnabled(); }
+        setDarkMode(enable);
+    }
+
+    private boolean isDarkModeEnabled() {
+        if (centerContent == null || centerContent.getScene() == null) return false;
+        return centerContent.getScene().getStylesheets().stream().anyMatch(s -> s.endsWith("styles-dark.css"));
+    }
+
+    public void setDarkMode(boolean enable) {
+        if (centerContent == null || centerContent.getScene() == null) return;
+        var sheets = centerContent.getScene().getStylesheets();
+        if (enable) { if (sheets.stream().noneMatch(s -> s.endsWith("styles-dark.css"))) sheets.add(DARK_STYLESHEET); }
+        else { sheets.removeIf(s -> s.endsWith("styles-dark.css")); }
+    }
+
     // Optional: handle Home breadcrumb click if label is clickable
     public void onHome(ActionEvent e) { restoreHome(); }
 }

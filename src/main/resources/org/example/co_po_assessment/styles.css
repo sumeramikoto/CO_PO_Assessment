@@ -45,6 +45,29 @@
 .dashboard-button.primary:hover { -fx-background-color: #1d4ed8; }
 .dashboard-button.primary:pressed { -fx-background-color: #1e40af; }
 
+/* Global button styling to cover remaining buttons */
+.button {
+  -fx-background-color: rgba(255,255,255,0.85);
+  -fx-text-fill: #1f2937;
+  -fx-border-color: #d1d5db;
+  -fx-border-width: 1;
+  -fx-background-radius: 24; /* rounded shape */
+  -fx-border-radius: 24;
+  -fx-background-insets: 0;
+  -fx-padding: 10 18; /* bigger buttons */
+  -fx-font-weight: bold; /* bold text */
+}
+.button:hover { -fx-background-color: rgba(243,244,246,0.9); -fx-border-color: #c0c8d2; }
+.button:pressed { -fx-background-color: rgba(229,231,235,0.95); -fx-border-color: #b6bec9; -fx-background-insets: 1; }
+.button:focused { -fx-effect: dropshadow( three-pass-box , rgba(37,99,235,0.4) , 6, 0.0 , 0 , 0 ); }
+
+/* Sidebar specific: highlight active item */
+.sidebar .button.active,
+.button.active { /* fallback if not inside sidebar */
+  -fx-background-color: #e0ecff;
+  -fx-border-color: #93c5fd;
+}
+
 /* Breadcrumb label emphasis */
 #breadcrumbLabel { -fx-font-weight: bold; -fx-text-fill: #4b5563; }
 

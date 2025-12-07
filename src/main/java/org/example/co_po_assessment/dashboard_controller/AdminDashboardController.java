@@ -161,7 +161,11 @@ public class AdminDashboardController implements Initializable {
     public void setDarkMode(boolean enable) {
         if (centerContent == null || centerContent.getScene() == null) return;
         var sheets = centerContent.getScene().getStylesheets();
-        if (enable) { if (sheets.stream().noneMatch(s -> s.endsWith("styles-dark.css"))) sheets.add(DARK_STYLESHEET); }
+        String darkUrl = null;
+        try { darkUrl = AdminDashboardController.class.getResource(DARK_STYLESHEET).toExternalForm(); }
+        catch (Exception ignored) {}
+        if (darkUrl == null) return;
+        if (enable) { if (sheets.stream().noneMatch(s -> s.endsWith("styles-dark.css"))) sheets.add(darkUrl); }
         else { sheets.removeIf(s -> s.endsWith("styles-dark.css")); }
     }
 }

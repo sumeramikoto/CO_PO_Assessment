@@ -4,14 +4,16 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.application.Platform;
 import org.example.co_po_assessment.DashboardPanels.AssessmentSystem;
-import org.example.co_po_assessment.utilities.WindowUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -19,6 +21,7 @@ import java.util.ResourceBundle;
 
 public class AdminDashboardController implements Initializable {
     @FXML Label headerLabel;
+    @FXML Label breadcrumbLabel; // optional breadcrumb label from shell layout
     @FXML Button logoutButton;
     @FXML Button manageFacultiesButton;
     @FXML Button manageStudentsButton;
@@ -29,39 +32,60 @@ public class AdminDashboardController implements Initializable {
     @FXML Button manageThresholdsButton;
     @FXML Button manageGraduatingStudentsButton;
     @FXML Button graduatingCohortPOReportButton; // New button for Graduating Cohort PO Report
+    @FXML Button manageEnrollmentsButton; // missing declaration added
+    // Center content container from shell to embed child views
+    @FXML VBox centerContent;
+
+    // Root container used to place toast/snackbar bottom-right; will be looked up from any child
+    private StackPane rootStack;
+
+    // Dark mode toggle: adds/removes dark stylesheet at scene level
+    private static final String DARK_STYLESHEET = "/org/example/co_po_assessment/styles-dark.css";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        headerLabel.setText("Welcome, Administrator!");
+        if (headerLabel != null) headerLabel.setText("Welcome, Administrator!");
+        if (breadcrumbLabel != null) breadcrumbLabel.setText("Home");
+        // prepare root stack for toasts (optional)
+        Platform.runLater(() -> {
+            if (centerContent != null) {
+                Parent sceneRoot = centerContent.getScene() != null ? centerContent.getScene().getRoot() : null;
+                if (sceneRoot instanceof StackPane sp) { rootStack = sp; }
+            }
+        });
     }
 
-    public void onManageFacultiesButton(ActionEvent event) { openWindow("manageFaculties-view.fxml", "Manage Faculty Information", -1, -1); }
-    public void onManageStudentsButton(ActionEvent event) { openWindow("manageStudents-view.fxml", "Manage Student Info", 345, 380); }
-    public void onManageCoursesButton(ActionEvent event) { openWindow("manageCourses-view.fxml", "New Course Manage", 345, 380); }
-    public void onManageCourseAssignmentsButton(ActionEvent event) { openWindow("manageCourseAssignments-view.fxml", "Manage Course Assignments", 345, 380); }
-    public void onManageEnrollmentsButton(ActionEvent event) { openWindow("manageEnrollments-view.fxml", "Manage Enrollments", 840, 520); }
-    public void onViewReportsButton(ActionEvent event) { openWindow("reports-view.fxml", "CO / PO Reports", 500, 400); }
-    public void onCulminationCoursesButton(ActionEvent actionEvent) {
-        openWindow("manageCulminationCourses-view.fxml", "Manage Culmination Courses", 840, 520);
-    }
-    public void onManageGraduatingStudentsButton(ActionEvent actionEvent) {
-        openWindow("manageGraduatingStudents-view.fxml", "Manage Graduating Students", 840, 520);
-    }
-    public void onManageThresholdsButton(ActionEvent actionEvent) { openWindow("manageThresholds-view.fxml", "Manage Thresholds", 420, 260); }
-    public void onGraduatingCohortPOReportButton(ActionEvent actionEvent) { // Handler to open Graduating Cohort PO Report
-        openWindow("graduatingCohortPOReport-view.fxml", "Graduating Cohort PO Report", 900, 600);
-    }
+    public void onManageFacultiesButton(ActionEvent event) { setBreadcrumb("Home > Manage Faculties"); setActive(manageFacultiesButton); setCenterFromFXML("manageFaculties-view.fxml"); }
+    public void onManageStudentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Students"); setActive(manageStudentsButton); setCenterFromFXML("manageStudents-view.fxml"); }
+    public void onManageCoursesButton(ActionEvent event) { setBreadcrumb("Home > Manage Courses"); setActive(manageCoursesButton); setCenterFromFXML("manageCourses-view.fxml"); }
+    public void onManageCourseAssignmentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Course Assignments"); setActive(manageCourseAssignmentsButton); setCenterFromFXML("manageCourseAssignments-view.fxml"); }
+    public void onManageEnrollmentsButton(ActionEvent event) { setBreadcrumb("Home > Manage Enrollments"); setActive(manageEnrollmentsButton); setCenterFromFXML("manageEnrollments-view.fxml"); }
+    public void onViewReportsButton(ActionEvent event) { setBreadcrumb("Home > Reports"); setActive(viewReportsButton); setCenterFromFXML("reports-view.fxml"); }
+    public void onCulminationCoursesButton(ActionEvent actionEvent) { setBreadcrumb("Home > Culmination Courses"); setActive(culminationCoursesButton); setCenterFromFXML("manageCulminationCourses-view.fxml"); }
+    public void onManageGraduatingStudentsButton(ActionEvent actionEvent) { setBreadcrumb("Home > Graduating Students"); setActive(manageGraduatingStudentsButton); setCenterFromFXML("manageGraduatingStudents-view.fxml"); }
+    public void onManageThresholdsButton(ActionEvent actionEvent) { setBreadcrumb("Home > Thresholds"); setActive(manageThresholdsButton); setCenterFromFXML("manageThresholds-view.fxml"); }
+    public void onGraduatingCohortPOReportButton(ActionEvent actionEvent) { setBreadcrumb("Home > Graduating Cohort PO Report"); setActive(graduatingCohortPOReportButton); setCenterFromFXML("graduatingCohortPOReport-view.fxml"); }
 
-    private void openWindow(String fxml, String title, int w, int h) {
+    private void setCenterFromFXML(String fxml) {
         try {
             String resource = fxml.startsWith("/") ? fxml : "/org/example/co_po_assessment/" + fxml;
             FXMLLoader loader = new FXMLLoader(AdminDashboardController.class.getResource(resource));
-            Scene scene = (w > 0 && h > 0) ? new Scene(loader.load(), w, h) : new Scene(loader.load());
-            Stage stage = new Stage();
-            stage.setTitle(title);
-            WindowUtils.setSceneAndMaximize(stage, scene);
-            stage.show();
-        } catch (IOException e) { showErrorAlert("Navigation Error", "Failed to open " + title + ": " + e.getMessage()); }
+            Parent root = loader.load();
+            if (centerContent != null) centerContent.getChildren().setAll(root);
+        } catch (IOException e) { showErrorAlert("Navigation Error", "Failed to open view: " + e.getMessage()); }
+    }
+
+    private void setBreadcrumb(String text) {
+        if (breadcrumbLabel != null) breadcrumbLabel.setText(text);
+    }
+
+    private void setActive(Button active) {
+        // remove active from all, then add to the given button
+        Button[] buttons = new Button[]{ manageFacultiesButton, manageStudentsButton, manageCoursesButton, manageEnrollmentsButton,
+                manageCourseAssignmentsButton, culminationCoursesButton, manageThresholdsButton, manageGraduatingStudentsButton,
+                graduatingCohortPOReportButton, viewReportsButton };
+        for (Button b : buttons) { if (b != null) b.getStyleClass().remove("active"); }
+        if (active != null && !active.getStyleClass().contains("active")) active.getStyleClass().add("active");
     }
 
     public void onLogoutButton(ActionEvent event) {
@@ -81,6 +105,7 @@ public class AdminDashboardController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+        showToast(message, true);
     }
 
     private void showInfoAlert(String title, String message) {
@@ -89,7 +114,58 @@ public class AdminDashboardController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+        showToast(message, false);
     }
 
+    // Lightweight toast/snackbar bottom-right
+    private void showToast(String message, boolean error) {
+        Platform.runLater(() -> {
+            StackPane stack = rootStack;
+            if (stack == null && centerContent != null && centerContent.getScene() != null && centerContent.getScene().getRoot() instanceof StackPane sp) {
+                stack = sp; rootStack = sp;
+            }
+            if (stack == null) return;
+            Label toast = new Label(message);
+            toast.getStyleClass().addAll("toast-container", error ? "error" : "success");
+            StackPane.setAlignment(toast, Pos.BOTTOM_RIGHT);
+            stack.getChildren().add(toast);
+            final Label toastRef = toast; // ensure effectively final capture
+            final StackPane stackRef = stack; // ensure effectively final capture for lambda below
+            // auto-dismiss
+            new Thread(() -> {
+                try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
+                Platform.runLater(() -> stackRef.getChildren().remove(toastRef));
+            }).start();
+        });
+    }
 
+    @FXML
+    public void onDarkModeToggle(ActionEvent event) {
+        // If wired from a CheckBox/ToggleButton, infer selected state if possible, else toggle
+        boolean enable = true;
+        Object src = event != null ? event.getSource() : null;
+        if (src instanceof javafx.scene.control.ToggleButton tb) enable = tb.isSelected();
+        else if (src instanceof javafx.scene.control.CheckBox cb) enable = cb.isSelected();
+        else {
+            // fallback: toggle based on presence
+            enable = !isDarkModeEnabled();
+        }
+        setDarkMode(enable);
+    }
+
+    private boolean isDarkModeEnabled() {
+        if (centerContent == null || centerContent.getScene() == null) return false;
+        return centerContent.getScene().getStylesheets().stream().anyMatch(s -> s.endsWith("styles-dark.css"));
+    }
+
+    public void setDarkMode(boolean enable) {
+        if (centerContent == null || centerContent.getScene() == null) return;
+        var sheets = centerContent.getScene().getStylesheets();
+        String darkUrl = null;
+        try { darkUrl = AdminDashboardController.class.getResource(DARK_STYLESHEET).toExternalForm(); }
+        catch (Exception ignored) {}
+        if (darkUrl == null) return;
+        if (enable) { if (sheets.stream().noneMatch(s -> s.endsWith("styles-dark.css"))) sheets.add(darkUrl); }
+        else { sheets.removeIf(s -> s.endsWith("styles-dark.css")); }
+    }
 }

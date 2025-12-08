@@ -2,6 +2,7 @@ package org.example.co_po_assessment.dashboard_controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.application.Platform;
@@ -11,6 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.*;
@@ -29,16 +31,19 @@ import org.example.co_po_assessment.faculty_input_controller.DetailedMarksContro
 import org.example.co_po_assessment.faculty_input_controller.ManageCourseQuestionsController;
 import org.example.co_po_assessment.utilities.WindowUtils;
 
-
 public class FacultyDashboardController {
     @FXML Button logoutButton;
     @FXML Label facultyLabel;
+    @FXML Label breadcrumbLabel; // optional breadcrumb label from shell layout
     @FXML TableView<DatabaseService.FacultyCourseAssignment> assignedCoursesTableView;
     @FXML TableColumn<DatabaseService.FacultyCourseAssignment, String> courseCodeColumn;
     @FXML TableColumn<DatabaseService.FacultyCourseAssignment, String> courseNameColumn;
     @FXML TableColumn<DatabaseService.FacultyCourseAssignment, String> academicYearColumn;
     @FXML TableColumn<DatabaseService.FacultyCourseAssignment, String> departmentColumn;
     @FXML TableColumn<DatabaseService.FacultyCourseAssignment, String> programmeColumn;
+    // New: center content container & default pane
+    @FXML VBox centerContent;
+    @FXML VBox coursesListPane;
 
     private final DatabaseService db = DatabaseService.getInstance();
     private final ObservableList<DatabaseService.FacultyCourseAssignment> assignments = FXCollections.observableArrayList();
@@ -55,7 +60,27 @@ public class FacultyDashboardController {
         if (assignedCoursesTableView != null) {
             assignedCoursesTableView.setItems(assignments);
         }
+        if (breadcrumbLabel != null) breadcrumbLabel.setText("Home");
         loadFacultyData();
+        // Ensure default center content is the courses list
+        if (centerContent != null && coursesListPane != null) {
+            centerContent.getChildren().setAll(coursesListPane);
+        }
+    }
+
+    private void setBreadcrumb(String text) { if (breadcrumbLabel != null) breadcrumbLabel.setText(text); }
+
+    private void setCenterContent(Parent node) {
+        if (centerContent != null) {
+            centerContent.getChildren().setAll(node);
+        }
+    }
+
+    private void restoreHome() {
+        if (centerContent != null && coursesListPane != null) {
+            centerContent.getChildren().setAll(coursesListPane);
+            setBreadcrumb("Home");
+        }
     }
 
     private void loadFacultyData() {
@@ -93,7 +118,8 @@ public class FacultyDashboardController {
     }
 
     public void onQuestionsButton(ActionEvent actionEvent) {
-        // opens a window that'll show the questions for the selected course and each respective exam
+        setBreadcrumb("Home > Course Questions");
+        // opens view embedded in center instead of new window
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -105,20 +131,18 @@ public class FacultyDashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/manageCourseQuestions-view.fxml"));
             Parent root = loader.load();
             ManageCourseQuestionsController controller = loader.getController();
-            controller.setCourseAssignment(selected); // pass context (future use)
-            Stage stage = new Stage();
-            stage.setTitle("Manage Questions - " + selected.getCourseCode());
-            WindowUtils.setSceneAndMaximize(stage, new Scene(root));
-            stage.show();
+            controller.setCourseAssignment(selected); // pass context
+            setCenterContent(root);
         } catch (Exception e) {
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open Manage Course Questions window: " + e.getMessage(), ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open Manage Course Questions view: " + e.getMessage(), ButtonType.OK);
             alert.setHeaderText(null);
             alert.showAndWait();
         }
     }
 
     public void onMarksButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > Student Marks");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -132,14 +156,10 @@ public class FacultyDashboardController {
             Parent root = loader.load();
             DetailedMarksController controller = loader.getController();
             controller.setContext(selected.getCourseCode(), selected.getProgramme(), selected.getAcademicYear());
-
-            Stage stage = new Stage();
-            stage.setTitle("Student Marks - " + selected.getCourseCode() + " (" + selected.getAcademicYear() + ")");
-            WindowUtils.setSceneAndMaximize(stage, new Scene(root));
-            stage.show();
+            setCenterContent(root);
         } catch (Exception e) {
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open Marks window: " + e.getMessage(), ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open Marks view: " + e.getMessage(), ButtonType.OK);
             alert.setHeaderText(null);
             alert.showAndWait();
         }
@@ -151,6 +171,7 @@ public class FacultyDashboardController {
     }
 
     public void onCOReportButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > CO Report");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -163,10 +184,7 @@ public class FacultyDashboardController {
             Parent root = loader.load();
             COReportDialogController controller = loader.getController();
             controller.setContext(selected);
-            Stage stage = new Stage();
-            stage.setTitle("CO Report - " + selected.getCourseCode());
-            WindowUtils.setSceneAndMaximize(stage, new Scene(root));
-            stage.show();
+            setCenterContent(root);
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open CO report: " + e.getMessage(), ButtonType.OK);
@@ -176,6 +194,7 @@ public class FacultyDashboardController {
     }
 
     public void onPOReportButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > PO Report");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -188,10 +207,7 @@ public class FacultyDashboardController {
             Parent root = loader.load();
             POReportDialogController controller = loader.getController();
             controller.setContext(selected);
-            Stage stage = new Stage();
-            stage.setTitle("PO Report - " + selected.getCourseCode());
-            WindowUtils.setSceneAndMaximize(stage, new Scene(root));
-            stage.show();
+            setCenterContent(root);
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open PO report: " + e.getMessage(), ButtonType.OK);
@@ -201,6 +217,7 @@ public class FacultyDashboardController {
     }
 
     public void onExcelExportButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > Export Questions");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -376,6 +393,7 @@ public class FacultyDashboardController {
     }
 
     public void onExcelImportButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > Import Marks");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -514,4 +532,36 @@ public class FacultyDashboardController {
             err.showAndWait();
         }
     }
+
+    // Dark mode support
+    private static final String DARK_STYLESHEET = "/org/example/co_po_assessment/styles-dark.css";
+
+    @FXML
+    public void onDarkModeToggle(ActionEvent event) {
+        boolean enable = true;
+        Object src = event != null ? event.getSource() : null;
+        if (src instanceof javafx.scene.control.ToggleButton tb) enable = tb.isSelected();
+        else if (src instanceof javafx.scene.control.CheckBox cb) enable = cb.isSelected();
+        else { enable = !isDarkModeEnabled(); }
+        setDarkMode(enable);
+    }
+
+    private boolean isDarkModeEnabled() {
+        if (centerContent == null || centerContent.getScene() == null) return false;
+        return centerContent.getScene().getStylesheets().stream().anyMatch(s -> s.endsWith("styles-dark.css"));
+    }
+
+    public void setDarkMode(boolean enable) {
+        if (centerContent == null || centerContent.getScene() == null) return;
+        var sheets = centerContent.getScene().getStylesheets();
+        String darkUrl = null;
+        try { darkUrl = FacultyDashboardController.class.getResource(DARK_STYLESHEET).toExternalForm(); }
+        catch (Exception ignored) {}
+        if (darkUrl == null) return;
+        if (enable) { if (sheets.stream().noneMatch(s -> s.endsWith("styles-dark.css"))) sheets.add(darkUrl); }
+        else { sheets.removeIf(s -> s.endsWith("styles-dark.css")); }
+    }
+
+    // Optional: handle Home breadcrumb click if label is clickable
+    public void onHome(ActionEvent e) { restoreHome(); }
 }

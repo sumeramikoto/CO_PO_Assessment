@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.Scene?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.dashboard_controller.AdminDashboardController" stylesheets="@styles.css" style="-fx-font-size: 14px; -fx-font-weight: bold;">
+    <!-- Top bar with title and breadcrumbs -->
+    <top>
+        <HBox spacing="20.0" style="-fx-background-color: #f7f7fb; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT">
+            <children>
+                <Label fx:id="headerLabel" text="Admin" style="-fx-text-fill: #1f2937;">
+                    <font>
+                        <Font size="24.0" />
+                    </font>
+                </Label>
+                <Label fx:id="breadcrumbLabel" text="Home" style="-fx-text-fill: #6b7280; -fx-font-weight: bold;">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+                <HBox HBox.hgrow="ALWAYS" />
+                <!-- New: Dark Mode toggle -->
+                <Button text="Dark Mode" onAction="#onDarkModeToggle" styleClass="dashboard-button" />
+                <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButton" styleClass="dashboard-button" />
+            </children>
+            <padding>
+                <Insets top="12" right="16" bottom="12" left="16" />
+            </padding>
+        </HBox>
+    </top>
+
+    <!-- Left navigation sidebar -->
+    <left>
+        <VBox spacing="12.0" style="-fx-background-color: #ffffff; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0;" prefWidth="280.0">
+            <children>
+                <Label text="Navigation" style="-fx-text-fill: #374151; -fx-font-weight: bold;">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+                <Button fx:id="manageFacultiesButton" text="Manage Faculties" onAction="#onManageFacultiesButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="manageStudentsButton" text="Manage Students" onAction="#onManageStudentsButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="manageCoursesButton" text="Manage Courses" onAction="#onManageCoursesButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="manageEnrollmentsButton" text="Manage Enrollments" onAction="#onManageEnrollmentsButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="manageCourseAssignmentsButton" text="Manage Course Assignments" onAction="#onManageCourseAssignmentsButton" wrapText="true" prefHeight="48.0" styleClass="dashboard-button" />
+                <Button fx:id="culminationCoursesButton" text="Manage Culmination Courses" onAction="#onCulminationCoursesButton" wrapText="true" prefHeight="48.0" styleClass="dashboard-button" />
+                <Button fx:id="manageThresholdsButton" text="Manage Thresholds" onAction="#onManageThresholdsButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <Button fx:id="manageGraduatingStudentsButton" text="Manage Graduating Students" onAction="#onManageGraduatingStudentsButton" wrapText="true" prefHeight="48.0" styleClass="dashboard-button" />
+                <Button fx:id="graduatingCohortPOReportButton" text="Graduating Cohort PO Report" onAction="#onGraduatingCohortPOReportButton" wrapText="true" prefHeight="48.0" styleClass="dashboard-button" />
+                <Button fx:id="viewReportsButton" text="View Reports" onAction="#onViewReportsButton" prefHeight="40.0" styleClass="dashboard-button" />
+            </children>
+            <padding>
+                <Insets top="16" right="12" bottom="16" left="12" />
+            </padding>
+        </VBox>
+    </left>
+
+    <!-- Center: placeholder area; existing flows will open dialogs or new scenes via controller methods -->
+    <center>
+        <VBox fx:id="centerContent" spacing="8.0" alignment="CENTER">
+            <children>
+                <Label text="Select an option from the left to get started." style="-fx-text-fill: #6b7280;">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

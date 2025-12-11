@@ -631,6 +631,37 @@ public class DatabaseService {
         }
         return codes;
     }
+    
+    public List<String> getStudentEnrollments(String studentId) throws SQLException {
+        String sql = "SELECT course_id, academic_year FROM Enrollment WHERE student_id=? ORDER BY academic_year DESC, course_id";
+        List<String> enrollments = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String courseCode = rs.getString("course_id");
+                    String academicYear = rs.getString("academic_year");
+                    enrollments.add(courseCode + " (" + academicYear + ")");
+                }
+            }
+        }
+        return enrollments;
+    }
+    
+    public Set<String> getEnrolledStudentIds(String courseCode, String academicYear) throws SQLException {
+        String sql = "SELECT student_id FROM Enrollment WHERE course_id=? AND academic_year=?";
+        Set<String> studentIds = new HashSet<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, courseCode);
+            ps.setString(2, academicYear);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    studentIds.add(rs.getString("student_id"));
+                }
+            }
+        }
+        return studentIds;
+    }
 
     public List<String> getMissingPOsForCourses(String programme, List<String> courseCodes, int totalPOs) throws SQLException {
         if (courseCodes == null || courseCodes.isEmpty()) return Arrays.asList("PO1","PO2","PO3","PO4","PO5","PO6","PO7","PO8","PO9","PO10","PO11","PO12").subList(0, Math.min(totalPOs, 12));

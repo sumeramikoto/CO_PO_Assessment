@@ -26,8 +26,6 @@
                     </font>
                 </Label>
                 <HBox HBox.hgrow="ALWAYS" />
-                <!-- New: Dark Mode toggle -->
-                <Button text="Dark Mode" onAction="#onDarkModeToggle" styleClass="dashboard-button" />
                 <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButton" styleClass="dashboard-button" />
             </children>
             <padding>

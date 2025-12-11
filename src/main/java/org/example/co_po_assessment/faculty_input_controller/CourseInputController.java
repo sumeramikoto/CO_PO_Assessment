@@ -3,13 +3,16 @@ package org.example.co_po_assessment.faculty_input_controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.example.co_po_assessment.DB_helper.CoursesDatabaseHelper;
 import org.example.co_po_assessment.admin_input_controller.ManageCoursesController;
 
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CourseInputController implements Initializable {
     @FXML
@@ -25,9 +28,15 @@ public class CourseInputController implements Initializable {
     @FXML
     TextField programmeTextField;
     @FXML
-    TextField cosTextField; // e.g., 1-5 or 1,2,5
+    ComboBox<String> degreeComboBox;
     @FXML
-    TextField posTextField; // e.g., 1,2,5
+    TextField cosTextField;
+    @FXML
+    TextField posTextField;
+    @FXML
+    Button selectCOsButton;
+    @FXML
+    Button selectPOsButton;
     @FXML
     Button confirmButton;
     @FXML
@@ -35,10 +44,36 @@ public class CourseInputController implements Initializable {
 
     private ManageCoursesController parentController;
     private CoursesDatabaseHelper databaseHelper;
+    
+    // Store selected COs and POs
+    private Set<Integer> selectedCOs = new TreeSet<>();
+    private Set<Integer> selectedPOs = new TreeSet<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         databaseHelper = new CoursesDatabaseHelper();
+        
+        // Initialize degree ComboBox
+        if (degreeComboBox != null) {
+            degreeComboBox.getItems().addAll("BSc", "MSc", "PhD", "BBA");
+        }
+        
+        // Auto-uppercase programme code
+        if (programmeTextField != null) {
+            programmeTextField.textProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null && !newVal.equals(newVal.toUpperCase())) {
+                    programmeTextField.setText(newVal.toUpperCase());
+                }
+            });
+        }
+        
+        // Make text fields non-editable since we use dialogs
+        if (cosTextField != null) {
+            cosTextField.setEditable(false);
+        }
+        if (posTextField != null) {
+            posTextField.setEditable(false);
+        }
     }
 
     /**
@@ -49,34 +84,39 @@ public class CourseInputController implements Initializable {
     }
 
     public void onConfirmButton(ActionEvent event) {
+        System.out.println("Confirm button pressed"); // Debug
+        
         // Normalize course code input (collapse multiple spaces, uppercase) before validation
         if (courseCodeTextField.getText() != null) {
             String normalized = courseCodeTextField.getText().trim().replaceAll("\\s+", " ").toUpperCase();
             courseCodeTextField.setText(normalized);
         }
 
-        // NOTE: We intentionally do NOT auto-normalize programme beyond trimming, to enforce explicit user entry format.
-
         // Validate input fields
         if (!validateInputs()) {
+            System.out.println("Validation failed"); // Debug
             return;
         }
+
+        System.out.println("Validation passed"); // Debug
 
         // Get input values (course code already normalized above)
         String courseCode = courseCodeTextField.getText().trim();
         String courseName = courseNameTextField.getText().trim();
         double credits = Double.parseDouble(creditsTextField.getText().trim());
         String department = departmentTextField.getText().trim().toUpperCase();
-        String programme = programmeTextField.getText().trim();
+        String degree = degreeComboBox.getValue();
+        String programmeCode = programmeTextField.getText().trim();
+        String programme = (degree != null && !programmeCode.isEmpty()) ? degree + " in " + programmeCode : programmeCode;
 
-        // Parse validated outcomes
-        OutcomeParseResult coParsed = parseAndValidateOutcomes(cosTextField == null ? null : cosTextField.getText(), 20, "CO");
-        OutcomeParseResult poParsed = parseAndValidateOutcomes(posTextField == null ? null : posTextField.getText(), 12, "PO");
+        // Use the selected COs and POs from checkboxes
+        List<Integer> coNumbers = new ArrayList<>(selectedCOs);
+        List<Integer> poNumbers = new ArrayList<>(selectedPOs);
 
         try {
             // Call parent controller to add the course and assign CO/POs
             if (parentController != null) {
-                parentController.addNewCourse(courseCode, courseName, credits, department, programme, coParsed.numbers, poParsed.numbers);
+                parentController.addNewCourse(courseCode, courseName, credits, department, programme, coNumbers, poNumbers);
             }
 
             // Close the current window
@@ -139,27 +179,28 @@ public class CourseInputController implements Initializable {
             errors.append("Department must be 2-3 letters.\n");
         }
 
-        // Validate programme (strict format e.g., BSc in SWE, MSc in CSE, PhD in CS, BBA in FIN)
-        String programme = programmeTextField.getText().trim();
-        if (programme.isEmpty()) {
-            errors.append("Programme is required.\n");
-        } else if (!isValidProgramme(programme)) {
-            errors.append("Programme must match the format: BSc in XX, BSc in XXX, MSc in XX/XXX, PhD in XX/XXX, or BBA in XX/XXX (where the last part is 2 or 3 uppercase letters).\n");
+        // Validate programme
+        String degree = degreeComboBox.getValue();
+        String programmeCode = programmeTextField.getText().trim();
+        if (degree == null || degree.isEmpty()) {
+            errors.append("Degree is required.\n");
+        }
+        if (programmeCode.isEmpty()) {
+            errors.append("Programme code is required.\n");
+        } else if (!programmeCode.matches("[A-Z]{2,3}")) {
+            errors.append("Programme code must be 2-3 uppercase letters.\n");
         }
 
-        // Optional: Validate COs/POs format and bounds if provided
-        String coRaw = cosTextField == null ? null : cosTextField.getText();
-        if (coRaw != null && !coRaw.trim().isEmpty()) {
-            OutcomeParseResult r = parseAndValidateOutcomes(coRaw, 20, "CO");
-            if (r.error != null) errors.append(r.error).append('\n');
+        // Validate CO/PO selection
+        if (selectedCOs.isEmpty()) {
+            errors.append("At least one CO must be selected.\n");
         }
-        String poRaw = posTextField == null ? null : posTextField.getText();
-        if (poRaw != null && !poRaw.trim().isEmpty()) {
-            OutcomeParseResult r = parseAndValidateOutcomes(poRaw, 12, "PO");
-            if (r.error != null) errors.append(r.error).append('\n');
+        if (selectedPOs.isEmpty()) {
+            errors.append("At least one PO must be selected.\n");
         }
 
         // Check if course (code + programme) already exists
+        String programme = (degree != null && !programmeCode.isEmpty()) ? degree + " in " + programmeCode : programmeCode;
         try {
             if (!courseCode.isEmpty() && !programme.isEmpty() && databaseHelper.courseExists(courseCode.toUpperCase(), programme)) {
                 errors.append("A course with this code already exists for the selected programme.\n");
@@ -239,6 +280,134 @@ public class CourseInputController implements Initializable {
         Collections.sort(nums);
         String error = invalid.isEmpty() ? null : (label + " values out of range or invalid: " + String.join(", ", invalid));
         return new OutcomeParseResult(nums, error);
+    }
+
+    /**
+     * Show dialog with checkboxes to select COs
+     */
+    @FXML
+    public void onSelectCOs(ActionEvent event) {
+        Dialog<Set<Integer>> dialog = new Dialog<>();
+        dialog.setTitle("Select Course Outcomes (COs)");
+        dialog.setHeaderText("Select the COs for this course (1-12):");
+        
+        ButtonType selectButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(selectButton, ButtonType.CANCEL);
+        
+        // Create grid with checkboxes
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 10, 10, 10));
+        
+        CheckBox[] checkBoxes = new CheckBox[12];
+        for (int i = 0; i < 12; i++) {
+            int coNumber = i + 1;
+            checkBoxes[i] = new CheckBox("CO" + coNumber);
+            checkBoxes[i].setSelected(selectedCOs.contains(coNumber));
+            
+            int row = i / 4;
+            int col = i % 4;
+            grid.add(checkBoxes[i], col, row);
+        }
+        
+        dialog.getDialogPane().setContent(grid);
+        
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType == selectButton) {
+                Set<Integer> selected = new TreeSet<>();
+                for (int i = 0; i < 12; i++) {
+                    if (checkBoxes[i].isSelected()) {
+                        selected.add(i + 1);
+                    }
+                }
+                return selected;
+            }
+            return null;
+        });
+        
+        Optional<Set<Integer>> result = dialog.showAndWait();
+        result.ifPresent(selected -> {
+            selectedCOs = selected;
+            updateCOTextField();
+        });
+    }
+    
+    /**
+     * Show dialog with checkboxes to select POs
+     */
+    @FXML
+    public void onSelectPOs(ActionEvent event) {
+        Dialog<Set<Integer>> dialog = new Dialog<>();
+        dialog.setTitle("Select Program Outcomes (POs)");
+        dialog.setHeaderText("Select the POs for this course (1-12):");
+        
+        ButtonType selectButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(selectButton, ButtonType.CANCEL);
+        
+        // Create grid with checkboxes
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 10, 10, 10));
+        
+        CheckBox[] checkBoxes = new CheckBox[12];
+        for (int i = 0; i < 12; i++) {
+            int poNumber = i + 1;
+            checkBoxes[i] = new CheckBox("PO" + poNumber);
+            checkBoxes[i].setSelected(selectedPOs.contains(poNumber));
+            
+            int row = i / 4;
+            int col = i % 4;
+            grid.add(checkBoxes[i], col, row);
+        }
+        
+        dialog.getDialogPane().setContent(grid);
+        
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType == selectButton) {
+                Set<Integer> selected = new TreeSet<>();
+                for (int i = 0; i < 12; i++) {
+                    if (checkBoxes[i].isSelected()) {
+                        selected.add(i + 1);
+                    }
+                }
+                return selected;
+            }
+            return null;
+        });
+        
+        Optional<Set<Integer>> result = dialog.showAndWait();
+        result.ifPresent(selected -> {
+            selectedPOs = selected;
+            updatePOTextField();
+        });
+    }
+    
+    /**
+     * Update CO text field display
+     */
+    private void updateCOTextField() {
+        if (selectedCOs.isEmpty()) {
+            cosTextField.setText("");
+        } else {
+            cosTextField.setText(selectedCOs.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(", ")));
+        }
+    }
+    
+    /**
+     * Update PO text field display
+     */
+    private void updatePOTextField() {
+        if (selectedPOs.isEmpty()) {
+            posTextField.setText("");
+        } else {
+            posTextField.setText(selectedPOs.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(", ")));
+        }
     }
 
     /**

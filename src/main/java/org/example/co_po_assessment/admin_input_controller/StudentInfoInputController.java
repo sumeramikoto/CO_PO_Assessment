@@ -1,5 +1,6 @@
 package org.example.co_po_assessment.admin_input_controller;
 
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,6 +25,8 @@ public class StudentInfoInputController implements Initializable {
     @FXML
     TextField departmentTextField;
     @FXML
+    ComboBox<String> degreeComboBox;
+    @FXML
     TextField programmeTextField;
     @FXML
     Button confirmButton;
@@ -37,12 +40,20 @@ public class StudentInfoInputController implements Initializable {
     private static final Pattern BATCH_PATTERN = Pattern.compile("^\\d{2}$");
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.edu$");
     private static final Pattern DEPT_PATTERN = Pattern.compile("^[A-Z]{3}$");
-    private static final Pattern PROGRAMME_PATTERN = Pattern.compile("^(?:BSc|MSc|PhD) in [A-Z]{2,3}$");
+    private static final Pattern PROGRAMME_ABBR_PATTERN = Pattern.compile("^[A-Z]{2,3}$");
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Set up the form labels and initial state
         headLabel.setText("Add Student Information");
+        
+        // Initialize degree dropdown
+        degreeComboBox.setItems(FXCollections.observableArrayList(
+            "BSc in",
+            "MSc in",
+            "PhD in",
+            "BBA in"
+        ));
     }
 
     /**
@@ -64,7 +75,9 @@ public class StudentInfoInputController implements Initializable {
         String batch = batchTextField.getText().trim();
         String email = emailTextField.getText().trim();
         String department = departmentTextField.getText().trim();
-        String programme = programmeTextField.getText().trim();
+        String degree = degreeComboBox.getValue();
+        String programmeAbbr = programmeTextField.getText().trim();
+        String programme = degree + " " + programmeAbbr;
 
         try {
             // Call parent controller to add the student
@@ -131,12 +144,18 @@ public class StudentInfoInputController implements Initializable {
             errors.append("Department must be 3 uppercase letters, e.g., CSE.\n");
         }
 
-        // Validate programme: (BSc|MSc|PhD) in [A-Z]{2,3}
-        String programme = programmeTextField.getText().trim();
-        if (programme.isEmpty()) {
-            errors.append("Programme is required.\n");
-        } else if (!PROGRAMME_PATTERN.matcher(programme).matches()) {
-            errors.append("Programme must be 'BSc in XX/XXX', 'MSc in XX/XXX', or 'PhD in XX/XXX'.\n");
+        // Validate degree selection
+        String degree = degreeComboBox.getValue();
+        if (degree == null || degree.isEmpty()) {
+            errors.append("Degree is required. Please select from dropdown.\n");
+        }
+
+        // Validate programme abbreviation: 2-3 uppercase letters
+        String programmeAbbr = programmeTextField.getText().trim();
+        if (programmeAbbr.isEmpty()) {
+            errors.append("Programme abbreviation is required.\n");
+        } else if (!PROGRAMME_ABBR_PATTERN.matcher(programmeAbbr).matches()) {
+            errors.append("Programme must be 2-3 uppercase letters, e.g., SWE or CS.\n");
         }
 
         if (errors.length() > 0) {

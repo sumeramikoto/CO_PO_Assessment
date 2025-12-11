@@ -10,6 +10,7 @@ public class Student {
     private final StringProperty department;
     private final StringProperty programme;
     private final StringProperty email;
+    private final StringProperty enrolledCourses;
 
     public Student(String id, String name, String batch, String department, String programme, String email) {
         this.id = new SimpleStringProperty(id);
@@ -18,6 +19,17 @@ public class Student {
         this.department = new SimpleStringProperty(department);
         this.programme = new SimpleStringProperty(programme);
         this.email = new SimpleStringProperty(email);
+        this.enrolledCourses = new SimpleStringProperty("");
+    }
+    
+    public Student(String id, String name, String batch, String department, String programme, String email, String enrolledCourses) {
+        this.id = new SimpleStringProperty(id);
+        this.name = new SimpleStringProperty(name);
+        this.batch = new SimpleStringProperty(batch);
+        this.department = new SimpleStringProperty(department);
+        this.programme = new SimpleStringProperty(programme);
+        this.email = new SimpleStringProperty(email);
+        this.enrolledCourses = new SimpleStringProperty(enrolledCourses != null ? enrolledCourses : "");
     }
 
     public String getId() {
@@ -66,5 +78,17 @@ public class Student {
 
     public StringProperty emailProperty() {
         return email;
+    }
+    
+    public String getEnrolledCourses() {
+        return enrolledCourses.get();
+    }
+    
+    public StringProperty enrolledCoursesProperty() {
+        return enrolledCourses;
+    }
+    
+    public void setEnrolledCourses(String courses) {
+        this.enrolledCourses.set(courses);
     }
 }

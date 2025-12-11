@@ -13,12 +13,6 @@ public class FacultyInfoInputController implements Initializable {
     @FXML
     Label headLabel;
     @FXML
-    Label shortnameLabel;
-    @FXML
-    Label emailLabel;
-    @FXML
-    Label passwordLabel;
-    @FXML
     Button confirmButton;
     @FXML
     Button backButton;

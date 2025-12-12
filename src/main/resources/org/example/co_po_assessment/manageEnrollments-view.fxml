@@ -47,10 +47,11 @@
         <TableView fx:id="studentTableView" BorderPane.alignment="CENTER">
             <columns>
                 <TableColumn fx:id="idColumn" prefWidth="120" text="ID" />
-                <TableColumn fx:id="nameColumn" prefWidth="240" text="Name" />
+                <TableColumn fx:id="nameColumn" prefWidth="200" text="Name" />
                 <TableColumn fx:id="batchColumn" prefWidth="70" text="Batch" />
-                <TableColumn fx:id="departmentColumn" prefWidth="140" text="Department" />
-                <TableColumn fx:id="programmeColumn" prefWidth="140" text="Programme" />
+                <TableColumn fx:id="departmentColumn" prefWidth="120" text="Department" />
+                <TableColumn fx:id="programmeColumn" prefWidth="130" text="Programme" />
+                <TableColumn fx:id="enrollmentStatusColumn" prefWidth="130" text="Enrollment Status" />
             </columns>
         </TableView>
     </center>

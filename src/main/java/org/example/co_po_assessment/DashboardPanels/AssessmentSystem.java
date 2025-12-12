@@ -1,15 +1,18 @@
 package org.example.co_po_assessment.DashboardPanels;
 
+import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.example.co_po_assessment.DB_helper.DatabaseService;
 import org.example.co_po_assessment.utilities.UserSession;
 
@@ -32,116 +35,311 @@ public class AssessmentSystem extends Application {
 
     private void showLoginScreen() {
         BorderPane borderPane = new BorderPane();
-        borderPane.setPadding(new Insets(20));
+        
+        // Clean white background
+        borderPane.setStyle("-fx-background-color: #f8f9fa;");
+        borderPane.setPadding(new Insets(40));
 
-        // Header
-        HBox headerBox = new HBox();
+        // Header with modern styling
+        VBox headerBox = new VBox(15);
         headerBox.setAlignment(Pos.CENTER);
-        Label title = new Label("CO PO Assessment SYSTEM");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 48));
-        title.setTextFill(Color.DARKBLUE);
-        headerBox.getChildren().add(title);
+        headerBox.setPadding(new Insets(0, 0, 30, 0));
+        
+        Label title = new Label("CO-PO Assessment System");
+        title.setFont(Font.font("Segoe UI", FontWeight.BOLD, 52));
+        title.setTextFill(Color.web("#2c3e50"));
+        title.setEffect(new DropShadow(5, Color.rgb(0, 0, 0, 0.1)));
+        
+        Label subtitle = new Label("Academic Outcomes Management Platform");
+        subtitle.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 18));
+        subtitle.setTextFill(Color.web("#7f8c8d"));
+        
+        headerBox.getChildren().addAll(title, subtitle);
         borderPane.setTop(headerBox);
 
-        // Center form
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-
-        grid.setPadding(new Insets(25, 25, 25, 25));
+        // Center form with card-like appearance
+        VBox formContainer = new VBox(25);
+        formContainer.setAlignment(Pos.CENTER);
+        formContainer.setMaxWidth(550);
+        formContainer.setMaxHeight(650);
+        formContainer.setPadding(new Insets(50, 60, 50, 60));
+        formContainer.setStyle(
+            "-fx-background-color: white; " +
+            "-fx-background-radius: 20; " +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 20, 0, 0, 5);"
+        );
 
         Label scenetitle = new Label("Login");
-        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 36));
-        grid.add(scenetitle, 0, 0, 2, 1);
+        scenetitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 38));
+        scenetitle.setTextFill(Color.web("#2c3e50"));
+        
+        Label loginSubtitle = new Label("Please enter your credentials");
+        loginSubtitle.setFont(Font.font("Segoe UI", 16));
+        loginSubtitle.setTextFill(Color.web("#7f8c8d"));
 
-        // User type selection
+        // User type selection with modern radio buttons
         ToggleGroup userTypeGroup = new ToggleGroup();
-        RadioButton adminRadio = new RadioButton("Admin");
+        RadioButton adminRadio = new RadioButton("Administrator");
         adminRadio.setToggleGroup(userTypeGroup);
         adminRadio.setSelected(true);
-        adminRadio.setFont(Font.font("Arial", 24));
+        adminRadio.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 16));
+        adminRadio.setStyle("-fx-text-fill: #555555;");
 
-        RadioButton facultyRadio = new RadioButton("Faculty");
+        RadioButton facultyRadio = new RadioButton("Faculty Member");
         facultyRadio.setToggleGroup(userTypeGroup);
-        facultyRadio.setFont(Font.font("Arial", 24));
+        facultyRadio.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 16));
+        facultyRadio.setStyle("-fx-text-fill: #555555;");
 
-        // Updated 'Login as:' label with larger, bold font
-        Label loginAsLabel = new Label("Login as:");
-        loginAsLabel.setFont(Font.font("Arial", FontWeight.BOLD, 26));
-        loginAsLabel.setMinWidth(120); // Ensures some spacing
-        loginAsLabel.setAlignment(Pos.CENTER_RIGHT);
+        HBox radioBox = new HBox(40);
+        radioBox.setAlignment(Pos.CENTER);
+        radioBox.setPadding(new Insets(10, 0, 10, 0));
+        radioBox.getChildren().addAll(adminRadio, facultyRadio);
 
-        HBox radioBox = new HBox(30, adminRadio, facultyRadio);
-        radioBox.setAlignment(Pos.CENTER_LEFT);
+        // Email field with styling
+        VBox emailBox = new VBox(8);
+        Label emailLabel = new Label("Email Address");
+        emailLabel.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 14));
+        emailLabel.setTextFill(Color.web("#555555"));
         
-        // Place both label and radio buttons in the same row
-        grid.add(loginAsLabel, 0, 1);
-        grid.add(radioBox, 1, 1);
-
-        // Email field
         emailField = new TextField();
         emailField.setPromptText("yourname@institution.edu");
-        emailField.setFont(Font.font("Arial", 22));
-        grid.add(new Label("Email:") {{ setFont(Font.font("Arial", 22)); }}, 0, 2);
-        grid.add(emailField, 1, 2);
+        emailField.setFont(Font.font("Segoe UI", 16));
+        emailField.setPrefHeight(45);
+        emailField.setStyle(
+            "-fx-background-color: #f5f5f5; " +
+            "-fx-background-radius: 8; " +
+            "-fx-border-color: #e0e0e0; " +
+            "-fx-border-radius: 8; " +
+            "-fx-border-width: 1.5; " +
+            "-fx-padding: 10;"
+        );
+        emailField.setOnMouseEntered(e -> emailField.setStyle(
+            "-fx-background-color: #f5f5f5; " +
+            "-fx-background-radius: 8; " +
+            "-fx-border-color: #3498db; " +
+            "-fx-border-radius: 8; " +
+            "-fx-border-width: 1.5; " +
+            "-fx-padding: 10;"
+        ));
+        emailField.setOnMouseExited(e -> {
+            if (!emailField.isFocused()) {
+                emailField.setStyle(
+                    "-fx-background-color: #f5f5f5; " +
+                    "-fx-background-radius: 8; " +
+                    "-fx-border-color: #e0e0e0; " +
+                    "-fx-border-radius: 8; " +
+                    "-fx-border-width: 1.5; " +
+                    "-fx-padding: 10;"
+                );
+            }
+        });
+        emailBox.getChildren().addAll(emailLabel, emailField);
 
-        // Password field
+        // Password field with styling
+        VBox passwordBox = new VBox(8);
+        Label passwordLabel = new Label("Password");
+        passwordLabel.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 14));
+        passwordLabel.setTextFill(Color.web("#555555"));
+        
         passwordField = new PasswordField();
-        passwordField.setPromptText("Enter password");
-        passwordField.setFont(Font.font("Arial", 22));
-        grid.add(new Label("Password:") {{ setFont(Font.font("Arial", 22)); }}, 0, 3);
-        grid.add(passwordField, 1, 3);
+        passwordField.setPromptText("Enter your password");
+        passwordField.setFont(Font.font("Segoe UI", 16));
+        passwordField.setPrefHeight(45);
+        passwordField.setStyle(
+            "-fx-background-color: #f5f5f5; " +
+            "-fx-background-radius: 8; " +
+            "-fx-border-color: #e0e0e0; " +
+            "-fx-border-radius: 8; " +
+            "-fx-border-width: 1.5; " +
+            "-fx-padding: 10;"
+        );
+        passwordField.setOnMouseEntered(e -> passwordField.setStyle(
+            "-fx-background-color: #f5f5f5; " +
+            "-fx-background-radius: 8; " +
+            "-fx-border-color: #3498db; " +
+            "-fx-border-radius: 8; " +
+            "-fx-border-width: 1.5; " +
+            "-fx-padding: 10;"
+        ));
+        passwordField.setOnMouseExited(e -> {
+            if (!passwordField.isFocused()) {
+                passwordField.setStyle(
+                    "-fx-background-color: #f5f5f5; " +
+                    "-fx-background-radius: 8; " +
+                    "-fx-border-color: #e0e0e0; " +
+                    "-fx-border-radius: 8; " +
+                    "-fx-border-width: 1.5; " +
+                    "-fx-padding: 10;"
+                );
+            }
+        });
+        passwordBox.getChildren().addAll(passwordLabel, passwordField);
 
-        // Login button
+        // Interactive login button with animations
         Button loginBtn = new Button("Sign In");
-        loginBtn.setFont(Font.font("Arial", FontWeight.BOLD, 24));
-        loginBtn.setStyle("-fx-background-color: #243cf1; -fx-text-fill: #ffffff; -fx-padding: 12 32 12 32; -fx-background-radius: 8;");
+        loginBtn.setFont(Font.font("Segoe UI", FontWeight.BOLD, 18));
+        loginBtn.setPrefWidth(450);
+        loginBtn.setPrefHeight(50);
+        loginBtn.setStyle(
+            "-fx-background-color: #3498db; " +
+            "-fx-text-fill: white; " +
+            "-fx-background-radius: 10; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.4), 10, 0, 0, 5);"
+        );
 
-        HBox hbBtn = new HBox(10);
-        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
-        hbBtn.getChildren().add(loginBtn);
-        grid.add(hbBtn, 1, 4);
+        // Hover effect
+        loginBtn.setOnMouseEntered(e -> {
+            loginBtn.setStyle(
+                "-fx-background-color: #2980b9; " +
+                "-fx-text-fill: white; " +
+                "-fx-background-radius: 10; " +
+                "-fx-cursor: hand; " +
+                "-fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.6), 15, 0, 0, 7);"
+            );
+            ScaleTransition st = new ScaleTransition(Duration.millis(100), loginBtn);
+            st.setToX(1.02);
+            st.setToY(1.02);
+            st.play();
+        });
+
+        loginBtn.setOnMouseExited(e -> {
+            loginBtn.setStyle(
+                "-fx-background-color: #3498db; " +
+                "-fx-text-fill: white; " +
+                "-fx-background-radius: 10; " +
+                "-fx-cursor: hand; " +
+                "-fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.4), 10, 0, 0, 5);"
+            );
+            ScaleTransition st = new ScaleTransition(Duration.millis(100), loginBtn);
+            st.setToX(1.0);
+            st.setToY(1.0);
+            st.play();
+        });
+
+        // Press effect
+        loginBtn.setOnMousePressed(e -> {
+            loginBtn.setStyle(
+                "-fx-background-color: #21618c; " +
+                "-fx-text-fill: white; " +
+                "-fx-background-radius: 10; " +
+                "-fx-cursor: hand; " +
+                "-fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.3), 5, 0, 0, 2);"
+            );
+            ScaleTransition st = new ScaleTransition(Duration.millis(50), loginBtn);
+            st.setToX(0.98);
+            st.setToY(0.98);
+            st.play();
+        });
+
+        loginBtn.setOnMouseReleased(e -> {
+            loginBtn.setStyle(
+                "-fx-background-color: #2980b9; " +
+                "-fx-text-fill: white; " +
+                "-fx-background-radius: 10; " +
+                "-fx-cursor: hand; " +
+                "-fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.6), 15, 0, 0, 7);"
+            );
+            ScaleTransition st = new ScaleTransition(Duration.millis(50), loginBtn);
+            st.setToX(1.02);
+            st.setToY(1.02);
+            st.play();
+        });
 
         final Label messageLabel = new Label();
-        messageLabel.setFont(Font.font("Arial", 20));
-        grid.add(messageLabel, 1, 6);
+        messageLabel.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 14));
+        messageLabel.setAlignment(Pos.CENTER);
+        messageLabel.setMaxWidth(Double.MAX_VALUE);
 
-        borderPane.setCenter(grid);
+        formContainer.getChildren().addAll(
+            scenetitle, 
+            loginSubtitle, 
+            radioBox, 
+            emailBox, 
+            passwordBox, 
+            loginBtn, 
+            messageLabel
+        );
+        
+        borderPane.setCenter(formContainer);
 
-        // Event handler for login
+        // Event handler for login with loading state
         loginBtn.setOnAction(e -> {
-            String email = emailField.getText();
+            String email = emailField.getText().trim();
             String password = passwordField.getText();
             boolean isAdmin = adminRadio.isSelected();
 
             if (email.isEmpty() || password.isEmpty()) {
-                messageLabel.setText("Email and password are required!");
-                messageLabel.setTextFill(Color.FIREBRICK);
+                messageLabel.setText("⚠ Email and password are required!");
+                messageLabel.setTextFill(Color.web("#e74c3c"));
+                
+                // Shake animation for empty fields
+                ScaleTransition shake = new ScaleTransition(Duration.millis(100), messageLabel);
+                shake.setFromX(1.0);
+                shake.setToX(1.05);
+                shake.setCycleCount(4);
+                shake.setAutoReverse(true);
+                shake.play();
                 return;
             }
 
-            boolean authenticated = authenticateUser(email, password, isAdmin);
+            // Show loading state
+            String originalText = loginBtn.getText();
+            loginBtn.setText("Signing In...");
+            loginBtn.setDisable(true);
+            messageLabel.setText("Authenticating...");
+            messageLabel.setTextFill(Color.web("#3498db"));
 
-            if (authenticated) {
-                messageLabel.setText("Login successful!");
-                messageLabel.setTextFill(Color.GREEN);
+            // Simulate async authentication (you can make this truly async if needed)
+            new Thread(() -> {
+                boolean authenticated = authenticateUser(email, password, isAdmin);
+                
+                javafx.application.Platform.runLater(() -> {
+                    loginBtn.setDisable(false);
+                    loginBtn.setText(originalText);
+                    
+                    if (authenticated) {
+                        messageLabel.setText("✓ Login successful!");
+                        messageLabel.setTextFill(Color.web("#27ae60"));
+                        
+                        // Success animation
+                        ScaleTransition successAnim = new ScaleTransition(Duration.millis(200), messageLabel);
+                        successAnim.setFromX(0.8);
+                        successAnim.setFromY(0.8);
+                        successAnim.setToX(1.0);
+                        successAnim.setToY(1.0);
+                        successAnim.play();
 
-                if (isAdmin) {
-                    launchAdminDashboard();
-                } else {
-                    try {
-                        DatabaseService.FacultyInfo info = dbService.getFacultyInfo(email);
-                        UserSession.setCurrentFaculty(info); // may be null if not found
-                    } catch (Exception ex) {
-                        // swallow; continue
+                        // Delay before launching dashboard
+                        javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(Duration.millis(800));
+                        pause.setOnFinished(ev -> {
+                            if (isAdmin) {
+                                launchAdminDashboard();
+                            } else {
+                                try {
+                                    DatabaseService.FacultyInfo info = dbService.getFacultyInfo(email);
+                                    UserSession.setCurrentFaculty(info);
+                                } catch (Exception ex) {
+                                    // continue
+                                }
+                                launchFacultyDashboard();
+                            }
+                        });
+                        pause.play();
+                    } else {
+                        messageLabel.setText("✗ Invalid credentials!");
+                        messageLabel.setTextFill(Color.web("#e74c3c"));
+                        
+                        // Error shake animation
+                        ScaleTransition shake = new ScaleTransition(Duration.millis(80), loginBtn);
+                        shake.setFromX(1.0);
+                        shake.setToX(1.02);
+                        shake.setCycleCount(6);
+                        shake.setAutoReverse(true);
+                        shake.play();
                     }
-                    launchFacultyDashboard();
-                }
-            } else {
-                messageLabel.setText("Invalid credentials!");
-                messageLabel.setTextFill(Color.FIREBRICK);
-            }
+                });
+            }).start();
         });
 
         Scene scene = new Scene(borderPane, 1920, 1080);

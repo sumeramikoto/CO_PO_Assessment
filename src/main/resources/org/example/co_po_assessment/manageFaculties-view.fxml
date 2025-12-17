@@ -1,26 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Priority?>
 
-<AnchorPane prefHeight="458.0" prefWidth="685.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.admin_input_controller.ManageFacultiesController">
-   <children>
-      <TextField fx:id="searchField" layoutX="14.0" layoutY="20.0" prefWidth="657.0" promptText="Search by Faculty ID or Name" />
-      <TableView fx:id="facultyTableView" layoutX="-1.0" layoutY="70.0" prefHeight="318.0" prefWidth="685.0">
-        <columns>
-          <TableColumn fx:id="idColumn" prefWidth="90.0" text="ID" />
-          <TableColumn fx:id="nameColumn" prefWidth="209.0" text="Name" />
-            <TableColumn fx:id="shortnameColumn" prefWidth="114.0" text="Shortname" />
-            <TableColumn fx:id="emailColumn" prefWidth="271.0" text="Email" />
-        </columns>
-      </TableView>
-      <Button fx:id="addFacultyButton" layoutX="23.0" layoutY="411.0" mnemonicParsing="false" onAction="#onAddFacultyButton" text="Add Faculty" />
-      <Button fx:id="bulkImportButton" layoutX="275.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBulkImportFaculty" text="Bulk Import (Excel)" />
-      <Button fx:id="removeFacultyButton" layoutX="440.0" layoutY="411.0" mnemonicParsing="false" onAction="#onRemoveFacultyButton" text="Remove Faculty" />
-      <Button fx:id="backButton" layoutX="580.0" layoutY="411.0" mnemonicParsing="false" onAction="#onBackButton" text="Go Back" />
-      <Button fx:id="excelTemplateButton" layoutX="126.0" layoutY="411.0" mnemonicParsing="false" onAction="#onExcelTemplateButton" prefHeight="26.0" prefWidth="133.0" text="Get Excel Template" />
-   </children>
-</AnchorPane>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+    fx:controller="org.example.co_po_assessment.admin_input_controller.ManageFacultiesController"
+    stylesheets="@styles.css" spacing="16" style="-fx-background-color: #f5f7fa;">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+    <children>
+        <Label text="Manage Faculties" styleClass="section-title" />
+        
+        <TextField fx:id="searchField" promptText="🔍 Search by Faculty ID or Name..." 
+            style="-fx-font-size: 14px; -fx-pref-height: 40px;" />
+        
+        <TableView fx:id="facultyTableView" VBox.vgrow="ALWAYS" styleClass="table-view">
+            <columns>
+                <TableColumn fx:id="idColumn" prefWidth="100" text="ID" />
+                <TableColumn fx:id="nameColumn" prefWidth="220" text="Name" />
+                <TableColumn fx:id="shortnameColumn" prefWidth="140" text="Shortname" />
+                <TableColumn fx:id="emailColumn" prefWidth="280" text="Email" />
+            </columns>
+        </TableView>
+        
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <Button fx:id="addFacultyButton" mnemonicParsing="false" onAction="#onAddFacultyButton" 
+                text="Add Faculty" prefWidth="130" prefHeight="38" styleClass="button-primary" />
+            <Button fx:id="excelTemplateButton" mnemonicParsing="false" onAction="#onExcelTemplateButton" 
+                text="Get Excel Template" prefWidth="150" prefHeight="38" />
+            <Button fx:id="bulkImportButton" mnemonicParsing="false" onAction="#onBulkImportFaculty" 
+                text="Bulk Import (Excel)" prefWidth="160" prefHeight="38" />
+            <HBox HBox.hgrow="ALWAYS" />
+            <Button fx:id="removeFacultyButton" mnemonicParsing="false" onAction="#onRemoveFacultyButton" 
+                text="Remove Faculty" prefWidth="140" prefHeight="38" styleClass="button-danger" />
+            <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackButton" 
+                text="Go Back" prefWidth="100" prefHeight="38" />
+        </HBox>
+    </children>
+</VBox>

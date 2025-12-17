@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Tooltip?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
     fx:controller="org.example.co_po_assessment.dashboard_controller.AdminDashboardController" 
@@ -47,19 +47,35 @@
                 <Button fx:id="manageEnrollmentsButton" text="📝  Manage Enrollments" 
                     onAction="#onManageEnrollmentsButton" styleClass="sidebar-button" maxWidth="Infinity" />
                 <Button fx:id="manageCourseAssignmentsButton" text="🔗  Course Assignments" 
-                    onAction="#onManageCourseAssignmentsButton" wrapText="true" styleClass="sidebar-button" maxWidth="Infinity" />
+                    onAction="#onManageCourseAssignmentsButton" wrapText="true" styleClass="sidebar-button" maxWidth="Infinity">
+                    <tooltip>
+                        <Tooltip text="Manage Course Assignments" />
+                    </tooltip>
+                </Button>
                 
                 <Label text="CONFIGURATION" styleClass="sidebar-title" style="-fx-padding: 12 16 0 16;" />
                 <Button fx:id="culminationCoursesButton" text="🎯  Culmination Courses" 
-                    onAction="#onCulminationCoursesButton" wrapText="true" styleClass="sidebar-button" maxWidth="Infinity" />
+                    onAction="#onCulminationCoursesButton" wrapText="true" styleClass="sidebar-button" maxWidth="Infinity">
+                    <tooltip>
+                        <Tooltip text="Manage Culmination Courses" />
+                    </tooltip>
+                </Button>
                 <Button fx:id="manageThresholdsButton" text="⚙️  Manage Thresholds" 
                     onAction="#onManageThresholdsButton" styleClass="sidebar-button" maxWidth="Infinity" />
                 <Button fx:id="manageGraduatingStudentsButton" text="🎓  Graduating Students" 
-                    onAction="#onManageGraduatingStudentsButton" wrapText="true" styleClass="sidebar-button" maxWidth="Infinity" />
+                    onAction="#onManageGraduatingStudentsButton" wrapText="true" styleClass="sidebar-button" maxWidth="Infinity">
+                    <tooltip>
+                        <Tooltip text="Manage Graduating Students" />
+                    </tooltip>
+                </Button>
                 
                 <Label text="REPORTS" styleClass="sidebar-title" style="-fx-padding: 12 16 0 16;" />
                 <Button fx:id="graduatingCohortPOReportButton" text="📊  Cohort PO Report" 
-                    onAction="#onGraduatingCohortPOReportButton" wrapText="true" styleClass="sidebar-button" maxWidth="Infinity" />
+                    onAction="#onGraduatingCohortPOReportButton" wrapText="true" styleClass="sidebar-button" maxWidth="Infinity">
+                    <tooltip>
+                        <Tooltip text="Graduating Cohort PO Report" />
+                    </tooltip>
+                </Button>
                 <Button fx:id="viewReportsButton" text="📈  View Reports" 
                     onAction="#onViewReportsButton" styleClass="sidebar-button" maxWidth="Infinity" />
             </children>

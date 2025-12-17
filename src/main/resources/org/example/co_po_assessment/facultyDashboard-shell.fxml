@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Tooltip?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
     fx:controller="org.example.co_po_assessment.dashboard_controller.FacultyDashboardController" 
@@ -56,7 +56,11 @@
                 
                 <Label text="IMPORT/EXPORT" styleClass="sidebar-title" style="-fx-padding: 12 16 0 16;" />
                 <Button fx:id="excelExportButton" text="📤  Export Questions" 
-                    onAction="#onExcelExportButton" wrapText="true" styleClass="sidebar-button" maxWidth="Infinity" />
+                    onAction="#onExcelExportButton" wrapText="true" styleClass="sidebar-button" maxWidth="Infinity">
+                    <tooltip>
+                        <Tooltip text="Export Questions to Excel" />
+                    </tooltip>
+                </Button>
                 <Button fx:id="excelImportButton" text="📥  Import Marks" 
                     onAction="#onExcelImportButton" styleClass="sidebar-button" maxWidth="Infinity" />
             </children>

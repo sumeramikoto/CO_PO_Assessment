@@ -35,6 +35,7 @@ public class FacultyDashboardController {
     @FXML Button logoutButton;
     @FXML Label facultyLabel;
     @FXML Label breadcrumbLabel; // optional breadcrumb label from shell layout
+    @FXML Button backToCoursesButton; // back to courses button
     @FXML TableView<DatabaseService.FacultyCourseAssignment> assignedCoursesTableView;
     @FXML TableColumn<DatabaseService.FacultyCourseAssignment, String> courseCodeColumn;
     @FXML TableColumn<DatabaseService.FacultyCourseAssignment, String> courseNameColumn;
@@ -535,4 +536,8 @@ public class FacultyDashboardController {
 
     // Optional: handle Home breadcrumb click if label is clickable
     public void onHome(ActionEvent e) { restoreHome(); }
+    
+    // Back to Courses button handler
+    @FXML
+    public void onBackToCoursesButton(ActionEvent e) { restoreHome(); }
 }

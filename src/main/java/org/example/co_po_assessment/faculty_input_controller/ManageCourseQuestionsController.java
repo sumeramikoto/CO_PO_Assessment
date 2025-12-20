@@ -60,6 +60,14 @@ public class ManageCourseQuestionsController implements Initializable {
     @FXML private TableColumn<AssessmentQuestion, String> finalCOCol;
     @FXML private TableColumn<AssessmentQuestion, String> finalPOCol;
 
+    // Edit buttons
+    @FXML private Button quiz1EditQuestionButton;
+    @FXML private Button quiz2EditQuestionButton;
+    @FXML private Button quiz3EditQuestionButton;
+    @FXML private Button quiz4EditQuestionButton;
+    @FXML private Button midEditQuestionButton;
+    @FXML private Button finalEditQuestionButton;
+
     private ObservableList<AssessmentQuestion> quiz1Questions = FXCollections.observableArrayList();
     private ObservableList<AssessmentQuestion> quiz2Questions = FXCollections.observableArrayList();
     private ObservableList<AssessmentQuestion> quiz3Questions = FXCollections.observableArrayList();
@@ -159,6 +167,14 @@ public class ManageCourseQuestionsController implements Initializable {
     public void onQuiz4AddQuestionButton(ActionEvent actionEvent) { addQuestionDialog("Quiz4"); }
     public void onMidAddQuestionButton(ActionEvent actionEvent) { addQuestionDialog("Mid"); }
     public void onFinalAddQuestionButton(ActionEvent actionEvent) { addQuestionDialog("Final"); }
+
+    // Edit Question Handlers
+    public void onQuiz1EditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Quiz1", quiz1TableView, quiz1Questions); }
+    public void onQuiz2EditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Quiz2", quiz2TableView, quiz2Questions); }
+    public void onQuiz3EditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Quiz3", quiz3TableView, quiz3Questions); }
+    public void onQuiz4EditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Quiz4", quiz4TableView, quiz4Questions); }
+    public void onMidEditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Mid", midTableView, midQuestions); }
+    public void onFinalEditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Final", finalTableView, finalQuestions); }
 
     // Remove Handlers
     public void onQuiz1RemoveQuestionButton(ActionEvent actionEvent) { removeSelected(quiz1TableView, quiz1Questions); }
@@ -279,6 +295,140 @@ public class ManageCourseQuestionsController implements Initializable {
                 case "Final" -> finalQuestions.add(q);
             }
         });
+    }
+
+    private void editQuestionDialog(String assessmentType, TableView<AssessmentQuestion> table, ObservableList<AssessmentQuestion> list) {
+        AssessmentQuestion selected = table.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            Alert warn = new Alert(Alert.AlertType.WARNING, "Select a question to edit", ButtonType.OK);
+            warn.setHeaderText(null);
+            warn.showAndWait();
+            return;
+        }
+
+        Dialog<AssessmentQuestion> dialog = new Dialog<>();
+        dialog.setTitle("Edit " + assessmentType + " Question");
+        dialog.setHeaderText(null);
+
+        ButtonType updateBtnType = new ButtonType("Update", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(updateBtnType, ButtonType.CANCEL);
+
+        TextField numberField = new TextField(selected.getNumber());
+        TextField marksField = new TextField(String.valueOf(selected.getMarks()));
+        ChoiceBox<String> coChoice = new ChoiceBox<>();
+        ChoiceBox<String> poChoice = new ChoiceBox<>();
+
+        // Load allowed CO/PO for this course/programme
+        List<String> allowedCOs = List.of();
+        List<String> allowedPOs = List.of();
+        try {
+            if (courseAssignment != null) {
+                allowedCOs = db.getAllowedCOsForCourse(courseAssignment.courseCode, courseAssignment.programme);
+                allowedPOs = db.getAllowedPOsForCourse(courseAssignment.courseCode, courseAssignment.programme);
+            }
+        } catch (Exception e) {
+            Alert warn = new Alert(Alert.AlertType.ERROR, "Could not fetch allowed CO/PO: " + e.getMessage(), ButtonType.OK);
+            warn.setHeaderText(null);
+            warn.showAndWait();
+        }
+        coChoice.getItems().setAll(allowedCOs);
+        poChoice.getItems().setAll(allowedPOs);
+        
+        // Set current values
+        coChoice.setValue(selected.getCo());
+        poChoice.setValue(selected.getPo());
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10); grid.setVgap(10);
+        grid.add(new Label("Question No:"),0,0); grid.add(numberField,1,0);
+        grid.add(new Label("Marks:"),0,1); grid.add(marksField,1,1);
+        grid.add(new Label("CO:"),0,2); grid.add(coChoice,1,2);
+        grid.add(new Label("PO:"),0,3); grid.add(poChoice,1,3);
+        dialog.getDialogPane().setContent(grid);
+
+        Node updateButton = dialog.getDialogPane().lookupButton(updateBtnType);
+        updateButton.setDisable(true);
+
+        Runnable validate = () -> {
+            String no = numberField.getText().trim();
+            String marksTxt = marksField.getText().trim();
+            boolean valid = !no.isEmpty() && coChoice.getValue() != null && poChoice.getValue() != null;
+            if (coChoice.getItems().isEmpty() || poChoice.getItems().isEmpty()) valid = false;
+            double m = -1;
+            try { m = Double.parseDouble(marksTxt); } catch (Exception ignored) {}
+            if (m <= 0) valid = false;
+            // Check if question number already exists (but allow the same number if unchanged)
+            if (valid && !no.equalsIgnoreCase(selected.getNumber()) && questionNumberExists(assessmentType, no)) {
+                valid = false;
+            }
+            updateButton.setDisable(!valid);
+        };
+
+        numberField.textProperty().addListener((obs,o,n)-> validate.run());
+        marksField.textProperty().addListener((obs,o,n)-> validate.run());
+        coChoice.valueProperty().addListener((obs,o,n)-> validate.run());
+        poChoice.valueProperty().addListener((obs,o,n)-> validate.run());
+        validate.run();
+
+        if (coChoice.getItems().isEmpty() || poChoice.getItems().isEmpty()) {
+            Alert info = new Alert(Alert.AlertType.INFORMATION, "This course has no CO/PO mappings. Please assign COs and POs to the course first.", ButtonType.OK);
+            info.setHeaderText(null);
+            info.showAndWait();
+        }
+
+        dialog.setResultConverter(btn -> {
+            if (btn == updateBtnType) {
+                String no = numberField.getText().trim();
+                String marksStr = marksField.getText().trim();
+                try {
+                    double marks = Double.parseDouble(marksStr);
+                    String co = coChoice.getValue();
+                    String po = poChoice.getValue();
+                    if (no.isEmpty() || co == null || po == null || marks <= 0) return null;
+                    
+                    // Update in database
+                    if (updateQuestion(assessmentType, selected.getNumber(), no, marks, co, po)) {
+                        // Update the object in the list
+                        selected.setNumber(no);
+                        selected.setMarks(marks);
+                        selected.setCo(co);
+                        selected.setPo(po);
+                        table.refresh(); // Refresh the table to show updated values
+                        return selected;
+                    } else {
+                        return null;
+                    }
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            }
+            return null;
+        });
+
+        dialog.showAndWait();
+    }
+
+    private boolean updateQuestion(String assessmentType, String oldNumber, String newNumber, double newMarks, String newCO, String newPO) {
+        if (courseAssignment == null) return false;
+        try {
+            String code = courseAssignment.courseCode;
+            String year = courseAssignment.academicYear;
+            String programme = courseAssignment.programme;
+            switch (assessmentType) {
+                case "Quiz1" -> db.updateQuizQuestion(code, programme, 1, oldNumber, newNumber, newMarks, newCO, newPO, year);
+                case "Quiz2" -> db.updateQuizQuestion(code, programme, 2, oldNumber, newNumber, newMarks, newCO, newPO, year);
+                case "Quiz3" -> db.updateQuizQuestion(code, programme, 3, oldNumber, newNumber, newMarks, newCO, newPO, year);
+                case "Quiz4" -> db.updateQuizQuestion(code, programme, 4, oldNumber, newNumber, newMarks, newCO, newPO, year);
+                case "Mid" -> db.updateMidQuestion(code, programme, oldNumber, newNumber, newMarks, newCO, newPO, year);
+                case "Final" -> db.updateFinalQuestion(code, programme, oldNumber, newNumber, newMarks, newCO, newPO, year);
+            }
+            return true;
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to update question: " + e.getMessage(), ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
+            return false;
+        }
     }
 
     private boolean questionNumberExists(String assessmentType, String number) {

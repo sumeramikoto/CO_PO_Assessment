@@ -114,6 +114,53 @@ public class DatabaseService {
         String sql = "INSERT INTO Admin (email,password) VALUES (?,?)";
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,email); ps.setString(2,password); ps.executeUpdate(); }
     }
+    
+    // ------------------------------------------------------------------
+    // Update methods
+    // ------------------------------------------------------------------
+    public void updateFaculty(String oldId, String newId, String shortname, String fullName, String email, String password) throws SQLException {
+        String sql;
+        if (password != null && !password.isEmpty()) {
+            // Update with password
+            if (!PasswordUtils.isHashed(password)) password = PasswordUtils.hash(password);
+            sql = "UPDATE Faculty SET id=?, shortname=?, full_name=?, email=?, password=? WHERE id=?";
+            try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+                ps.setString(1, newId);
+                ps.setString(2, shortname);
+                ps.setString(3, fullName);
+                ps.setString(4, email);
+                ps.setString(5, password);
+                ps.setString(6, oldId);
+                ps.executeUpdate();
+            }
+        } else {
+            // Update without changing password
+            sql = "UPDATE Faculty SET id=?, shortname=?, full_name=?, email=? WHERE id=?";
+            try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+                ps.setString(1, newId);
+                ps.setString(2, shortname);
+                ps.setString(3, fullName);
+                ps.setString(4, email);
+                ps.setString(5, oldId);
+                ps.executeUpdate();
+            }
+        }
+    }
+    
+    public void updateStudent(String oldId, String newId, int batch, String name, String email, String department, String programme) throws SQLException {
+        String sql = "UPDATE Student SET id=?, batch=?, name=?, email=?, department=?, programme=? WHERE id=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, newId);
+            ps.setInt(2, batch);
+            ps.setString(3, name);
+            ps.setString(4, email);
+            ps.setString(5, department);
+            ps.setString(6, programme);
+            ps.setString(7, oldId);
+            ps.executeUpdate();
+        }
+    }
+    
     public void assignCourseToFaculty(String facultyId, String courseCode, String academicYear) throws SQLException {
         String fetch = "SELECT department, programme FROM Course WHERE course_code=?";
         String ins = "INSERT INTO CourseAssignment (faculty_id, course_code, academic_year, department, programme) VALUES (?,?,?,?,?)";

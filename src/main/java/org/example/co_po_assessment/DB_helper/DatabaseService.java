@@ -918,4 +918,83 @@ public class DatabaseService {
         }
         return list;
     }
-}
+
+    // ------------------------------------------------------------------
+    // Student Marks Entry Methods
+    // ------------------------------------------------------------------
+    
+    /**
+     * Save or update a student's mark for a specific question
+     */
+    public void saveStudentMark(String studentId, int questionId, double marksObtained, String assessmentType) throws SQLException {
+        String tableName;
+        String questionIdColumn;
+        
+        if (assessmentType.startsWith("Quiz")) {
+            tableName = "StudentQuizMarks";
+            questionIdColumn = "quiz_question_id";
+        } else if (assessmentType.equals("Mid")) {
+            tableName = "StudentMidMarks";
+            questionIdColumn = "mid_question_id";
+        } else if (assessmentType.equals("Final")) {
+            tableName = "StudentFinalMarks";
+            questionIdColumn = "final_question_id";
+        } else {
+            throw new SQLException("Invalid assessment type: " + assessmentType);
+        }
+        
+        String sql = "INSERT INTO " + tableName + " (student_id, " + questionIdColumn + ", marks_obtained) " +
+                     "VALUES (?, ?, ?) " +
+                     "ON DUPLICATE KEY UPDATE marks_obtained = VALUES(marks_obtained)";
+        
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, studentId);
+            ps.setInt(2, questionId);
+            ps.setDouble(3, marksObtained);
+            ps.executeUpdate();
+        }
+    }
+    
+    /**
+     * Get all marks for a student for a list of questions
+     */
+    public Map<Integer, Double> getStudentMarksForAssessment(String studentId, List<QuestionData> questions, String assessmentType) throws SQLException {
+        Map<Integer, Double> marks = new HashMap<>();
+        if (questions.isEmpty()) return marks;
+        
+        String tableName;
+        String questionIdColumn;
+        
+        if (assessmentType.startsWith("Quiz")) {
+            tableName = "StudentQuizMarks";
+            questionIdColumn = "quiz_question_id";
+        } else if (assessmentType.equals("Mid")) {
+            tableName = "StudentMidMarks";
+            questionIdColumn = "mid_question_id";
+        } else if (assessmentType.equals("Final")) {
+            tableName = "StudentFinalMarks";
+            questionIdColumn = "final_question_id";
+        } else {
+            return marks;
+        }
+        
+        // Build IN clause for question IDs
+        List<Integer> questionIds = questions.stream().map(q -> q.id).toList();
+        String placeholders = String.join(",", java.util.Collections.nCopies(questionIds.size(), "?"));
+        String sql = "SELECT " + questionIdColumn + ", marks_obtained FROM " + tableName + 
+                     " WHERE student_id = ? AND " + questionIdColumn + " IN (" + placeholders + ")";
+        
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, studentId);
+            int idx = 2;
+            for (Integer qId : questionIds) {
+                ps.setInt(idx++, qId);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    marks.put(rs.getInt(1), rs.getDouble(2));
+                }
+            }
+        }
+        return marks;
+    }}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" 
+      fx:controller="org.example.co_po_assessment.faculty_input_controller.MarksEntryController"
+      spacing="15" style="-fx-background-color: white;" prefWidth="900" prefHeight="600">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label fx:id="titleLabel" text="Enter Marks" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    </HBox>
+
+    <!-- Course Info -->
+    <GridPane hgap="10" vgap="8">
+        <Label text="Course:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
+        <Label fx:id="courseInfoLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        
+        <Label text="Assessment:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
+        <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <ChoiceBox fx:id="assessmentTypeChoice" prefWidth="150"/>
+            <Button fx:id="loadMarksButton" text="Load Assessment" onAction="#onLoadMarks"/>
+        </HBox>
+
+        <Label fx:id="statusLabel" text="" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2" 
+               style="-fx-text-fill: #666;"/>
+    </GridPane>
+
+    <Separator/>
+
+    <!-- Marks Table -->
+    <VBox VBox.vgrow="ALWAYS" spacing="10">
+        <Label text="Student Marks Entry" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+        <TableView fx:id="marksTableView" VBox.vgrow="ALWAYS" editable="true">
+            <columns>
+                <TableColumn fx:id="studentIdCol" text="Student ID" prefWidth="100" editable="false"/>
+                <TableColumn fx:id="studentNameCol" text="Student Name" prefWidth="200" editable="false"/>
+                <!-- Dynamic columns will be added programmatically for each question -->
+            </columns>
+        </TableView>
+        <Label fx:id="instructionLabel" text="Double-click cells to edit marks. Press Enter to confirm." 
+               style="-fx-text-fill: #666; -fx-font-size: 12px;"/>
+    </VBox>
+
+    <!-- Action Buttons -->
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button fx:id="saveButton" text="Save All Marks" onAction="#onSaveMarks" 
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"
+                prefWidth="150" prefHeight="35" disable="true"/>
+        <Button fx:id="backButton" text="Back" onAction="#onBack" prefWidth="100" prefHeight="35"/>
+    </HBox>
+</VBox>

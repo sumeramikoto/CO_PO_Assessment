@@ -29,6 +29,7 @@ import javafx.stage.FileChooser; // added for excel import
 import org.example.co_po_assessment.Report_controller.COReportDialogController;
 import org.example.co_po_assessment.faculty_input_controller.DetailedMarksController;
 import org.example.co_po_assessment.faculty_input_controller.ManageCourseQuestionsController;
+import org.example.co_po_assessment.faculty_input_controller.MarksEntryController;
 import org.example.co_po_assessment.utilities.WindowUtils;
 
 public class FacultyDashboardController {
@@ -143,7 +144,7 @@ public class FacultyDashboardController {
     }
 
     public void onMarksButton(ActionEvent actionEvent) {
-        setBreadcrumb("Home > Student Marks");
+        setBreadcrumb("Home > Enter Marks");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -153,14 +154,14 @@ public class FacultyDashboardController {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/detailedMarks-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/marksEntry-view.fxml"));
             Parent root = loader.load();
-            DetailedMarksController controller = loader.getController();
-            controller.setContext(selected.getCourseCode(), selected.getProgramme(), selected.getAcademicYear());
+            MarksEntryController controller = loader.getController();
+            controller.setCourseAssignment(selected);
             setCenterContent(root);
         } catch (Exception e) {
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open Marks view: " + e.getMessage(), ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open Marks Entry: " + e.getMessage(), ButtonType.OK);
             alert.setHeaderText(null);
             alert.showAndWait();
         }

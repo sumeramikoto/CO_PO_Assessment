@@ -27,6 +27,7 @@ import org.apache.poi.ss.util.CellReference; // added for excel export
 import org.apache.poi.ss.util.CellRangeAddressList; // added for data validation
 import javafx.stage.FileChooser; // added for excel import
 import org.example.co_po_assessment.Report_controller.COReportDialogController;
+import org.example.co_po_assessment.faculty_input_controller.CourseSummaryController;
 import org.example.co_po_assessment.faculty_input_controller.DetailedMarksController;
 import org.example.co_po_assessment.faculty_input_controller.ManageCourseQuestionsController;
 import org.example.co_po_assessment.utilities.WindowUtils;
@@ -36,6 +37,7 @@ public class FacultyDashboardController {
     @FXML Label facultyLabel;
     @FXML Label breadcrumbLabel; // optional breadcrumb label from shell layout
     @FXML Button backToCoursesButton; // back to courses button
+    @FXML Button summaryButton;
     @FXML Button questionsButton;
     @FXML Button marksButton;
     @FXML Button COReportButton;
@@ -91,6 +93,7 @@ public class FacultyDashboardController {
     
     private void setActiveButton(Button activeBtn) {
         // Remove active class from all buttons
+        if (summaryButton != null) summaryButton.getStyleClass().remove("sidebar-button-active");
         if (questionsButton != null) questionsButton.getStyleClass().remove("sidebar-button-active");
         if (marksButton != null) marksButton.getStyleClass().remove("sidebar-button-active");
         if (COReportButton != null) COReportButton.getStyleClass().remove("sidebar-button-active");
@@ -103,6 +106,7 @@ public class FacultyDashboardController {
     }
     
     private void clearActiveButton() {
+        if (summaryButton != null) summaryButton.getStyleClass().remove("sidebar-button-active");
         if (questionsButton != null) questionsButton.getStyleClass().remove("sidebar-button-active");
         if (marksButton != null) marksButton.getStyleClass().remove("sidebar-button-active");
         if (COReportButton != null) COReportButton.getStyleClass().remove("sidebar-button-active");
@@ -140,6 +144,31 @@ public class FacultyDashboardController {
             });
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void onSummaryButton(ActionEvent actionEvent) {
+        setBreadcrumb("Home > Course Summary");
+        setActiveButton(summaryButton);
+        DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
+        if (selected == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/courseSummary-view.fxml"));
+            Parent root = loader.load();
+            CourseSummaryController controller = loader.getController();
+            controller.setContext(selected.getCourseCode(), selected.getProgramme(), selected.getAcademicYear());
+            controller.setOnBackAction(this::restoreHome);
+            setCenterContent(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open Course Summary: " + e.getMessage(), ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
         }
     }
 

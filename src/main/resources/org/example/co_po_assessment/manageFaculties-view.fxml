@@ -34,6 +34,8 @@
         <HBox spacing="12" alignment="CENTER_LEFT">
             <Button fx:id="addFacultyButton" mnemonicParsing="false" onAction="#onAddFacultyButton" 
                 text="Add Faculty" prefWidth="130" prefHeight="38" styleClass="button-primary" />
+            <Button fx:id="editFacultyButton" mnemonicParsing="false" onAction="#onEditFacultyButton" 
+                text="Edit Faculty" prefWidth="130" prefHeight="38" />
             <Button fx:id="excelTemplateButton" mnemonicParsing="false" onAction="#onExcelTemplateButton" 
                 text="Get Excel Template" prefWidth="150" prefHeight="38" />
             <Button fx:id="bulkImportButton" mnemonicParsing="false" onAction="#onBulkImportFaculty" 

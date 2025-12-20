@@ -34,6 +34,8 @@ public class StudentInfoInputController implements Initializable {
     Button backButton;
 
     private ManageStudentsController parentController;
+    private boolean isEditMode = false;
+    private String originalStudentId = null;
 
     // Regex patterns according to requirements
     private static final Pattern ID_PATTERN = Pattern.compile("^\\d{9}$");
@@ -63,6 +65,34 @@ public class StudentInfoInputController implements Initializable {
         this.parentController = parentController;
     }
 
+    /**
+     * Set edit mode and populate fields with existing student data
+     */
+    public void setEditMode(String id, String name, String batch, String email, String department, String programme) {
+        this.isEditMode = true;
+        this.originalStudentId = id;
+        
+        headLabel.setText("Edit Student Information");
+        
+        // Populate fields with existing data
+        idTextField.setText(id);
+        idTextField.setDisable(true); // Don't allow editing the ID
+        nameTextField.setText(name);
+        batchTextField.setText(batch);
+        emailTextField.setText(email);
+        departmentTextField.setText(department);
+        
+        // Parse programme to set degree and programme abbreviation
+        // Programme format: "BSc in CSE" or "MSc in EEE", etc.
+        if (programme != null && programme.contains(" in ")) {
+            String[] parts = programme.split(" in ", 2);
+            if (parts.length == 2) {
+                degreeComboBox.setValue(parts[0] + " in");
+                programmeTextField.setText(parts[1]);
+            }
+        }
+    }
+
     public void onConfirmButton(ActionEvent event) {
         // Validate input fields
         if (!validateInputs()) {
@@ -80,9 +110,13 @@ public class StudentInfoInputController implements Initializable {
         String programme = degree + " " + programmeAbbr;
 
         try {
-            // Call parent controller to add the student
+            // Call parent controller to add or update the student
             if (parentController != null) {
-                parentController.addNewStudent(id, name, batch, email, department, programme);
+                if (isEditMode) {
+                    parentController.updateStudent(originalStudentId, id, name, batch, email, department, programme);
+                } else {
+                    parentController.addNewStudent(id, name, batch, email, department, programme);
+                }
             }
 
             // Close the current window
@@ -90,7 +124,7 @@ public class StudentInfoInputController implements Initializable {
             currentStage.close();
 
         } catch (Exception e) {
-            showErrorAlert("Error", "Failed to add student: " + e.getMessage());
+            showErrorAlert("Error", "Failed to " + (isEditMode ? "update" : "add") + " student: " + e.getMessage());
         }
     }
 

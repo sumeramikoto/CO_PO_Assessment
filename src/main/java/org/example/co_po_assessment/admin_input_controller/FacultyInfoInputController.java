@@ -28,6 +28,8 @@ public class FacultyInfoInputController implements Initializable {
     PasswordField passwordField;
 
     private ManageFacultiesController parentController;
+    private boolean isEditMode = false;
+    private String originalFacultyId = null;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -60,6 +62,24 @@ public class FacultyInfoInputController implements Initializable {
         this.parentController = parentController;
     }
 
+    /**
+     * Set edit mode and populate fields with existing faculty data
+     */
+    public void setEditMode(String id, String name, String shortname, String email) {
+        this.isEditMode = true;
+        this.originalFacultyId = id;
+        
+        headLabel.setText("Edit Faculty Information");
+        
+        // Populate fields with existing data
+        idTextField.setText(id);
+        idTextField.setDisable(true); // Don't allow editing the ID
+        nameTextField.setText(name);
+        shortnameTextField.setText(shortname);
+        emailTextField.setText(email);
+        passwordField.setText(""); // Leave password empty, will only update if changed
+    }
+
     public void onConfirmButton(ActionEvent event) {
         // Debug: Check if idTextField is null
         if (idTextField == null) {
@@ -80,9 +100,18 @@ public class FacultyInfoInputController implements Initializable {
         String password = passwordField.getText();
 
         try {
-            // Call parent controller to add the faculty
+            // Call parent controller to add or update the faculty
             if (parentController != null) {
-                parentController.addNewFaculty(id, name, shortname, email, password);
+                if (isEditMode) {
+                    // For edit mode, only update password if it's provided
+                    if (password == null || password.isEmpty()) {
+                        // If password is empty, fetch the current password or use a placeholder
+                        password = null; // null means don't update password
+                    }
+                    parentController.updateFaculty(originalFacultyId, id, name, shortname, email, password);
+                } else {
+                    parentController.addNewFaculty(id, name, shortname, email, password);
+                }
             }
 
             // Close the current window
@@ -90,7 +119,7 @@ public class FacultyInfoInputController implements Initializable {
             currentStage.close();
 
         } catch (Exception e) {
-            showErrorAlert("Error", "Failed to add faculty member: " + e.getMessage());
+            showErrorAlert("Error", "Failed to " + (isEditMode ? "update" : "add") + " faculty member: " + e.getMessage());
         }
     }
 
@@ -135,12 +164,20 @@ public class FacultyInfoInputController implements Initializable {
             errors.append("Email must look like yourname@institution.edu.\n");
         }
 
-        // Validate password
+        // Validate password (only required for new entries, optional for edits)
         String pwd = passwordField.getText();
-        if (pwd == null || pwd.isEmpty()) {
-            errors.append("Password is required.\n");
-        } else if (pwd.length() < 6) {
-            errors.append("Password must be at least 6 characters long.\n");
+        if (!isEditMode) {
+            // Password required for new faculty
+            if (pwd == null || pwd.isEmpty()) {
+                errors.append("Password is required.\n");
+            } else if (pwd.length() < 6) {
+                errors.append("Password must be at least 6 characters long.\n");
+            }
+        } else {
+            // For edit mode, only validate if password is provided
+            if (pwd != null && !pwd.isEmpty() && pwd.length() < 6) {
+                errors.append("Password must be at least 6 characters long.\n");
+            }
         }
 
         if (errors.length() > 0) {

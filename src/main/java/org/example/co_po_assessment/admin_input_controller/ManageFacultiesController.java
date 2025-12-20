@@ -47,6 +47,8 @@ public class ManageFacultiesController implements Initializable {
     @FXML
     Button addFacultyButton;
     @FXML
+    Button editFacultyButton;
+    @FXML
     Button removeFacultyButton;
     @FXML
     Button backButton;
@@ -118,6 +120,35 @@ public class ManageFacultiesController implements Initializable {
 
         } catch (IOException e) {
             showErrorAlert("Navigation Error", "Failed to open Add Faculty window: " + e.getMessage());
+        }
+    }
+
+    public void onEditFacultyButton(ActionEvent event) {
+        Faculty selectedFaculty = facultyTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedFaculty == null) {
+            showWarningAlert("No Selection", "Please select a faculty member to edit.");
+            return;
+        }
+
+        try {
+            // Open the Faculty Info Input window in edit mode
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/facultyInfoInput-view.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 345, 420);
+
+            // Get the controller and set it to edit mode
+            FacultyInfoInputController controller = fxmlLoader.getController();
+            controller.setParentController(this);
+            controller.setEditMode(selectedFaculty.getId(), selectedFaculty.getName(), 
+                                  selectedFaculty.getShortname(), selectedFaculty.getEmail());
+
+            Stage stage = new Stage();
+            stage.setTitle("Edit Faculty Information");
+            WindowUtils.setSceneAndMaximize(stage, scene);
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            showErrorAlert("Navigation Error", "Failed to open Edit Faculty window: " + e.getMessage());
         }
     }
 
@@ -344,6 +375,30 @@ public class ManageFacultiesController implements Initializable {
 
         } catch (SQLException e) {
             showErrorAlert("Database Error", "Failed to add faculty member: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Method to be called by FacultyInfoInputController when faculty is updated
+     */
+    public void updateFaculty(String oldId, String newId, String name, String shortname, String email, String password) {
+        try {
+            // Update in database
+            databaseService.updateFaculty(oldId, newId, shortname, name, email, password);
+
+            // Update in table - find and update the faculty object
+            for (int i = 0; i < facultyList.size(); i++) {
+                Faculty f = facultyList.get(i);
+                if (f.getId().equals(oldId)) {
+                    facultyList.set(i, new Faculty(newId, name, shortname, email));
+                    break;
+                }
+            }
+
+            showInfoAlert("Success", "Faculty member updated successfully.");
+
+        } catch (SQLException e) {
+            showErrorAlert("Database Error", "Failed to update faculty member: " + e.getMessage());
         }
     }
 

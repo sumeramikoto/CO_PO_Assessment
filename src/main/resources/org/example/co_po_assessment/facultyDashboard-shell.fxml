@@ -50,6 +50,8 @@
                 <Button fx:id="backToCoursesButton" text="◄ Back to Courses" 
                     onAction="#onBackToCoursesButton" styleClass="sidebar-button" maxWidth="Infinity" 
                     style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-font-weight: 700;" />
+                <Button fx:id="summaryButton" text="📊  Course Summary" 
+                    onAction="#onSummaryButton" styleClass="sidebar-button" maxWidth="Infinity" />
                 <Button fx:id="questionsButton" text="📝  Course Questions" 
                     onAction="#onQuestionsButton" styleClass="sidebar-button" maxWidth="Infinity" />
                 <Button fx:id="marksButton" text="✏️  Student Marks" 

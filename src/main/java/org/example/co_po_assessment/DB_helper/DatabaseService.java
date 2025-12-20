@@ -997,4 +997,47 @@ public class DatabaseService {
             }
         }
         return marks;
-    }}
+    }
+    
+    /**
+     * Count how many marks entries exist for a list of questions
+     */
+    public int countMarksEntered(List<QuestionData> questions, String assessmentType) throws SQLException {
+        if (questions.isEmpty()) return 0;
+        
+        String tableName;
+        String questionIdColumn;
+        
+        if (assessmentType.startsWith("Quiz")) {
+            tableName = "StudentQuizMarks";
+            questionIdColumn = "quiz_question_id";
+        } else if (assessmentType.equals("Mid")) {
+            tableName = "StudentMidMarks";
+            questionIdColumn = "mid_question_id";
+        } else if (assessmentType.equals("Final")) {
+            tableName = "StudentFinalMarks";
+            questionIdColumn = "final_question_id";
+        } else {
+            return 0;
+        }
+        
+        // Build IN clause for question IDs
+        List<Integer> questionIds = questions.stream().map(q -> q.id).toList();
+        String placeholders = String.join(",", java.util.Collections.nCopies(questionIds.size(), "?"));
+        String sql = "SELECT COUNT(*) FROM " + tableName + 
+                     " WHERE " + questionIdColumn + " IN (" + placeholders + ")";
+        
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            int idx = 1;
+            for (Integer qId : questionIds) {
+                ps.setInt(idx++, qId);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+}

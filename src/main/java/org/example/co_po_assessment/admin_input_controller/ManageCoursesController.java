@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.example.co_po_assessment.Objects.Course;
 import org.example.co_po_assessment.DB_helper.CoursesDatabaseHelper;
+import org.example.co_po_assessment.DB_helper.DatabaseService;
 import org.example.co_po_assessment.faculty_input_controller.CourseInputController;
 import org.example.co_po_assessment.utilities.ExcelImportUtils;
 import org.example.co_po_assessment.utilities.WindowUtils;
@@ -50,6 +51,8 @@ public class ManageCoursesController implements Initializable {
     TableColumn<Course, String> poNumbersColumn;
     @FXML
     Button addCourseButton;
+    @FXML
+    Button editCourseButton;
     @FXML
     Button removeCourseButton;
     @FXML
@@ -102,6 +105,41 @@ public class ManageCoursesController implements Initializable {
             stage.showAndWait();
         } catch (IOException e) {
             showErrorAlert("Navigation Error", "Failed to open Add Course window: " + e.getMessage());
+        }
+    }
+
+    public void onEditCourseButton(ActionEvent actionEvent) {
+        Course selectedCourse = courseTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedCourse == null) {
+            showWarningAlert("No Selection", "Please select a course to edit.");
+            return;
+        }
+
+        try {
+            // Get the current COs and POs for the course
+            List<Integer> currentCOs = getCourseCOs(selectedCourse.getCode(), selectedCourse.getProgramme());
+            List<Integer> currentPOs = getCoursePOs(selectedCourse.getCode(), selectedCourse.getProgramme());
+
+            // Open the Course Input window in edit mode
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/courseInput-view.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 500, 520);
+            
+            CourseInputController controller = fxmlLoader.getController();
+            controller.setParentController(this);
+            controller.setEditMode(selectedCourse.getCode(), selectedCourse.getTitle(), 
+                                  selectedCourse.getCredit(), selectedCourse.getDepartment(),
+                                  selectedCourse.getProgramme(), currentCOs, currentPOs);
+
+            Stage stage = new Stage();
+            stage.setTitle("Edit Course");
+            WindowUtils.setSceneAndMaximize(stage, scene);
+            stage.showAndWait();
+
+        } catch (SQLException e) {
+            showErrorAlert("Database Error", "Failed to load course data: " + e.getMessage());
+        } catch (IOException e) {
+            showErrorAlert("Navigation Error", "Failed to open Edit Course window: " + e.getMessage());
         }
     }
 
@@ -416,6 +454,44 @@ public class ManageCoursesController implements Initializable {
     // Backward compatible existing call sites (if any)
     public void addNewCourse(String courseCode, String courseName, double credits, String department, String programme) {
         addNewCourse(courseCode, courseName, credits, department, programme, Collections.emptyList(), Collections.emptyList());
+    }
+
+    // Update existing course
+    public void updateCourse(String oldCourseCode, String oldProgramme, String newCourseCode, String courseName, 
+                            double credits, String department, String newProgramme,
+                            List<Integer> coNumbers, List<Integer> poNumbers) {
+        try {
+            // Update course info using DatabaseService
+            DatabaseService databaseService = DatabaseService.getInstance();
+            databaseService.updateCourseInfo(oldCourseCode, oldProgramme, courseName, credits, department);
+            
+            // If course code or programme changed, this would require complex updates - for now we don't allow that
+            // The UI should disable editing of course code and programme
+            
+            // Update CO and PO mappings by deleting old ones and adding new ones
+            if (coNumbers != null && !coNumbers.isEmpty()) {
+                databaseHelper.assignCOsToCourse(oldCourseCode, oldProgramme, coNumbers);
+            }
+            if (poNumbers != null && !poNumbers.isEmpty()) {
+                databaseHelper.assignPOsToCourse(oldCourseCode, oldProgramme, poNumbers);
+            }
+            
+            // Update in the table
+            for (int i = 0; i < courseList.size(); i++) {
+                Course c = courseList.get(i);
+                if (c.getCode().equals(oldCourseCode) && c.getProgramme().equals(oldProgramme)) {
+                    Course updatedCourse = new Course(oldCourseCode, courseName, "", "", credits, oldProgramme, department);
+                    updatedCourse.setCoNumbers(joinInts(coNumbers));
+                    updatedCourse.setPoNumbers(joinInts(poNumbers));
+                    courseList.set(i, updatedCourse);
+                    break;
+                }
+            }
+            
+            showInfoAlert("Success", "Course updated successfully.");
+        } catch (SQLException e) {
+            showErrorAlert("Database Error", "Failed to update course: " + e.getMessage());
+        }
     }
 
     @FXML

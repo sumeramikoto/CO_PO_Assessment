@@ -44,6 +44,9 @@ public class CourseInputController implements Initializable {
 
     private ManageCoursesController parentController;
     private CoursesDatabaseHelper databaseHelper;
+    private boolean isEditMode = false;
+    private String originalCourseCode = null;
+    private String originalProgramme = null;
     
     // Store selected COs and POs
     private Set<Integer> selectedCOs = new TreeSet<>();
@@ -83,6 +86,46 @@ public class CourseInputController implements Initializable {
         this.parentController = parentController;
     }
 
+    /**
+     * Set edit mode and populate fields with existing course data
+     */
+    public void setEditMode(String courseCode, String courseName, double credits, String department, 
+                           String programme, List<Integer> coNumbers, List<Integer> poNumbers) {
+        this.isEditMode = true;
+        this.originalCourseCode = courseCode;
+        this.originalProgramme = programme;
+        
+        headLabel.setText("Edit Course");
+        
+        // Populate fields with existing data
+        courseCodeTextField.setText(courseCode);
+        courseCodeTextField.setDisable(true); // Don't allow editing the course code
+        courseNameTextField.setText(courseName);
+        creditsTextField.setText(String.valueOf(credits));
+        departmentTextField.setText(department);
+        
+        // Parse programme to set degree and programme code
+        // Programme format: "BSc in CSE" or "MSc in EEE", etc.
+        if (programme != null && programme.contains(" in ")) {
+            String[] parts = programme.split(" in ", 2);
+            if (parts.length == 2) {
+                degreeComboBox.setValue(parts[0]);
+                programmeTextField.setText(parts[1]);
+                programmeTextField.setDisable(true); // Don't allow editing programme in edit mode
+            }
+        }
+        
+        // Set COs and POs
+        if (coNumbers != null && !coNumbers.isEmpty()) {
+            selectedCOs.addAll(coNumbers);
+            updateCOTextField();
+        }
+        if (poNumbers != null && !poNumbers.isEmpty()) {
+            selectedPOs.addAll(poNumbers);
+            updatePOTextField();
+        }
+    }
+
     public void onConfirmButton(ActionEvent event) {
         System.out.println("Confirm button pressed"); // Debug
         
@@ -114,9 +157,14 @@ public class CourseInputController implements Initializable {
         List<Integer> poNumbers = new ArrayList<>(selectedPOs);
 
         try {
-            // Call parent controller to add the course and assign CO/POs
+            // Call parent controller to add or update the course and assign CO/POs
             if (parentController != null) {
-                parentController.addNewCourse(courseCode, courseName, credits, department, programme, coNumbers, poNumbers);
+                if (isEditMode) {
+                    parentController.updateCourse(originalCourseCode, originalProgramme, courseCode, courseName, 
+                                                 credits, department, programme, coNumbers, poNumbers);
+                } else {
+                    parentController.addNewCourse(courseCode, courseName, credits, department, programme, coNumbers, poNumbers);
+                }
             }
 
             // Close the current window
@@ -124,7 +172,7 @@ public class CourseInputController implements Initializable {
             currentStage.close();
 
         } catch (Exception e) {
-            showErrorAlert("Error", "Failed to add course: " + e.getMessage());
+            showErrorAlert("Error", "Failed to " + (isEditMode ? "update" : "add") + " course: " + e.getMessage());
         }
     }
 
@@ -199,10 +247,10 @@ public class CourseInputController implements Initializable {
             errors.append("At least one PO must be selected.\n");
         }
 
-        // Check if course (code + programme) already exists
+        // Check if course (code + programme) already exists (skip in edit mode for same course)
         String programme = (degree != null && !programmeCode.isEmpty()) ? degree + " in " + programmeCode : programmeCode;
         try {
-            if (!courseCode.isEmpty() && !programme.isEmpty() && databaseHelper.courseExists(courseCode.toUpperCase(), programme)) {
+            if (!isEditMode && !courseCode.isEmpty() && !programme.isEmpty() && databaseHelper.courseExists(courseCode.toUpperCase(), programme)) {
                 errors.append("A course with this code already exists for the selected programme.\n");
             }
         } catch (Exception e) {

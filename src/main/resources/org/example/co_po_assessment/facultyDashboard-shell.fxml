@@ -8,66 +8,85 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.co_po_assessment.dashboard_controller.FacultyDashboardController" stylesheets="@styles.css" style="-fx-font-size: 14px; -fx-font-weight: bold;">
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+    fx:controller="org.example.co_po_assessment.dashboard_controller.FacultyDashboardController" 
+    stylesheets="@styles.css" style="-fx-background-color: #f5f7fa;">
+    
     <!-- Top bar with title and breadcrumbs -->
     <top>
-        <HBox spacing="20.0" style="-fx-background-color: #f7f7fb; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT">
+        <HBox spacing="20.0" styleClass="top-bar" alignment="CENTER_LEFT" prefHeight="70.0">
             <children>
-                <Label fx:id="facultyLabel" text="Faculty" style="-fx-text-fill: #1f2937;">
-                    <font>
-                        <Font size="24.0" />
-                    </font>
-                </Label>
-                <Label fx:id="breadcrumbLabel" text="Home" style="-fx-text-fill: #6b7280; -fx-font-weight: bold;">
-                    <font>
-                        <Font size="16.0" />
-                    </font>
-                </Label>
+                <Label fx:id="facultyLabel" text="Faculty Dashboard" styleClass="header-title" />
+                <Label text="/" styleClass="breadcrumb-text" />
+                <Label fx:id="breadcrumbLabel" text="Home" styleClass="breadcrumb-text" />
                 <HBox HBox.hgrow="ALWAYS" />
-                <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButton" styleClass="dashboard-button" />
+                <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButton" styleClass="button-danger" />
             </children>
             <padding>
-                <Insets top="12" right="16" bottom="12" left="16" />
+                <Insets top="12" right="24" bottom="12" left="24" />
             </padding>
         </HBox>
     </top>
 
     <!-- Left navigation sidebar -->
     <left>
-        <VBox spacing="12.0" style="-fx-background-color: #ffffff; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0;" prefWidth="280.0">
+        <VBox spacing="8.0" styleClass="sidebar" prefWidth="260.0">
             <children>
-                <Label text="Navigation" style="-fx-text-fill: #374151; -fx-font-weight: bold;">
-                    <font>
-                        <Font size="16.0" />
-                    </font>
-                </Label>
-                <Button fx:id="questionsButton" text="View Course Questions" onAction="#onQuestionsButton" prefHeight="40.0" styleClass="dashboard-button" />
-                <Button fx:id="marksButton" text="View Student Marks" onAction="#onMarksButton" prefHeight="40.0" styleClass="dashboard-button" />
-                <Button fx:id="COReportButton" text="Open CO Report" onAction="#onCOReportButton" prefHeight="40.0" styleClass="dashboard-button" />
-                <Button fx:id="POReportButton" text="Open PO Report" onAction="#onPOReportButton" prefHeight="40.0" styleClass="dashboard-button" />
-                <Button fx:id="excelExportButton" text="Export Questions to Excel" onAction="#onExcelExportButton" wrapText="true" prefHeight="48.0" styleClass="dashboard-button" />
-                <Button fx:id="excelImportButton" text="Import Excel Marks" onAction="#onExcelImportButton" prefHeight="40.0" styleClass="dashboard-button" />
+                <VBox spacing="10" style="-fx-padding: 20 16 16 16;" alignment="CENTER">
+                    <ImageView fitHeight="60" fitWidth="60" preserveRatio="true">
+                        <image>
+                            <Image url="@logo.png" />
+                        </image>
+                    </ImageView>
+                    <Label text="CO-PO ASSESSMENT" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: 700;" />
+                    <Label text="Faculty Panel" style="-fx-text-fill: #1e293b; -fx-font-size: 18px; -fx-font-weight: 700;" />
+                </VBox>
+                
+                <Label text="NAVIGATION" styleClass="sidebar-title" />
+                <Button fx:id="backToCoursesButton" text="◄ Back to Courses" 
+                    onAction="#onBackToCoursesButton" styleClass="sidebar-button" maxWidth="Infinity" 
+                    style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-font-weight: 700;" />
+                <Button fx:id="summaryButton" text="📊  Course Summary" 
+                    onAction="#onSummaryButton" styleClass="sidebar-button" maxWidth="Infinity" />
+                <Button fx:id="questionsButton" text="📝  Course Questions" 
+                    onAction="#onQuestionsButton" styleClass="sidebar-button" maxWidth="Infinity" />
+                <Button fx:id="marksButton" text="✏️  Student Marks" 
+                    onAction="#onMarksButton" styleClass="sidebar-button" maxWidth="Infinity" />
+                
+                <Label text="REPORTS" styleClass="sidebar-title" style="-fx-padding: 12 16 0 16;" />
+                <Button fx:id="COReportButton" text="📊  CO Report" 
+                    onAction="#onCOReportButton" styleClass="sidebar-button" maxWidth="Infinity" />
+                <Button fx:id="POReportButton" text="📈  PO Report" 
+                    onAction="#onPOReportButton" styleClass="sidebar-button" maxWidth="Infinity" />
+                
+                <Label text="IMPORT/EXPORT" styleClass="sidebar-title" style="-fx-padding: 12 16 0 16;" />
+                <Button fx:id="excelExportButton" text="📤  Export Questions" 
+                    onAction="#onExcelExportButton" wrapText="true" styleClass="sidebar-button" maxWidth="Infinity">
+                    <tooltip>
+                        <Tooltip text="Export Questions to Excel" />
+                    </tooltip>
+                </Button>
+                <Button fx:id="excelImportButton" text="📥  Import Marks" 
+                    onAction="#onExcelImportButton" styleClass="sidebar-button" maxWidth="Infinity" />
             </children>
             <padding>
-                <Insets top="16" right="12" bottom="16" left="12" />
+                <Insets top="0" right="12" bottom="16" left="12" />
             </padding>
         </VBox>
     </left>
 
     <!-- Center content area becomes a swappable container -->
     <center>
-        <VBox fx:id="centerContent" spacing="8.0">
+        <VBox fx:id="centerContent" spacing="16.0" style="-fx-background-color: #f5f7fa;">
             <children>
                 <!-- Default pane showing assigned courses; controller can restore this -->
-                <VBox fx:id="coursesListPane" spacing="8.0">
+                <VBox fx:id="coursesListPane" spacing="16.0" styleClass="card">
                     <children>
-                        <Label fx:id="listLabel" text="List of Assigned Courses" style="-fx-text-fill: #374151;" alignment="CENTER" textAlignment="CENTER">
-                            <font>
-                                <Font size="20.0" />
-                            </font>
-                        </Label>
+                        <Label fx:id="listLabel" text="Assigned Courses" styleClass="card-title" />
                         <TableView fx:id="assignedCoursesTableView">
                             <columns>
                                 <TableColumn fx:id="courseCodeColumn" text="Course Code" prefWidth="120.0" />
@@ -77,14 +96,13 @@
                                 <TableColumn fx:id="programmeColumn" text="Programme" prefWidth="220.0" />
                             </columns>
                         </TableView>
+                        <Label text="💡 Select a course from the table above, then use the sidebar to manage questions, marks, or view reports." 
+                            styleClass="label-muted" style="-fx-font-size: 13px;" wrapText="true" />
                     </children>
-                    <padding>
-                        <Insets top="12" right="12" bottom="12" left="12" />
-                    </padding>
                 </VBox>
             </children>
             <padding>
-                <Insets top="12" right="12" bottom="12" left="12" />
+                <Insets top="24" right="24" bottom="24" left="24" />
             </padding>
         </VBox>
     </center>

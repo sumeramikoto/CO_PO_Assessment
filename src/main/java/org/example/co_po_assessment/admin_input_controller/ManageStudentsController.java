@@ -55,6 +55,8 @@ public class ManageStudentsController implements Initializable {
     @FXML
     Button addStudentButton;
     @FXML
+    Button editStudentButton;
+    @FXML
     Button removeStudentButton;
     @FXML
     Button backButton;
@@ -189,6 +191,36 @@ public class ManageStudentsController implements Initializable {
 
         } catch (IOException e) {
             showErrorAlert("Navigation Error", "Failed to open Add Student window: " + e.getMessage());
+        }
+    }
+
+    public void onEditStudentButton(ActionEvent actionEvent) {
+        Student selectedStudent = studentTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedStudent == null) {
+            showWarningAlert("No Selection", "Please select a student to edit.");
+            return;
+        }
+
+        try {
+            // Open the Student Info Input window in edit mode
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/studentInfoInput-view.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 400, 450);
+
+            // Get the controller and set it to edit mode
+            StudentInfoInputController controller = fxmlLoader.getController();
+            controller.setParentController(this);
+            controller.setEditMode(selectedStudent.getId(), selectedStudent.getName(), 
+                                  selectedStudent.getBatch(), selectedStudent.getEmail(),
+                                  selectedStudent.getDepartment(), selectedStudent.getProgramme());
+
+            Stage stage = new Stage();
+            stage.setTitle("Edit Student Information");
+            WindowUtils.setSceneAndMaximize(stage, scene);
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            showErrorAlert("Navigation Error", "Failed to open Edit Student window: " + e.getMessage());
         }
     }
 
@@ -528,6 +560,39 @@ public class ManageStudentsController implements Initializable {
 
         } catch (SQLException e) {
             showErrorAlert("Database Error", "Failed to add student: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            showErrorAlert("Invalid Input", "Batch must be a valid number.");
+        }
+    }
+
+    /**
+     * Method to be called by StudentInfoInputController when student is updated
+     */
+    public void updateStudent(String oldId, String newId, String name, String batch, String email, String department, String programme) {
+        try {
+            // Update in database
+            DatabaseService databaseService = DatabaseService.getInstance();
+            databaseService.updateStudent(oldId, newId, Integer.parseInt(batch), name, email, department, programme);
+
+            // Update in table - find and update the student object
+            for (int i = 0; i < studentList.size(); i++) {
+                Student s = studentList.get(i);
+                if (s.getId().equals(oldId)) {
+                    // Keep the same enrollment display
+                    String enrollmentDisplay = s.getEnrolledCourses();
+                    studentList.set(i, new Student(newId, name, batch, department, programme, email, enrollmentDisplay));
+                    break;
+                }
+            }
+
+            // Update filters
+            refreshBatchFilterOptions();
+            applyStudentFilter();
+
+            showInfoAlert("Success", "Student updated successfully.");
+
+        } catch (SQLException e) {
+            showErrorAlert("Database Error", "Failed to update student: " + e.getMessage());
         } catch (NumberFormatException e) {
             showErrorAlert("Invalid Input", "Batch must be a valid number.");
         }

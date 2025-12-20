@@ -50,6 +50,14 @@
     -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.15), 4, 0, 0, 0);
 }
 
+.sidebar-button.sidebar-button-active {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1e40af;
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 0 0 0 4;
+    -fx-font-weight: 700;
+}
+
 .sidebar-title {
     -fx-text-fill: #64748b;
     -fx-font-size: 12px;

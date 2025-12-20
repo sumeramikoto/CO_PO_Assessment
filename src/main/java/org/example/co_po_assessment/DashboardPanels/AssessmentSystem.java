@@ -7,6 +7,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -68,6 +70,18 @@ public class AssessmentSystem extends Application {
             "-fx-background-radius: 20; " +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 20, 0, 0, 5);"
         );
+
+        // Add logo at the top of the form
+        try {
+            Image logo = new Image(getClass().getResourceAsStream("/org/example/co_po_assessment/logo.png"));
+            ImageView logoView = new ImageView(logo);
+            logoView.setFitHeight(80);
+            logoView.setFitWidth(80);
+            logoView.setPreserveRatio(true);
+            formContainer.getChildren().add(logoView);
+        } catch (Exception e) {
+            System.err.println("Could not load logo: " + e.getMessage());
+        }
 
         Label scenetitle = new Label("Login");
         scenetitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 38));

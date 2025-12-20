@@ -189,7 +189,29 @@ public class MarksEntryController implements Initializable {
 
     private Map<Integer, Double> loadStudentMarks(String studentId, String assessmentType) {
         try {
-            return db.getStudentMarksForAssessment(studentId, currentQuestions, assessmentType);
+            List<DatabaseService.StudentMarksData> marksData;
+            String code = courseAssignment.courseCode;
+            String programme = courseAssignment.programme;
+            String year = courseAssignment.academicYear;
+            
+            switch (assessmentType) {
+                case "Quiz 1" -> marksData = db.getStudentQuizMarks(code, programme, 1, year);
+                case "Quiz 2" -> marksData = db.getStudentQuizMarks(code, programme, 2, year);
+                case "Quiz 3" -> marksData = db.getStudentQuizMarks(code, programme, 3, year);
+                case "Quiz 4" -> marksData = db.getStudentQuizMarks(code, programme, 4, year);
+                case "Mid" -> marksData = db.getStudentMidMarks(code, programme, year);
+                case "Final" -> marksData = db.getStudentFinalMarks(code, programme, year);
+                default -> marksData = new ArrayList<>();
+            }
+            
+            // Filter for this student and convert to Map
+            Map<Integer, Double> result = new HashMap<>();
+            for (DatabaseService.StudentMarksData data : marksData) {
+                if (data.studentId.equals(studentId) && data.marksObtained != null) {
+                    result.put(data.questionId, data.marksObtained);
+                }
+            }
+            return result;
         } catch (Exception e) {
             return new HashMap<>();
         }
@@ -208,7 +230,14 @@ public class MarksEntryController implements Initializable {
                 for (DatabaseService.QuestionData question : currentQuestions) {
                     Double mark = row.getQuestionMark(question.id);
                     if (mark != null) {
-                        db.saveStudentMark(row.getStudentId(), question.id, mark, currentAssessmentType);
+                        switch (currentAssessmentType) {
+                            case "Quiz 1", "Quiz 2", "Quiz 3", "Quiz 4" -> 
+                                db.saveStudentQuizMarks(row.getStudentId(), question.id, mark);
+                            case "Mid" -> 
+                                db.saveStudentMidMarks(row.getStudentId(), question.id, mark);
+                            case "Final" -> 
+                                db.saveStudentFinalMarks(row.getStudentId(), question.id, mark);
+                        }
                         savedCount++;
                     }
                 }

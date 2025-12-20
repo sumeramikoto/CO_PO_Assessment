@@ -303,6 +303,66 @@ public class DatabaseService {
     }
 
     // ------------------------------------------------------------------
+    // Update questions
+    // ------------------------------------------------------------------
+    public boolean updateQuizQuestion(String courseCode, String programme, int quizNumber, String oldTitle, String newTitle, double newMarks, String newCO, String newPO, String academicYear) throws SQLException {
+        String sql = "UPDATE QuizQuestion qq " +
+                "JOIN Quiz q ON qq.quiz_id = q.id " +
+                "JOIN CO co ON co.co_number = ? " +
+                "JOIN PO po ON po.po_number = ? " +
+                "SET qq.title = ?, qq.marks = ?, qq.co_id = co.id, qq.po_id = po.id " +
+                "WHERE q.course_id = ? AND q.programme = ? AND q.quiz_number = ? AND q.academic_year = ? AND qq.title = ? " +
+                "AND EXISTS (SELECT 1 FROM Course_CO cc WHERE cc.course_code = q.course_id AND cc.programme = q.programme AND cc.co_id = co.id) " +
+                "AND EXISTS (SELECT 1 FROM Course_PO cp WHERE cp.course_code = q.course_id AND cp.programme = q.programme AND cp.po_id = po.id)";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, newCO); ps.setString(2, newPO);
+            ps.setString(3, newTitle); ps.setDouble(4, newMarks);
+            ps.setString(5, courseCode); ps.setString(6, programme); ps.setInt(7, quizNumber); ps.setString(8, academicYear); ps.setString(9, oldTitle);
+            int updated = ps.executeUpdate();
+            if (updated == 0) throw new SQLException("Question not found or selected CO/PO not allowed for this course");
+            return updated > 0;
+        }
+    }
+    
+    public boolean updateMidQuestion(String courseCode, String programme, String oldTitle, String newTitle, double newMarks, String newCO, String newPO, String academicYear) throws SQLException {
+        String sql = "UPDATE MidQuestion mq " +
+                "JOIN Mid m ON mq.mid_id = m.id " +
+                "JOIN CO co ON co.co_number = ? " +
+                "JOIN PO po ON po.po_number = ? " +
+                "SET mq.title = ?, mq.marks = ?, mq.co_id = co.id, mq.po_id = po.id " +
+                "WHERE m.course_id = ? AND m.programme = ? AND m.academic_year = ? AND mq.title = ? " +
+                "AND EXISTS (SELECT 1 FROM Course_CO cc WHERE cc.course_code = m.course_id AND cc.programme = m.programme AND cc.co_id = co.id) " +
+                "AND EXISTS (SELECT 1 FROM Course_PO cp WHERE cp.course_code = m.course_id AND cp.programme = m.programme AND cp.po_id = po.id)";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, newCO); ps.setString(2, newPO);
+            ps.setString(3, newTitle); ps.setDouble(4, newMarks);
+            ps.setString(5, courseCode); ps.setString(6, programme); ps.setString(7, academicYear); ps.setString(8, oldTitle);
+            int updated = ps.executeUpdate();
+            if (updated == 0) throw new SQLException("Question not found or selected CO/PO not allowed for this course");
+            return updated > 0;
+        }
+    }
+    
+    public boolean updateFinalQuestion(String courseCode, String programme, String oldTitle, String newTitle, double newMarks, String newCO, String newPO, String academicYear) throws SQLException {
+        String sql = "UPDATE FinalQuestion fq " +
+                "JOIN Final f ON fq.final_id = f.id " +
+                "JOIN CO co ON co.co_number = ? " +
+                "JOIN PO po ON po.po_number = ? " +
+                "SET fq.title = ?, fq.marks = ?, fq.co_id = co.id, fq.po_id = po.id " +
+                "WHERE f.course_id = ? AND f.programme = ? AND f.academic_year = ? AND fq.title = ? " +
+                "AND EXISTS (SELECT 1 FROM Course_CO cc WHERE cc.course_code = f.course_id AND cc.programme = f.programme AND cc.co_id = co.id) " +
+                "AND EXISTS (SELECT 1 FROM Course_PO cp WHERE cp.course_code = f.course_id AND cp.programme = f.programme AND cp.po_id = po.id)";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, newCO); ps.setString(2, newPO);
+            ps.setString(3, newTitle); ps.setDouble(4, newMarks);
+            ps.setString(5, courseCode); ps.setString(6, programme); ps.setString(7, academicYear); ps.setString(8, oldTitle);
+            int updated = ps.executeUpdate();
+            if (updated == 0) throw new SQLException("Question not found or selected CO/PO not allowed for this course");
+            return updated > 0;
+        }
+    }
+
+    // ------------------------------------------------------------------
     // Retrieve questions (programme-aware)
     // ------------------------------------------------------------------
     public List<QuestionData> getQuizQuestions(String courseCode, String programme, int quizNumber, String ay) throws SQLException {

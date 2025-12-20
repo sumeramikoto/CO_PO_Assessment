@@ -32,6 +32,7 @@
                 <Insets bottom="10.0" top="10.0" />
             </padding>
             <Button fx:id="addStudentButton" mnemonicParsing="false" onAction="#onAddStudentButton" prefWidth="120.0" text="Add Student" />
+            <Button fx:id="editStudentButton" mnemonicParsing="false" onAction="#onEditStudentButton" prefWidth="120.0" text="Edit Student" />
             <Button fx:id="excelTemplateButton" mnemonicParsing="false" onAction="#onExcelTemplateButton" text="Get Excel Template" />
             <Button fx:id="bulkImportStudentsButton" mnemonicParsing="false" onAction="#onBulkImportStudents" prefWidth="160.0" text="Bulk Import (Excel)" />
             <Button fx:id="removeStudentButton" mnemonicParsing="false" onAction="#onRemoveStudentButton" prefWidth="120.0" text="Remove Student" />

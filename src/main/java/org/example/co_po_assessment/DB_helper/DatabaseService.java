@@ -303,66 +303,6 @@ public class DatabaseService {
     }
 
     // ------------------------------------------------------------------
-    // Update questions
-    // ------------------------------------------------------------------
-    public boolean updateQuizQuestion(String courseCode, String programme, int quizNumber, String oldTitle, String newTitle, double newMarks, String newCO, String newPO, String academicYear) throws SQLException {
-        String sql = "UPDATE QuizQuestion qq " +
-                "JOIN Quiz q ON qq.quiz_id = q.id " +
-                "JOIN CO co ON co.co_number = ? " +
-                "JOIN PO po ON po.po_number = ? " +
-                "SET qq.title = ?, qq.marks = ?, qq.co_id = co.id, qq.po_id = po.id " +
-                "WHERE q.course_id = ? AND q.programme = ? AND q.quiz_number = ? AND q.academic_year = ? AND qq.title = ? " +
-                "AND EXISTS (SELECT 1 FROM Course_CO cc WHERE cc.course_code = q.course_id AND cc.programme = q.programme AND cc.co_id = co.id) " +
-                "AND EXISTS (SELECT 1 FROM Course_PO cp WHERE cp.course_code = q.course_id AND cp.programme = q.programme AND cp.po_id = po.id)";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, newCO); ps.setString(2, newPO);
-            ps.setString(3, newTitle); ps.setDouble(4, newMarks);
-            ps.setString(5, courseCode); ps.setString(6, programme); ps.setInt(7, quizNumber); ps.setString(8, academicYear); ps.setString(9, oldTitle);
-            int updated = ps.executeUpdate();
-            if (updated == 0) throw new SQLException("Question not found or selected CO/PO not allowed for this course");
-            return updated > 0;
-        }
-    }
-    
-    public boolean updateMidQuestion(String courseCode, String programme, String oldTitle, String newTitle, double newMarks, String newCO, String newPO, String academicYear) throws SQLException {
-        String sql = "UPDATE MidQuestion mq " +
-                "JOIN Mid m ON mq.mid_id = m.id " +
-                "JOIN CO co ON co.co_number = ? " +
-                "JOIN PO po ON po.po_number = ? " +
-                "SET mq.title = ?, mq.marks = ?, mq.co_id = co.id, mq.po_id = po.id " +
-                "WHERE m.course_id = ? AND m.programme = ? AND m.academic_year = ? AND mq.title = ? " +
-                "AND EXISTS (SELECT 1 FROM Course_CO cc WHERE cc.course_code = m.course_id AND cc.programme = m.programme AND cc.co_id = co.id) " +
-                "AND EXISTS (SELECT 1 FROM Course_PO cp WHERE cp.course_code = m.course_id AND cp.programme = m.programme AND cp.po_id = po.id)";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, newCO); ps.setString(2, newPO);
-            ps.setString(3, newTitle); ps.setDouble(4, newMarks);
-            ps.setString(5, courseCode); ps.setString(6, programme); ps.setString(7, academicYear); ps.setString(8, oldTitle);
-            int updated = ps.executeUpdate();
-            if (updated == 0) throw new SQLException("Question not found or selected CO/PO not allowed for this course");
-            return updated > 0;
-        }
-    }
-    
-    public boolean updateFinalQuestion(String courseCode, String programme, String oldTitle, String newTitle, double newMarks, String newCO, String newPO, String academicYear) throws SQLException {
-        String sql = "UPDATE FinalQuestion fq " +
-                "JOIN Final f ON fq.final_id = f.id " +
-                "JOIN CO co ON co.co_number = ? " +
-                "JOIN PO po ON po.po_number = ? " +
-                "SET fq.title = ?, fq.marks = ?, fq.co_id = co.id, fq.po_id = po.id " +
-                "WHERE f.course_id = ? AND f.programme = ? AND f.academic_year = ? AND fq.title = ? " +
-                "AND EXISTS (SELECT 1 FROM Course_CO cc WHERE cc.course_code = f.course_id AND cc.programme = f.programme AND cc.co_id = co.id) " +
-                "AND EXISTS (SELECT 1 FROM Course_PO cp WHERE cp.course_code = f.course_id AND cp.programme = f.programme AND cp.po_id = po.id)";
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, newCO); ps.setString(2, newPO);
-            ps.setString(3, newTitle); ps.setDouble(4, newMarks);
-            ps.setString(5, courseCode); ps.setString(6, programme); ps.setString(7, academicYear); ps.setString(8, oldTitle);
-            int updated = ps.executeUpdate();
-            if (updated == 0) throw new SQLException("Question not found or selected CO/PO not allowed for this course");
-            return updated > 0;
-        }
-    }
-
-    // ------------------------------------------------------------------
     // Retrieve questions (programme-aware)
     // ------------------------------------------------------------------
     public List<QuestionData> getQuizQuestions(String courseCode, String programme, int quizNumber, String ay) throws SQLException {
@@ -919,125 +859,55 @@ public class DatabaseService {
         return list;
     }
 
-    // ------------------------------------------------------------------
-    // Student Marks Entry Methods
-    // ------------------------------------------------------------------
-    
-    /**
-     * Save or update a student's mark for a specific question
-     */
-    public void saveStudentMark(String studentId, int questionId, double marksObtained, String assessmentType) throws SQLException {
-        String tableName;
-        String questionIdColumn;
+    // Clone questions from source assessment to target assessment
+    public int cloneQuestions(String courseCode, String programme, String sourceAssessment, 
+                              int sourceQuizNum, String sourceYear, 
+                              String targetAssessment, int targetQuizNum, String targetYear) throws SQLException {
+        int count = 0;
         
-        if (assessmentType.startsWith("Quiz")) {
-            tableName = "StudentQuizMarks";
-            questionIdColumn = "quiz_question_id";
-        } else if (assessmentType.equals("Mid")) {
-            tableName = "StudentMidMarks";
-            questionIdColumn = "mid_question_id";
-        } else if (assessmentType.equals("Final")) {
-            tableName = "StudentFinalMarks";
-            questionIdColumn = "final_question_id";
-        } else {
-            throw new SQLException("Invalid assessment type: " + assessmentType);
+        // First, DELETE all existing questions in target assessment
+        List<QuestionData> existingQuestions;
+        if (targetAssessment.startsWith("Quiz")) {
+            existingQuestions = getQuizQuestions(courseCode, programme, targetQuizNum, targetYear);
+        } else if (targetAssessment.equals("Mid")) {
+            existingQuestions = getMidQuestions(courseCode, programme, targetYear);
+        } else { // Final
+            existingQuestions = getFinalQuestions(courseCode, programme, targetYear);
         }
         
-        String sql = "INSERT INTO " + tableName + " (student_id, " + questionIdColumn + ", marks_obtained) " +
-                     "VALUES (?, ?, ?) " +
-                     "ON DUPLICATE KEY UPDATE marks_obtained = VALUES(marks_obtained)";
-        
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, studentId);
-            ps.setInt(2, questionId);
-            ps.setDouble(3, marksObtained);
-            ps.executeUpdate();
-        }
-    }
-    
-    /**
-     * Get all marks for a student for a list of questions
-     */
-    public Map<Integer, Double> getStudentMarksForAssessment(String studentId, List<QuestionData> questions, String assessmentType) throws SQLException {
-        Map<Integer, Double> marks = new HashMap<>();
-        if (questions.isEmpty()) return marks;
-        
-        String tableName;
-        String questionIdColumn;
-        
-        if (assessmentType.startsWith("Quiz")) {
-            tableName = "StudentQuizMarks";
-            questionIdColumn = "quiz_question_id";
-        } else if (assessmentType.equals("Mid")) {
-            tableName = "StudentMidMarks";
-            questionIdColumn = "mid_question_id";
-        } else if (assessmentType.equals("Final")) {
-            tableName = "StudentFinalMarks";
-            questionIdColumn = "final_question_id";
-        } else {
-            return marks;
-        }
-        
-        // Build IN clause for question IDs
-        List<Integer> questionIds = questions.stream().map(q -> q.id).toList();
-        String placeholders = String.join(",", java.util.Collections.nCopies(questionIds.size(), "?"));
-        String sql = "SELECT " + questionIdColumn + ", marks_obtained FROM " + tableName + 
-                     " WHERE student_id = ? AND " + questionIdColumn + " IN (" + placeholders + ")";
-        
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, studentId);
-            int idx = 2;
-            for (Integer qId : questionIds) {
-                ps.setInt(idx++, qId);
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    marks.put(rs.getInt(1), rs.getDouble(2));
-                }
+        // Delete each existing question
+        for (QuestionData q : existingQuestions) {
+            if (targetAssessment.startsWith("Quiz")) {
+                deleteQuizQuestion(courseCode, programme, targetQuizNum, q.title, targetYear);
+            } else if (targetAssessment.equals("Mid")) {
+                deleteMidQuestion(courseCode, programme, q.title, targetYear);
+            } else { // Final
+                deleteFinalQuestion(courseCode, programme, q.title, targetYear);
             }
         }
-        return marks;
-    }
-    
-    /**
-     * Count how many marks entries exist for a list of questions
-     */
-    public int countMarksEntered(List<QuestionData> questions, String assessmentType) throws SQLException {
-        if (questions.isEmpty()) return 0;
         
-        String tableName;
-        String questionIdColumn;
-        
-        if (assessmentType.startsWith("Quiz")) {
-            tableName = "StudentQuizMarks";
-            questionIdColumn = "quiz_question_id";
-        } else if (assessmentType.equals("Mid")) {
-            tableName = "StudentMidMarks";
-            questionIdColumn = "mid_question_id";
-        } else if (assessmentType.equals("Final")) {
-            tableName = "StudentFinalMarks";
-            questionIdColumn = "final_question_id";
-        } else {
-            return 0;
+        // Now get all questions from source assessment
+        List<QuestionData> sourceQuestions;
+        if (sourceAssessment.startsWith("Quiz")) {
+            sourceQuestions = getQuizQuestions(courseCode, programme, sourceQuizNum, sourceYear);
+        } else if (sourceAssessment.equals("Mid")) {
+            sourceQuestions = getMidQuestions(courseCode, programme, sourceYear);
+        } else { // Final
+            sourceQuestions = getFinalQuestions(courseCode, programme, sourceYear);
         }
         
-        // Build IN clause for question IDs
-        List<Integer> questionIds = questions.stream().map(q -> q.id).toList();
-        String placeholders = String.join(",", java.util.Collections.nCopies(questionIds.size(), "?"));
-        String sql = "SELECT COUNT(*) FROM " + tableName + 
-                     " WHERE " + questionIdColumn + " IN (" + placeholders + ")";
-        
-        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            int idx = 1;
-            for (Integer qId : questionIds) {
-                ps.setInt(idx++, qId);
+        // Clone each question to target assessment using existing save methods
+        for (QuestionData q : sourceQuestions) {
+            if (targetAssessment.startsWith("Quiz")) {
+                saveQuizQuestion(courseCode, programme, targetQuizNum, q.title, q.marks, q.co, q.po, targetYear);
+            } else if (targetAssessment.equals("Mid")) {
+                saveMidQuestion(courseCode, programme, q.title, q.marks, q.co, q.po, targetYear);
+            } else { // Final
+                saveFinalQuestion(courseCode, programme, q.title, q.marks, q.co, q.po, targetYear);
             }
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
+            count++;
         }
-        return 0;
+        
+        return count;
     }
 }

@@ -29,7 +29,6 @@ import javafx.stage.FileChooser; // added for excel import
 import org.example.co_po_assessment.Report_controller.COReportDialogController;
 import org.example.co_po_assessment.faculty_input_controller.DetailedMarksController;
 import org.example.co_po_assessment.faculty_input_controller.ManageCourseQuestionsController;
-import org.example.co_po_assessment.faculty_input_controller.MarksEntryController;
 import org.example.co_po_assessment.utilities.WindowUtils;
 
 public class FacultyDashboardController {
@@ -119,29 +118,6 @@ public class FacultyDashboardController {
         }
     }
 
-    public void onSummaryButton(ActionEvent actionEvent) {
-        setBreadcrumb("Home > Course Summary");
-        DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
-        if (selected == null) {
-            Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
-            alert.setHeaderText(null);
-            alert.showAndWait();
-            return;
-        }
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/courseSummary-view.fxml"));
-            Parent root = loader.load();
-            org.example.co_po_assessment.faculty_input_controller.CourseSummaryController controller = loader.getController();
-            controller.setCourseAssignment(selected);
-            setCenterContent(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open Course Summary: " + e.getMessage(), ButtonType.OK);
-            alert.setHeaderText(null);
-            alert.showAndWait();
-        }
-    }
-
     public void onQuestionsButton(ActionEvent actionEvent) {
         setBreadcrumb("Home > Course Questions");
         // opens view embedded in center instead of new window
@@ -167,7 +143,7 @@ public class FacultyDashboardController {
     }
 
     public void onMarksButton(ActionEvent actionEvent) {
-        setBreadcrumb("Home > Enter Marks");
+        setBreadcrumb("Home > Student Marks");
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -177,14 +153,14 @@ public class FacultyDashboardController {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/marksEntry-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/detailedMarks-view.fxml"));
             Parent root = loader.load();
-            MarksEntryController controller = loader.getController();
-            controller.setCourseAssignment(selected);
+            DetailedMarksController controller = loader.getController();
+            controller.setContext(selected.getCourseCode(), selected.getProgramme(), selected.getAcademicYear());
             setCenterContent(root);
         } catch (Exception e) {
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open Marks Entry: " + e.getMessage(), ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to open Marks view: " + e.getMessage(), ButtonType.OK);
             alert.setHeaderText(null);
             alert.showAndWait();
         }

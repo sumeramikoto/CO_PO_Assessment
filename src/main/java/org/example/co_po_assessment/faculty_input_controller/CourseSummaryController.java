@@ -189,10 +189,35 @@ public class CourseSummaryController implements Initializable {
             int questionCount = questions.size();
             double totalMarks = questions.stream().mapToDouble(q -> q.marks).sum();
             
-            // Count how many marks have been entered
+            // Count how many marks have been entered by checking StudentMarksData
             int marksEntered = 0;
             if (questionCount > 0 && studentCount > 0) {
-                marksEntered = db.countMarksEntered(questions, type);
+                List<DatabaseService.StudentMarksData> marksData;
+                if (type.startsWith("Quiz")) {
+                    marksData = db.getStudentQuizMarks(
+                        courseAssignment.courseCode,
+                        courseAssignment.programme,
+                        quizNumber,
+                        courseAssignment.academicYear
+                    );
+                } else if (type.equals("Mid")) {
+                    marksData = db.getStudentMidMarks(
+                        courseAssignment.courseCode,
+                        courseAssignment.programme,
+                        courseAssignment.academicYear
+                    );
+                } else { // Final
+                    marksData = db.getStudentFinalMarks(
+                        courseAssignment.courseCode,
+                        courseAssignment.programme,
+                        courseAssignment.academicYear
+                    );
+                }
+                
+                // Count non-null marks_obtained entries
+                marksEntered = (int) marksData.stream()
+                    .filter(m -> m.marksObtained != null)
+                    .count();
             }
             
             int totalPossibleEntries = questionCount * studentCount;

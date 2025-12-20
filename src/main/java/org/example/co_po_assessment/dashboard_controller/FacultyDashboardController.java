@@ -36,6 +36,10 @@ public class FacultyDashboardController {
     @FXML Label facultyLabel;
     @FXML Label breadcrumbLabel; // optional breadcrumb label from shell layout
     @FXML Button backToCoursesButton; // back to courses button
+    @FXML Button questionsButton;
+    @FXML Button marksButton;
+    @FXML Button COReportButton;
+    @FXML Button POReportButton;
     @FXML TableView<DatabaseService.FacultyCourseAssignment> assignedCoursesTableView;
     @FXML TableColumn<DatabaseService.FacultyCourseAssignment, String> courseCodeColumn;
     @FXML TableColumn<DatabaseService.FacultyCourseAssignment, String> courseNameColumn;
@@ -81,7 +85,28 @@ public class FacultyDashboardController {
         if (centerContent != null && coursesListPane != null) {
             centerContent.getChildren().setAll(coursesListPane);
             setBreadcrumb("Home");
+            clearActiveButton(); // Clear active state when returning home
         }
+    }
+    
+    private void setActiveButton(Button activeBtn) {
+        // Remove active class from all buttons
+        if (questionsButton != null) questionsButton.getStyleClass().remove("sidebar-button-active");
+        if (marksButton != null) marksButton.getStyleClass().remove("sidebar-button-active");
+        if (COReportButton != null) COReportButton.getStyleClass().remove("sidebar-button-active");
+        if (POReportButton != null) POReportButton.getStyleClass().remove("sidebar-button-active");
+        
+        // Add active class to the clicked button
+        if (activeBtn != null && !activeBtn.getStyleClass().contains("sidebar-button-active")) {
+            activeBtn.getStyleClass().add("sidebar-button-active");
+        }
+    }
+    
+    private void clearActiveButton() {
+        if (questionsButton != null) questionsButton.getStyleClass().remove("sidebar-button-active");
+        if (marksButton != null) marksButton.getStyleClass().remove("sidebar-button-active");
+        if (COReportButton != null) COReportButton.getStyleClass().remove("sidebar-button-active");
+        if (POReportButton != null) POReportButton.getStyleClass().remove("sidebar-button-active");
     }
 
     private void loadFacultyData() {
@@ -120,6 +145,7 @@ public class FacultyDashboardController {
 
     public void onQuestionsButton(ActionEvent actionEvent) {
         setBreadcrumb("Home > Course Questions");
+        setActiveButton(questionsButton);
         // opens view embedded in center instead of new window
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
@@ -133,6 +159,7 @@ public class FacultyDashboardController {
             Parent root = loader.load();
             ManageCourseQuestionsController controller = loader.getController();
             controller.setCourseAssignment(selected); // pass context
+            controller.setOnBackAction(this::restoreHome); // Set back callback
             setCenterContent(root);
         } catch (Exception e) {
             e.printStackTrace();
@@ -144,6 +171,7 @@ public class FacultyDashboardController {
 
     public void onMarksButton(ActionEvent actionEvent) {
         setBreadcrumb("Home > Student Marks");
+        setActiveButton(marksButton);
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -157,6 +185,7 @@ public class FacultyDashboardController {
             Parent root = loader.load();
             DetailedMarksController controller = loader.getController();
             controller.setContext(selected.getCourseCode(), selected.getProgramme(), selected.getAcademicYear());
+            controller.setOnCloseAction(this::restoreHome);
             setCenterContent(root);
         } catch (Exception e) {
             e.printStackTrace();
@@ -173,6 +202,7 @@ public class FacultyDashboardController {
 
     public void onCOReportButton(ActionEvent actionEvent) {
         setBreadcrumb("Home > CO Report");
+        setActiveButton(COReportButton);
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -185,6 +215,7 @@ public class FacultyDashboardController {
             Parent root = loader.load();
             COReportDialogController controller = loader.getController();
             controller.setContext(selected);
+            controller.setOnCloseAction(this::restoreHome);
             setCenterContent(root);
         } catch (Exception e) {
             e.printStackTrace();
@@ -196,6 +227,7 @@ public class FacultyDashboardController {
 
     public void onPOReportButton(ActionEvent actionEvent) {
         setBreadcrumb("Home > PO Report");
+        setActiveButton(POReportButton);
         DatabaseService.FacultyCourseAssignment selected = assignedCoursesTableView != null ? assignedCoursesTableView.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a course first.", ButtonType.OK);
@@ -208,6 +240,7 @@ public class FacultyDashboardController {
             Parent root = loader.load();
             POReportDialogController controller = loader.getController();
             controller.setContext(selected);
+            controller.setOnCloseAction(this::restoreHome);
             setCenterContent(root);
         } catch (Exception e) {
             e.printStackTrace();

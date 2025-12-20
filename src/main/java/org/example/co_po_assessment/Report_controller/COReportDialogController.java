@@ -55,6 +55,7 @@ public class COReportDialogController implements Initializable {
     private final ObservableList<Row> data = FXCollections.observableArrayList();
     private final DatabaseService db = DatabaseService.getInstance();
     private DatabaseService.FacultyCourseAssignment selected;
+    private Runnable onCloseAction; // Callback to return to dashboard
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -80,6 +81,10 @@ public class COReportDialogController implements Initializable {
         titleLabel.setText("CO Report - " + selected.getCourseCode());
         contextLabel.setText("Programme: " + selected.getProgramme() + " | Year: " + selected.getAcademicYear());
         try { computeAndPopulate(); } catch (Exception e) { showError("Failed to compute: " + e.getMessage()); }
+    }
+    
+    public void setOnCloseAction(Runnable action) {
+        this.onCloseAction = action;
     }
 
     private void computeAndPopulate() throws Exception {
@@ -231,7 +236,13 @@ public class COReportDialogController implements Initializable {
         }
     }
 
-    private void close() { ((Stage) table.getScene().getWindow()).close(); }
+    private void close() { 
+        if (onCloseAction != null) {
+            onCloseAction.run();
+        } else {
+            ((Stage) table.getScene().getWindow()).close();
+        }
+    }
     private void showError(String msg) { new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK).showAndWait(); }
 
     public static class Row {

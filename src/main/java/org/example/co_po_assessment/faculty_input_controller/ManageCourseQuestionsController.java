@@ -60,14 +60,6 @@ public class ManageCourseQuestionsController implements Initializable {
     @FXML private TableColumn<AssessmentQuestion, String> finalCOCol;
     @FXML private TableColumn<AssessmentQuestion, String> finalPOCol;
 
-    // Edit buttons
-    @FXML private Button quiz1EditQuestionButton;
-    @FXML private Button quiz2EditQuestionButton;
-    @FXML private Button quiz3EditQuestionButton;
-    @FXML private Button quiz4EditQuestionButton;
-    @FXML private Button midEditQuestionButton;
-    @FXML private Button finalEditQuestionButton;
-
     private ObservableList<AssessmentQuestion> quiz1Questions = FXCollections.observableArrayList();
     private ObservableList<AssessmentQuestion> quiz2Questions = FXCollections.observableArrayList();
     private ObservableList<AssessmentQuestion> quiz3Questions = FXCollections.observableArrayList();
@@ -78,6 +70,7 @@ public class ManageCourseQuestionsController implements Initializable {
     // Context passed from FacultyDashboard
     private DatabaseService.FacultyCourseAssignment courseAssignment;
     private final DatabaseService db = DatabaseService.getInstance();
+    private Runnable onBackAction; // Callback to return to dashboard
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -89,6 +82,11 @@ public class ManageCourseQuestionsController implements Initializable {
     public void setCourseAssignment(DatabaseService.FacultyCourseAssignment assignment) {
         this.courseAssignment = assignment;
         loadExistingQuestions();
+    }
+    
+    // Set the callback for back button
+    public void setOnBackAction(Runnable action) {
+        this.onBackAction = action;
     }
 
     private void setupColumns() {
@@ -169,11 +167,17 @@ public class ManageCourseQuestionsController implements Initializable {
     public void onFinalAddQuestionButton(ActionEvent actionEvent) { addQuestionDialog("Final"); }
 
     // Edit Question Handlers
+    @FXML
     public void onQuiz1EditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Quiz1", quiz1TableView, quiz1Questions); }
+    @FXML
     public void onQuiz2EditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Quiz2", quiz2TableView, quiz2Questions); }
+    @FXML
     public void onQuiz3EditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Quiz3", quiz3TableView, quiz3Questions); }
+    @FXML
     public void onQuiz4EditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Quiz4", quiz4TableView, quiz4Questions); }
+    @FXML
     public void onMidEditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Mid", midTableView, midQuestions); }
+    @FXML
     public void onFinalEditQuestionButton(ActionEvent actionEvent) { editQuestionDialog("Final", finalTableView, finalQuestions); }
 
     // Remove Handlers
@@ -184,13 +188,19 @@ public class ManageCourseQuestionsController implements Initializable {
     public void onMidRemoveQuestionButton(ActionEvent actionEvent) { removeSelected(midTableView, midQuestions); }
     public void onFinalRemoveQuestionButton(ActionEvent actionEvent) { removeSelected(finalTableView, finalQuestions); }
 
-    // Back buttons
-    public void onQ1BackButton(ActionEvent actionEvent) { closeWindow(actionEvent); }
-    public void onQ2BackButton(ActionEvent actionEvent) { closeWindow(actionEvent); }
-    public void onQ3BackButton(ActionEvent actionEvent) { closeWindow(actionEvent); }
-    public void onQ4BackButton(ActionEvent actionEvent) { closeWindow(actionEvent); }
-    public void onMidBackButton(ActionEvent actionEvent) { closeWindow(actionEvent); }
-    public void onFinalBackButton(ActionEvent actionEvent) { closeWindow(actionEvent); }
+    // Back buttons - now navigate back to dashboard instead of closing
+    public void onQ1BackButton(ActionEvent actionEvent) { goBackToDashboard(); }
+    public void onQ2BackButton(ActionEvent actionEvent) { goBackToDashboard(); }
+    public void onQ3BackButton(ActionEvent actionEvent) { goBackToDashboard(); }
+    public void onQ4BackButton(ActionEvent actionEvent) { goBackToDashboard(); }
+    public void onMidBackButton(ActionEvent actionEvent) { goBackToDashboard(); }
+    public void onFinalBackButton(ActionEvent actionEvent) { goBackToDashboard(); }
+    
+    private void goBackToDashboard() {
+        if (onBackAction != null) {
+            onBackAction.run();
+        }
+    }
 
     private void addQuestionDialog(String assessmentType) {
         Dialog<AssessmentQuestion> dialog = new Dialog<>();
@@ -300,7 +310,7 @@ public class ManageCourseQuestionsController implements Initializable {
     private void editQuestionDialog(String assessmentType, TableView<AssessmentQuestion> table, ObservableList<AssessmentQuestion> list) {
         AssessmentQuestion selected = table.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            Alert warn = new Alert(Alert.AlertType.WARNING, "Select a question to edit", ButtonType.OK);
+            Alert warn = new Alert(Alert.AlertType.WARNING, "Please select a question to edit", ButtonType.OK);
             warn.setHeaderText(null);
             warn.showAndWait();
             return;
@@ -310,8 +320,8 @@ public class ManageCourseQuestionsController implements Initializable {
         dialog.setTitle("Edit " + assessmentType + " Question");
         dialog.setHeaderText(null);
 
-        ButtonType updateBtnType = new ButtonType("Update", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(updateBtnType, ButtonType.CANCEL);
+        ButtonType saveBtnType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveBtnType, ButtonType.CANCEL);
 
         TextField numberField = new TextField(selected.getNumber());
         TextField marksField = new TextField(String.valueOf(selected.getMarks()));
@@ -333,8 +343,6 @@ public class ManageCourseQuestionsController implements Initializable {
         }
         coChoice.getItems().setAll(allowedCOs);
         poChoice.getItems().setAll(allowedPOs);
-        
-        // Set current values
         coChoice.setValue(selected.getCo());
         poChoice.setValue(selected.getPo());
 
@@ -346,38 +354,8 @@ public class ManageCourseQuestionsController implements Initializable {
         grid.add(new Label("PO:"),0,3); grid.add(poChoice,1,3);
         dialog.getDialogPane().setContent(grid);
 
-        Node updateButton = dialog.getDialogPane().lookupButton(updateBtnType);
-        updateButton.setDisable(true);
-
-        Runnable validate = () -> {
-            String no = numberField.getText().trim();
-            String marksTxt = marksField.getText().trim();
-            boolean valid = !no.isEmpty() && coChoice.getValue() != null && poChoice.getValue() != null;
-            if (coChoice.getItems().isEmpty() || poChoice.getItems().isEmpty()) valid = false;
-            double m = -1;
-            try { m = Double.parseDouble(marksTxt); } catch (Exception ignored) {}
-            if (m <= 0) valid = false;
-            // Check if question number already exists (but allow the same number if unchanged)
-            if (valid && !no.equalsIgnoreCase(selected.getNumber()) && questionNumberExists(assessmentType, no)) {
-                valid = false;
-            }
-            updateButton.setDisable(!valid);
-        };
-
-        numberField.textProperty().addListener((obs,o,n)-> validate.run());
-        marksField.textProperty().addListener((obs,o,n)-> validate.run());
-        coChoice.valueProperty().addListener((obs,o,n)-> validate.run());
-        poChoice.valueProperty().addListener((obs,o,n)-> validate.run());
-        validate.run();
-
-        if (coChoice.getItems().isEmpty() || poChoice.getItems().isEmpty()) {
-            Alert info = new Alert(Alert.AlertType.INFORMATION, "This course has no CO/PO mappings. Please assign COs and POs to the course first.", ButtonType.OK);
-            info.setHeaderText(null);
-            info.showAndWait();
-        }
-
         dialog.setResultConverter(btn -> {
-            if (btn == updateBtnType) {
+            if (btn == saveBtnType) {
                 String no = numberField.getText().trim();
                 String marksStr = marksField.getText().trim();
                 try {
@@ -386,15 +364,46 @@ public class ManageCourseQuestionsController implements Initializable {
                     String po = poChoice.getValue();
                     if (no.isEmpty() || co == null || po == null || marks <= 0) return null;
                     
-                    // Update in database
-                    if (updateQuestion(assessmentType, selected.getNumber(), no, marks, co, po)) {
-                        // Update the object in the list
-                        selected.setNumber(no);
-                        selected.setMarks(marks);
-                        selected.setCo(co);
-                        selected.setPo(po);
-                        table.refresh(); // Refresh the table to show updated values
-                        return selected;
+                    // Check if question number changed and if new number already exists
+                    boolean numberChanged = !no.equals(selected.getNumber());
+                    if (numberChanged && questionNumberExists(assessmentType, no)) {
+                        Alert dup = new Alert(Alert.AlertType.WARNING, "Question number '"+ no + "' already exists in this assessment.", ButtonType.OK);
+                        dup.setHeaderText(null);
+                        dup.showAndWait();
+                        return null;
+                    }
+                    
+                    // Always delete the old question before saving (to avoid duplicate key error)
+                    try {
+                        String code = courseAssignment.courseCode;
+                        String prog = courseAssignment.programme;
+                        String year = courseAssignment.academicYear;
+                        boolean deleted = switch (assessmentType) {
+                            case "Quiz1" -> db.deleteQuizQuestion(code, prog, 1, selected.getNumber(), year);
+                            case "Quiz2" -> db.deleteQuizQuestion(code, prog, 2, selected.getNumber(), year);
+                            case "Quiz3" -> db.deleteQuizQuestion(code, prog, 3, selected.getNumber(), year);
+                            case "Quiz4" -> db.deleteQuizQuestion(code, prog, 4, selected.getNumber(), year);
+                            case "Mid" -> db.deleteMidQuestion(code, prog, selected.getNumber(), year);
+                            case "Final" -> db.deleteFinalQuestion(code, prog, selected.getNumber(), year);
+                            default -> false;
+                        };
+                        if (!deleted) {
+                            Alert warn = new Alert(Alert.AlertType.WARNING, "Could not find the original question to update. It may have been deleted.", ButtonType.OK);
+                            warn.setHeaderText(null);
+                            warn.showAndWait();
+                            return null;
+                        }
+                    } catch (Exception e) {
+                        Alert err = new Alert(Alert.AlertType.ERROR, "Failed to delete old question: " + e.getMessage(), ButtonType.OK);
+                        err.setHeaderText(null);
+                        err.showAndWait();
+                        return null;
+                    }
+                    
+                    // Save updated question
+                    AssessmentQuestion updated = new AssessmentQuestion(no, marks, co, po, assessmentType);
+                    if (persistQuestion(updated)) {
+                        return updated;
                     } else {
                         return null;
                     }
@@ -405,30 +414,11 @@ public class ManageCourseQuestionsController implements Initializable {
             return null;
         });
 
-        dialog.showAndWait();
-    }
-
-    private boolean updateQuestion(String assessmentType, String oldNumber, String newNumber, double newMarks, String newCO, String newPO) {
-        if (courseAssignment == null) return false;
-        try {
-            String code = courseAssignment.courseCode;
-            String year = courseAssignment.academicYear;
-            String programme = courseAssignment.programme;
-            switch (assessmentType) {
-                case "Quiz1" -> db.updateQuizQuestion(code, programme, 1, oldNumber, newNumber, newMarks, newCO, newPO, year);
-                case "Quiz2" -> db.updateQuizQuestion(code, programme, 2, oldNumber, newNumber, newMarks, newCO, newPO, year);
-                case "Quiz3" -> db.updateQuizQuestion(code, programme, 3, oldNumber, newNumber, newMarks, newCO, newPO, year);
-                case "Quiz4" -> db.updateQuizQuestion(code, programme, 4, oldNumber, newNumber, newMarks, newCO, newPO, year);
-                case "Mid" -> db.updateMidQuestion(code, programme, oldNumber, newNumber, newMarks, newCO, newPO, year);
-                case "Final" -> db.updateFinalQuestion(code, programme, oldNumber, newNumber, newMarks, newCO, newPO, year);
-            }
-            return true;
-        } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to update question: " + e.getMessage(), ButtonType.OK);
-            alert.setHeaderText(null);
-            alert.showAndWait();
-            return false;
-        }
+        dialog.showAndWait().ifPresent(updated -> {
+            // Update the list
+            list.remove(selected);
+            list.add(updated);
+        });
     }
 
     private boolean questionNumberExists(String assessmentType, String number) {
@@ -521,6 +511,171 @@ public class ManageCourseQuestionsController implements Initializable {
         if (src instanceof Node node) {
             Stage stage = (Stage) node.getScene().getWindow();
             if (stage != null) stage.close();
+        }
+    }
+
+    // ==================== Clone Button Handlers ====================
+    @FXML
+    private void onQuiz1CloneButton(ActionEvent event) {
+        showCloneDialog("Quiz1", 1, quiz1Questions);
+    }
+
+    @FXML
+    private void onQuiz2CloneButton(ActionEvent event) {
+        showCloneDialog("Quiz2", 2, quiz2Questions);
+    }
+
+    @FXML
+    private void onQuiz3CloneButton(ActionEvent event) {
+        showCloneDialog("Quiz3", 3, quiz3Questions);
+    }
+
+    @FXML
+    private void onQuiz4CloneButton(ActionEvent event) {
+        showCloneDialog("Quiz4", 4, quiz4Questions);
+    }
+
+    @FXML
+    private void onMidCloneButton(ActionEvent event) {
+        showCloneDialog("Mid", 0, midQuestions);
+    }
+
+    @FXML
+    private void onFinalCloneButton(ActionEvent event) {
+        showCloneDialog("Final", 0, finalQuestions);
+    }
+
+    private void showCloneDialog(String targetAssessment, int targetQuizNum, ObservableList<AssessmentQuestion> targetList) {
+        if (courseAssignment == null) return;
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Clone Questions");
+        dialog.setHeaderText("Clone questions from another assessment to " + targetAssessment + "\n⚠️ WARNING: This will DELETE all existing questions in " + targetAssessment);
+
+        // Create form
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+
+        // Source assessment dropdown - filtered based on target type
+        ComboBox<String> sourceCombo = new ComboBox<>();
+        if (targetAssessment.startsWith("Quiz")) {
+            // Quiz can only clone from other quizzes
+            sourceCombo.getItems().addAll("Quiz 1", "Quiz 2", "Quiz 3", "Quiz 4");
+            sourceCombo.setValue("Quiz 1");
+        } else if (targetAssessment.equals("Mid")) {
+            // Mid can only clone from Mid
+            sourceCombo.getItems().add("Mid");
+            sourceCombo.setValue("Mid");
+        } else { // Final
+            // Final can only clone from Final
+            sourceCombo.getItems().add("Final");
+            sourceCombo.setValue("Final");
+        }
+        
+        // Academic year dropdown (current year and previous 3 years)
+        ComboBox<String> yearCombo = new ComboBox<>();
+        String currentYear = courseAssignment.academicYear;
+        yearCombo.getItems().add(currentYear);
+        try {
+            int year = Integer.parseInt(currentYear.split("-")[0]);
+            for (int i = 1; i <= 3; i++) {
+                int prevYear = year - i;
+                yearCombo.getItems().add(prevYear + "-" + (prevYear + 1));
+            }
+        } catch (Exception e) {
+            // If parsing fails, just use current year
+        }
+        yearCombo.setValue(currentYear);
+
+        grid.add(new Label("Source Assessment:"), 0, 0);
+        grid.add(sourceCombo, 1, 0);
+        grid.add(new Label("Academic Year:"), 0, 1);
+        grid.add(yearCombo, 1, 1);
+        grid.add(new Label("Target Assessment:"), 0, 2);
+        grid.add(new Label(targetAssessment), 1, 2);
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.showAndWait().ifPresent(result -> {
+            if (result == ButtonType.OK) {
+                String sourceText = sourceCombo.getValue();
+                String sourceAssessment;
+                int sourceQuizNum = 0;
+                
+                // Parse source assessment
+                switch (sourceText) {
+                    case "Quiz 1" -> { sourceAssessment = "Quiz1"; sourceQuizNum = 1; }
+                    case "Quiz 2" -> { sourceAssessment = "Quiz2"; sourceQuizNum = 2; }
+                    case "Quiz 3" -> { sourceAssessment = "Quiz3"; sourceQuizNum = 3; }
+                    case "Quiz 4" -> { sourceAssessment = "Quiz4"; sourceQuizNum = 4; }
+                    case "Mid" -> sourceAssessment = "Mid";
+                    case "Final" -> sourceAssessment = "Final";
+                    default -> { sourceAssessment = "Quiz1"; sourceQuizNum = 1; }
+                }
+                
+                String sourceYear = yearCombo.getValue();
+                
+                // Perform clone operation
+                try {
+                    int count = db.cloneQuestions(
+                        courseAssignment.courseCode,
+                        courseAssignment.programme,
+                        sourceAssessment,
+                        sourceQuizNum,
+                        sourceYear,
+                        targetAssessment,
+                        targetQuizNum,
+                        courseAssignment.academicYear
+                    );
+                    
+                    if (count > 0) {
+                        Alert success = new Alert(Alert.AlertType.INFORMATION, 
+                            "Successfully cloned " + count + " question(s) from " + sourceText + " (" + sourceYear + ") to " + targetAssessment, 
+                            ButtonType.OK);
+                        success.setHeaderText(null);
+                        success.showAndWait();
+                        
+                        // Reload the target questions to show cloned ones
+                        loadQuestionsForAssessment(targetAssessment, targetQuizNum, targetList);
+                    } else {
+                        Alert info = new Alert(Alert.AlertType.INFORMATION, 
+                            "No questions found in " + sourceText + " (" + sourceYear + ") to clone.", 
+                            ButtonType.OK);
+                        info.setHeaderText(null);
+                        info.showAndWait();
+                    }
+                } catch (Exception e) {
+                    Alert error = new Alert(Alert.AlertType.ERROR, 
+                        "Failed to clone questions: " + e.getMessage(), 
+                        ButtonType.OK);
+                    error.setHeaderText(null);
+                    error.showAndWait();
+                }
+            }
+        });
+    }
+
+    private void loadQuestionsForAssessment(String assessment, int quizNum, ObservableList<AssessmentQuestion> list) {
+        if (courseAssignment == null) return;
+        try {
+            List<DatabaseService.QuestionData> dbQuestions;
+            switch (assessment) {
+                case "Quiz1", "Quiz2", "Quiz3", "Quiz4" -> 
+                    dbQuestions = db.getQuizQuestions(courseAssignment.courseCode, courseAssignment.programme, quizNum, courseAssignment.academicYear);
+                case "Mid" -> 
+                    dbQuestions = db.getMidQuestions(courseAssignment.courseCode, courseAssignment.programme, courseAssignment.academicYear);
+                case "Final" -> 
+                    dbQuestions = db.getFinalQuestions(courseAssignment.courseCode, courseAssignment.programme, courseAssignment.academicYear);
+                default -> dbQuestions = java.util.Collections.emptyList();
+            }
+            list.clear();
+            for (DatabaseService.QuestionData d : dbQuestions) {
+                list.add(new AssessmentQuestion(d.id, d.title, d.marks, d.co, d.po, assessment));
+            }
+        } catch (Exception e) {
+            // Silently fail - user already sees error if it happens
         }
     }
 }

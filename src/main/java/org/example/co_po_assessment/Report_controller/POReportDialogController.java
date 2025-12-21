@@ -55,6 +55,7 @@ public class POReportDialogController implements Initializable {
     private final ObservableList<Row> data = FXCollections.observableArrayList();
     private final DatabaseService db = DatabaseService.getInstance();
     private DatabaseService.FacultyCourseAssignment selected;
+    private Runnable onCloseAction;
 
     // Thresholds (fractions 0..1). Defaults: CO 60%, PO 40%
     private double coThreshold = 0.60;
@@ -92,6 +93,10 @@ public class POReportDialogController implements Initializable {
         titleLabel.setText("PO Report - " + selected.getCourseCode());
         contextLabel.setText("Programme: " + selected.getProgramme() + " | Year: " + selected.getAcademicYear());
         try { computeAndPopulate(); } catch (Exception e) { showError("Failed to compute: " + e.getMessage()); }
+    }
+
+    public void setOnCloseAction(Runnable action) {
+        this.onCloseAction = action;
     }
 
     private void computeAndPopulate() throws Exception {
@@ -274,7 +279,13 @@ public class POReportDialogController implements Initializable {
         }
     }
 
-    private void close() { ((Stage) table.getScene().getWindow()).close(); }
+    private void close() {
+        if (onCloseAction != null) {
+            onCloseAction.run();
+        } else {
+            ((Stage) table.getScene().getWindow()).close();
+        }
+    }
     private void showError(String msg) { new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK).showAndWait(); }
 
     public static class Row {

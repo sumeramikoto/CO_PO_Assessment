@@ -55,10 +55,52 @@ public class CourseSummaryController implements Initializable {
 
     private DatabaseService.FacultyCourseAssignment courseAssignment;
     private final DatabaseService db = DatabaseService.getInstance();
+    private Runnable onBackAction;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Initial setup if needed
+    }
+
+    public void setContext(String courseCode, String programme, String academicYear) {
+        // Create a course assignment object with the provided data
+        // We'll fetch the course name from the database, use empty string for department as fallback
+        String courseName = courseCode; // Default to code if lookup fails
+        String department = "";
+        
+        try {
+            // Try to get full course details from database
+            List<DatabaseService.FacultyCourseAssignment> assignments = db.getAssignmentsForFaculty(
+                org.example.co_po_assessment.utilities.UserSession.getCurrentFaculty().getId()
+            );
+            
+            // Find the matching assignment
+            for (DatabaseService.FacultyCourseAssignment assignment : assignments) {
+                if (assignment.courseCode.equals(courseCode) && 
+                    assignment.programme.equals(programme) && 
+                    assignment.academicYear.equals(academicYear)) {
+                    this.courseAssignment = assignment;
+                    loadCourseSummary();
+                    return;
+                }
+            }
+            
+            // If not found in assignments, create a minimal one
+            courseName = courseCode; // Use course code as name
+            
+        } catch (Exception e) {
+            // Use defaults
+        }
+        
+        // Create the assignment with available data
+        this.courseAssignment = new DatabaseService.FacultyCourseAssignment(
+            courseCode, courseName, academicYear, department, programme
+        );
+        loadCourseSummary();
+    }
+
+    public void setOnBackAction(Runnable action) {
+        this.onBackAction = action;
     }
 
     public void setCourseAssignment(DatabaseService.FacultyCourseAssignment assignment) {
@@ -189,10 +231,35 @@ public class CourseSummaryController implements Initializable {
             int questionCount = questions.size();
             double totalMarks = questions.stream().mapToDouble(q -> q.marks).sum();
             
-            // Count how many marks have been entered
+            // Count how many marks have been entered by checking StudentMarksData
             int marksEntered = 0;
             if (questionCount > 0 && studentCount > 0) {
-                marksEntered = db.countMarksEntered(questions, type);
+                List<DatabaseService.StudentMarksData> marksData;
+                if (type.startsWith("Quiz")) {
+                    marksData = db.getStudentQuizMarks(
+                        courseAssignment.courseCode,
+                        courseAssignment.programme,
+                        quizNumber,
+                        courseAssignment.academicYear
+                    );
+                } else if (type.equals("Mid")) {
+                    marksData = db.getStudentMidMarks(
+                        courseAssignment.courseCode,
+                        courseAssignment.programme,
+                        courseAssignment.academicYear
+                    );
+                } else { // Final
+                    marksData = db.getStudentFinalMarks(
+                        courseAssignment.courseCode,
+                        courseAssignment.programme,
+                        courseAssignment.academicYear
+                    );
+                }
+                
+                // Count non-null marks_obtained entries
+                marksEntered = (int) marksData.stream()
+                    .filter(m -> m.marksObtained != null)
+                    .count();
             }
             
             int totalPossibleEntries = questionCount * studentCount;
@@ -232,7 +299,11 @@ public class CourseSummaryController implements Initializable {
 
     @FXML
     private void onBack(ActionEvent event) {
-        closeWindow(event);
+        if (onBackAction != null) {
+            onBackAction.run();
+        } else {
+            closeWindow(event);
+        }
     }
 
     private void closeWindow(ActionEvent event) {

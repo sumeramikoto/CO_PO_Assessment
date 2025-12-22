@@ -21,7 +21,7 @@ public class DatabaseService {
         try { upgradeLegacyPasswords(); } catch (Exception ignored) {}
     }
     public static DatabaseService getInstance() { if (instance == null) instance = new DatabaseService(); return instance; }
-    public Connection getConnection() throws SQLException {
+    private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 

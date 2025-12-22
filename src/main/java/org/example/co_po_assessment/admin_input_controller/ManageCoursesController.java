@@ -48,6 +48,13 @@ public class ManageCoursesController implements Initializable {
     @FXML
     TableColumn<Course, String> coNumbersColumn;
     @FXML
+
+    // Reference to parent dashboard controller
+    private org.example.co_po_assessment.dashboard_controller.AdminDashboardController dashboardController;
+
+    public void setDashboardController(org.example.co_po_assessment.dashboard_controller.AdminDashboardController controller) {
+        this.dashboardController = controller;
+    }
     TableColumn<Course, String> poNumbersColumn;
     @FXML
     Button addCourseButton;
@@ -176,8 +183,10 @@ public class ManageCoursesController implements Initializable {
     }
 
     public void onBackButton(ActionEvent actionEvent) {
-        Stage currentStage = (Stage) backButton.getScene().getWindow();
-        currentStage.close();
+        // Navigate back to dashboard home
+        if (dashboardController != null) {
+            dashboardController.loadHomeView();
+        }
     }
 
     @FXML private void onExcelTemplateButton() {

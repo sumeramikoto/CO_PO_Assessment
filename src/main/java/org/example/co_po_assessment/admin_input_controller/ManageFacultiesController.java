@@ -48,6 +48,13 @@ public class ManageFacultiesController implements Initializable {
     Button addFacultyButton;
     @FXML
     Button editFacultyButton;
+
+    // Reference to parent dashboard controller
+    private org.example.co_po_assessment.dashboard_controller.AdminDashboardController dashboardController;
+
+    public void setDashboardController(org.example.co_po_assessment.dashboard_controller.AdminDashboardController controller) {
+        this.dashboardController = controller;
+    }
     @FXML
     Button removeFacultyButton;
     @FXML
@@ -185,9 +192,10 @@ public class ManageFacultiesController implements Initializable {
     }
 
     public void onBackButton(ActionEvent event) {
-        // Close the current window
-        Stage currentStage = (Stage) backButton.getScene().getWindow();
-        currentStage.close();
+        // Navigate back to dashboard home
+        if (dashboardController != null) {
+            dashboardController.loadHomeView();
+        }
     }
 
     @FXML private void onExcelTemplateButton() {

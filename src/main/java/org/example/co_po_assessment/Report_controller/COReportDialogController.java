@@ -10,7 +10,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -70,16 +72,111 @@ public class COReportDialogController implements Initializable {
         if (colPercent != null) colPercent.setCellValueFactory(new PropertyValueFactory<>("percent"));
         if (colComment != null) {
             colComment.setCellValueFactory(new PropertyValueFactory<>("comment"));
-            colComment.setCellFactory(TextFieldTableCell.forTableColumn());
+            colComment.setCellFactory(createLimitedTextFieldCellFactory("comment"));
             colComment.setOnEditCommit(evt -> evt.getRowValue().setComment(evt.getNewValue()));
         }
         // Setup Possible Steps column
         if (colSteps != null) {
             colSteps.setCellValueFactory(new PropertyValueFactory<>("steps"));
-            colSteps.setCellFactory(TextFieldTableCell.forTableColumn());
+            colSteps.setCellFactory(createLimitedTextFieldCellFactory("suggestions"));
             colSteps.setOnEditCommit(evt -> evt.getRowValue().setSteps(evt.getNewValue()));
         }
         if (table != null) table.setEditable(true);
+    }
+
+    private Callback<TableColumn<Row, String>, TableCell<Row, String>> createLimitedTextFieldCellFactory(String fieldName) {
+        return column -> new TableCell<Row, String>() {
+            private TextField textField;
+            private Label charCountLabel;
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    if (isEditing()) {
+                        if (textField != null) {
+                            textField.setText(getString());
+                            updateCharCount();
+                        }
+                        setText(null);
+                        setGraphic(createEditingGraphic());
+                    } else {
+                        setText(getString());
+                        setGraphic(null);
+                    }
+                }
+            }
+
+            @Override
+            public void startEdit() {
+                if (!isEmpty()) {
+                    super.startEdit();
+                    createTextField();
+                    setText(null);
+                    setGraphic(createEditingGraphic());
+                    textField.selectAll();
+                    textField.requestFocus();
+                }
+            }
+
+            @Override
+            public void cancelEdit() {
+                super.cancelEdit();
+                setText(getString());
+                setGraphic(null);
+            }
+
+            private void createTextField() {
+                textField = new TextField(getString());
+                charCountLabel = new Label();
+                updateCharCount();
+                
+                textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
+                textField.textProperty().addListener((obs, oldValue, newValue) -> {
+                    if (newValue != null && newValue.length() > 80) {
+                        textField.setText(newValue.substring(0, 80));
+                        showCharacterLimitAlert(fieldName);
+                    }
+                    updateCharCount();
+                });
+                
+                textField.setOnAction(event -> commitEdit(textField.getText()));
+                textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+                    if (!isNowFocused) {
+                        commitEdit(textField.getText());
+                    }
+                });
+            }
+
+            private VBox createEditingGraphic() {
+                VBox vbox = new VBox(2);
+                vbox.getChildren().addAll(textField, charCountLabel);
+                return vbox;
+            }
+
+            private void updateCharCount() {
+                if (textField != null && charCountLabel != null) {
+                    int length = textField.getText() != null ? textField.getText().length() : 0;
+                    charCountLabel.setText(length + "/80");
+                    charCountLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: " + (length > 80 ? "red" : "gray") + ";");
+                }
+            }
+
+            private String getString() {
+                return getItem() == null ? "" : getItem();
+            }
+        };
+    }
+
+    private void showCharacterLimitAlert(String fieldName) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Character Limit Exceeded");
+        alert.setHeaderText("Maximum character limit reached");
+        alert.setContentText("The " + fieldName + " field must be between 0 and 80 characters. Please shorten your input.");
+        alert.showAndWait();
     }
 
     public void setContext(DatabaseService.FacultyCourseAssignment selected) {
@@ -253,9 +350,9 @@ public class COReportDialogController implements Initializable {
             byte[] chartBytes = chartBaos.toByteArray();
 
             // Write PDF including comments and possible steps
-            File reportsDir = new File("co_reports"); if (!reportsDir.exists()) reportsDir.mkdirs();
+            File reportsDir = new File("C:\\Users\\User\\Desktop\\H\\co_reports"); if (!reportsDir.exists()) reportsDir.mkdirs();
             String safeProgramme = selected.getProgramme().replaceAll("[^A-Za-z0-9_-]", "");
-            File outFile = new File(reportsDir, selected.getCourseCode() + "_" + selected.getAcademicYear() + "_" + safeProgramme + ".pdf");
+            File outFile = new File(reportsDir, "CO_" + selected.getCourseCode() + "_" + selected.getAcademicYear() + "_" + safeProgramme + ".pdf");
             try (PdfWriter writer = new PdfWriter(new FileOutputStream(outFile)); PdfDocument pdf = new PdfDocument(writer); Document doc = new Document(pdf)) {
                 Paragraph title = new Paragraph(selected.getCourseCode() + " - " + selected.getCourseName());
                 title.setFontSize(16).setTextAlignment(TextAlignment.CENTER); doc.add(title);
@@ -314,9 +411,19 @@ public class COReportDialogController implements Initializable {
         public double getPercent() { return percent.get(); }
         public void setPercent(double v) { percent.set(v); }
         public String getComment() { return comment.get(); }
-        public void setComment(String v) { comment.set(v); }
+        public void setComment(String v) { 
+            if (v != null && v.length() > 80) {
+                v = v.substring(0, 80);
+            }
+            comment.set(v); 
+        }
         public String getSteps() { return steps.get(); }
-        public void setSteps(String v) { steps.set(v); }
+        public void setSteps(String v) { 
+            if (v != null && v.length() > 80) {
+                v = v.substring(0, 80);
+            }
+            steps.set(v); 
+        }
     }
 }
 

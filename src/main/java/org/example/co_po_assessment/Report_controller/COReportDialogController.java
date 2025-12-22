@@ -32,9 +32,15 @@ import org.example.co_po_assessment.utilities.UserSession;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GradientPaint;
 
 // Added for table output in PDF
 import com.itextpdf.layout.element.Table;
@@ -189,11 +195,62 @@ public class COReportDialogController implements Initializable {
             // Build dataset and chart
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             for (Row r : data) dataset.addValue(r.getPercent(), "CO Attainment", r.getCode());
-            JFreeChart chart = ChartFactory.createBarChart("CO Attainment", "CO", "% Students", dataset);
+            JFreeChart chart = ChartFactory.createBarChart(
+                "CO Attainment", 
+                "Course Outcomes", 
+                "Percentage of Students Achieved (%)", 
+                dataset,
+                PlotOrientation.VERTICAL,
+                false,  // legend
+                true,   // tooltips
+                false   // urls
+            );
+            
+            // Professional styling
+            chart.setBackgroundPaint(Color.WHITE);
+            chart.setAntiAlias(true);
+            chart.getTitle().setFont(new Font("Arial", Font.BOLD, 18));
+            chart.setPadding(new org.jfree.chart.ui.RectangleInsets(10, 10, 10, 10));
+            
             CategoryPlot plot = chart.getCategoryPlot();
-            if (plot.getRangeAxis() instanceof NumberAxis na) { na.setRange(0.0, 100.0); na.setStandardTickUnits(NumberAxis.createIntegerTickUnits()); }
+            plot.setBackgroundPaint(new Color(248, 250, 252));
+            plot.setDomainGridlinePaint(new Color(226, 232, 240));
+            plot.setRangeGridlinePaint(new Color(226, 232, 240));
+            plot.setOutlineVisible(false);
+            plot.setRangeGridlinesVisible(true);
+            plot.setDomainGridlinesVisible(false);
+            
+            // Style axes
+            CategoryAxis domainAxis = plot.getDomainAxis();
+            domainAxis.setTickLabelFont(new Font("Arial", Font.PLAIN, 12));
+            domainAxis.setLabelFont(new Font("Arial", Font.BOLD, 13));
+            domainAxis.setTickLabelPaint(new Color(51, 65, 85));
+            domainAxis.setLabelPaint(new Color(30, 41, 59));
+            
+            NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+            rangeAxis.setRange(0.0, 100.0);
+            rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+            rangeAxis.setTickLabelFont(new Font("Arial", Font.PLAIN, 12));
+            rangeAxis.setLabelFont(new Font("Arial", Font.BOLD, 13));
+            rangeAxis.setTickLabelPaint(new Color(51, 65, 85));
+            rangeAxis.setLabelPaint(new Color(30, 41, 59));
+            
+            // Modern bar styling with gradient
+            BarRenderer renderer = (BarRenderer) plot.getRenderer();
+            renderer.setSeriesPaint(0, new GradientPaint(
+                0.0f, 0.0f, new Color(59, 130, 246),  // Blue 500
+                0.0f, 300.0f, new Color(37, 99, 235)  // Blue 600
+            ));
+            renderer.setBarPainter(new org.jfree.chart.renderer.category.StandardBarPainter());
+            renderer.setShadowVisible(false);
+            renderer.setDrawBarOutline(false);
+            renderer.setItemMargin(0.15);  // Space between bars
+            renderer.setMaximumBarWidth(0.08);  // Bar width control
+            
+            // Higher resolution output
             ByteArrayOutputStream chartBaos = new ByteArrayOutputStream();
-            ChartUtils.writeChartAsPNG(chartBaos, chart, 640, 400); byte[] chartBytes = chartBaos.toByteArray();
+            ChartUtils.writeChartAsPNG(chartBaos, chart, 900, 550, true, 9); 
+            byte[] chartBytes = chartBaos.toByteArray();
 
             // Write PDF including comments and possible steps
             File reportsDir = new File("co_reports"); if (!reportsDir.exists()) reportsDir.mkdirs();

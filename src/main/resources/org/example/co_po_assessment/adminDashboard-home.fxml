@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+    alignment="TOP_CENTER" spacing="50" style="-fx-background-color: #f5f7fa;"
+    fx:controller="org.example.co_po_assessment.dashboard_controller.AdminDashboardHomeController">
+    
+    <padding>
+        <Insets top="60" right="60" bottom="60" left="60" />
+    </padding>
+
+    <!-- Logo Section -->
+    <VBox alignment="CENTER" spacing="20">
+        <ImageView fitWidth="180" fitHeight="180" preserveRatio="true">
+            <Image url="@logo.png" />
+        </ImageView>
+        
+        <Label text="CO-PO Assessment System" style="-fx-font-size: 28px; -fx-font-weight: 700; -fx-text-fill: #1e293b;" />
+        <Label text="Administrator Dashboard" style="-fx-font-size: 16px; -fx-font-weight: 400; -fx-text-fill: #64748b;" />
+    </VBox>
+
+    <!-- Live Clock Section - Separated -->
+    <VBox alignment="CENTER" spacing="16" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+        <Label fx:id="timeLabel" text="00:00:00" style="-fx-font-size: 64px; -fx-font-weight: 700; -fx-text-fill: #3b82f6; -fx-font-family: 'Segoe UI', monospace;" />
+        <Separator prefWidth="200" style="-fx-background-color: #e2e8f0;" />
+        <Label fx:id="dateLabel" text="December 22, 2025" style="-fx-font-size: 20px; -fx-font-weight: 600; -fx-text-fill: #475569;" />
+        <Label fx:id="dayLabel" text="Sunday" style="-fx-font-size: 15px; -fx-font-weight: 400; -fx-text-fill: #94a3b8;" />
+    </VBox>
+
+    <!-- Spacer -->
+    <Region VBox.vgrow="ALWAYS" minHeight="20" />
+    
+    <!-- Footer hint -->
+    <Label text="Click any menu item to get started" style="-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-font-style: italic;" />
+</VBox>

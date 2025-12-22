@@ -22,8 +22,14 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartUtils;
-import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GradientPaint;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.layout.Document;
@@ -316,14 +322,62 @@ public class GraduatingCohortPOReportController implements Initializable {
     private File saveCohortPdf(String programme, int batch, List<Row> rows, int cohortSize) throws Exception {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         for (Row r : rows) dataset.addValue(r.getPercent(), "PO Attainment", r.getPo());
-        JFreeChart chart = ChartFactory.createBarChart("Cohort PO Attainment", "PO", "% Students", dataset);
+        
+        JFreeChart chart = ChartFactory.createBarChart(
+            "Graduating Cohort PO Attainment",
+            "Program Outcomes",
+            "Percentage of Students Achieved (%)",
+            dataset,
+            PlotOrientation.VERTICAL,
+            false,  // legend
+            true,   // tooltips
+            false   // urls
+        );
+        
+        // Professional styling
+        chart.setBackgroundPaint(Color.WHITE);
+        chart.setAntiAlias(true);
+        chart.getTitle().setFont(new Font("Arial", Font.BOLD, 20));
+        chart.setPadding(new org.jfree.chart.ui.RectangleInsets(15, 15, 15, 15));
+        
         CategoryPlot plot = chart.getCategoryPlot();
-        if (plot.getRangeAxis() instanceof NumberAxis na) {
-            na.setRange(0.0, 100.0);
-            na.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        }
+        plot.setBackgroundPaint(new Color(248, 250, 252));
+        plot.setDomainGridlinePaint(new Color(226, 232, 240));
+        plot.setRangeGridlinePaint(new Color(226, 232, 240));
+        plot.setOutlineVisible(false);
+        plot.setRangeGridlinesVisible(true);
+        plot.setDomainGridlinesVisible(false);
+        
+        // Style axes
+        CategoryAxis domainAxis = plot.getDomainAxis();
+        domainAxis.setTickLabelFont(new Font("Arial", Font.PLAIN, 13));
+        domainAxis.setLabelFont(new Font("Arial", Font.BOLD, 14));
+        domainAxis.setTickLabelPaint(new Color(51, 65, 85));
+        domainAxis.setLabelPaint(new Color(30, 41, 59));
+        
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setRange(0.0, 100.0);
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        rangeAxis.setTickLabelFont(new Font("Arial", Font.PLAIN, 13));
+        rangeAxis.setLabelFont(new Font("Arial", Font.BOLD, 14));
+        rangeAxis.setTickLabelPaint(new Color(51, 65, 85));
+        rangeAxis.setLabelPaint(new Color(30, 41, 59));
+        
+        // Modern bar styling with gradient
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        renderer.setSeriesPaint(0, new GradientPaint(
+            0.0f, 0.0f, new Color(16, 185, 129),   // Emerald 500
+            0.0f, 400.0f, new Color(5, 150, 105)   // Emerald 600
+        ));
+        renderer.setBarPainter(new org.jfree.chart.renderer.category.StandardBarPainter());
+        renderer.setShadowVisible(false);
+        renderer.setDrawBarOutline(false);
+        renderer.setItemMargin(0.12);  // Space between bars
+        renderer.setMaximumBarWidth(0.07);  // Bar width control
+        
+        // Higher resolution output
         ByteArrayOutputStream chartBaos = new ByteArrayOutputStream();
-        ChartUtils.writeChartAsPNG(chartBaos, chart, 800, 450);
+        ChartUtils.writeChartAsPNG(chartBaos, chart, 1000, 600, true, 9);
         byte[] chartBytes = chartBaos.toByteArray();
 
         File reportsDir = new File("cohort_po_reports");

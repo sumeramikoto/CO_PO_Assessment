@@ -34,13 +34,13 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>17.0.6</version>
-            <classifier>linux</classifier>
+            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>17.0.6</version>
-            <classifier>linux</classifier>
+            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -51,13 +51,13 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
             <version>17.0.6</version>
-            <classifier>linux</classifier>
+            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
             <version>17.0.6</version>
-            <classifier>linux</classifier>
+            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>com.dlsc.formsfx</groupId>

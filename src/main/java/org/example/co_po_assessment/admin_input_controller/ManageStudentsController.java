@@ -11,6 +11,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseButton;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.co_po_assessment.DB_helper.DatabaseService;
@@ -50,9 +51,20 @@ public class ManageStudentsController implements Initializable {
     @FXML
     TableColumn<Student, String> emailColumn;
     @FXML
+    TableColumn<Student, String> enrolledCoursesColumn;
+    @FXML
     Button addStudentButton;
     @FXML
+    Button editStudentButton;
+    @FXML
     Button removeStudentButton;
+
+    // Reference to parent dashboard controller
+    private org.example.co_po_assessment.dashboard_controller.AdminDashboardController dashboardController;
+
+    public void setDashboardController(org.example.co_po_assessment.dashboard_controller.AdminDashboardController controller) {
+        this.dashboardController = controller;
+    }
     @FXML
     Button backButton;
     @FXML
@@ -64,10 +76,12 @@ public class ManageStudentsController implements Initializable {
     private FilteredList<Student> filteredStudents;
     private SortedList<Student> sortedStudents;
     private StudentDatabaseHelper studentDatabaseHelper;
+    private DatabaseService databaseService;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         studentDatabaseHelper = new StudentDatabaseHelper();
+        databaseService = DatabaseService.getInstance();
 
         // Set up table columns
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -76,6 +90,19 @@ public class ManageStudentsController implements Initializable {
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("department"));
         programmeColumn.setCellValueFactory(new PropertyValueFactory<>("programme"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+        enrolledCoursesColumn.setCellValueFactory(new PropertyValueFactory<>("enrolledCourses"));
+        
+        // Add double-click handler to show enrollment details
+        studentTableView.setRowFactory(tv -> {
+            TableRow<Student> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty() && event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+                    Student clickedStudent = row.getItem();
+                    showEnrollmentDetails(clickedStudent);
+                }
+            });
+            return row;
+        });
 
         // Initialize student list and filtering
         studentList = FXCollections.observableArrayList();
@@ -94,6 +121,34 @@ public class ManageStudentsController implements Initializable {
 
         // Load existing student data
         loadStudentData();
+    }
+    
+    private void showEnrollmentDetails(Student student) {
+        try {
+            List<String> enrollments = databaseService.getStudentEnrollments(student.getId());
+            
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Enrollment Details");
+            alert.setHeaderText("Enrollments for " + student.getName() + " (" + student.getId() + ")");
+            
+            if (enrollments.isEmpty()) {
+                alert.setContentText("No enrollments found.");
+            } else {
+                StringBuilder content = new StringBuilder();
+                for (int i = 0; i < enrollments.size(); i++) {
+                    content.append((i + 1)).append(". ").append(enrollments.get(i)).append("\n");
+                }
+                alert.setContentText(content.toString());
+            }
+            
+            alert.showAndWait();
+        } catch (Exception e) {
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+            errorAlert.setTitle("Error");
+            errorAlert.setHeaderText("Failed to load enrollment details");
+            errorAlert.setContentText(e.getMessage());
+            errorAlert.showAndWait();
+        }
     }
 
     private void applyStudentFilter() {
@@ -143,6 +198,36 @@ public class ManageStudentsController implements Initializable {
 
         } catch (IOException e) {
             showErrorAlert("Navigation Error", "Failed to open Add Student window: " + e.getMessage());
+        }
+    }
+
+    public void onEditStudentButton(ActionEvent actionEvent) {
+        Student selectedStudent = studentTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedStudent == null) {
+            showWarningAlert("No Selection", "Please select a student to edit.");
+            return;
+        }
+
+        try {
+            // Open the Student Info Input window in edit mode
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/example/co_po_assessment/studentInfoInput-view.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 400, 450);
+
+            // Get the controller and set it to edit mode
+            StudentInfoInputController controller = fxmlLoader.getController();
+            controller.setParentController(this);
+            controller.setEditMode(selectedStudent.getId(), selectedStudent.getName(), 
+                                  selectedStudent.getBatch(), selectedStudent.getEmail(),
+                                  selectedStudent.getDepartment(), selectedStudent.getProgramme());
+
+            Stage stage = new Stage();
+            stage.setTitle("Edit Student Information");
+            WindowUtils.setSceneAndMaximize(stage, scene);
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            showErrorAlert("Navigation Error", "Failed to open Edit Student window: " + e.getMessage());
         }
     }
 
@@ -383,9 +468,10 @@ public class ManageStudentsController implements Initializable {
     }
 
     public void onBackButton(ActionEvent actionEvent) {
-        // Close the current window
-        Stage currentStage = (Stage) backButton.getScene().getWindow();
-        currentStage.close();
+        // Navigate back to dashboard home
+        if (dashboardController != null) {
+            dashboardController.loadHomeView();
+        }
     }
 
     /**
@@ -398,14 +484,27 @@ public class ManageStudentsController implements Initializable {
 
             studentList.clear();
             for (var student : studentData) {
-                studentList.add(new Student(
+                // Get enrollment count for display
+                String enrollmentDisplay = "";
+                try {
+                    List<String> enrollments = databaseService.getStudentEnrollments(student.getId());
+                    if (!enrollments.isEmpty()) {
+                        enrollmentDisplay = enrollments.size() + " course(s)";
+                    }
+                } catch (Exception e) {
+                    // If error getting enrollments, leave blank
+                }
+                
+                Student s = new Student(
                     student.getId(),
                     student.getName(),
                     String.valueOf(student.getBatch()),
                     student.getDepartment(),
                     student.getProgramme(),
-                    student.getEmail()
-                ));
+                    student.getEmail(),
+                    enrollmentDisplay
+                );
+                studentList.add(s);
             }
             refreshBatchFilterOptions();
             applyStudentFilter();
@@ -457,8 +556,8 @@ public class ManageStudentsController implements Initializable {
             DatabaseService databaseService = DatabaseService.getInstance();
             databaseService.insertStudent(id, Integer.parseInt(batch), name, email, department, programme);
 
-            // Add to table
-            Student newStudent = new Student(id, name, batch, department, programme, email);
+            // Add to table - initially 0 courses enrolled
+            Student newStudent = new Student(id, name, batch, department, programme, email, "0 course(s)");
             studentList.add(newStudent);
 
             // Update filters
@@ -469,6 +568,39 @@ public class ManageStudentsController implements Initializable {
 
         } catch (SQLException e) {
             showErrorAlert("Database Error", "Failed to add student: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            showErrorAlert("Invalid Input", "Batch must be a valid number.");
+        }
+    }
+
+    /**
+     * Method to be called by StudentInfoInputController when student is updated
+     */
+    public void updateStudent(String oldId, String newId, String name, String batch, String email, String department, String programme) {
+        try {
+            // Update in database
+            DatabaseService databaseService = DatabaseService.getInstance();
+            databaseService.updateStudent(oldId, newId, Integer.parseInt(batch), name, email, department, programme);
+
+            // Update in table - find and update the student object
+            for (int i = 0; i < studentList.size(); i++) {
+                Student s = studentList.get(i);
+                if (s.getId().equals(oldId)) {
+                    // Keep the same enrollment display
+                    String enrollmentDisplay = s.getEnrolledCourses();
+                    studentList.set(i, new Student(newId, name, batch, department, programme, email, enrollmentDisplay));
+                    break;
+                }
+            }
+
+            // Update filters
+            refreshBatchFilterOptions();
+            applyStudentFilter();
+
+            showInfoAlert("Success", "Student updated successfully.");
+
+        } catch (SQLException e) {
+            showErrorAlert("Database Error", "Failed to update student: " + e.getMessage());
         } catch (NumberFormatException e) {
             showErrorAlert("Invalid Input", "Batch must be a valid number.");
         }

@@ -39,9 +39,6 @@ public class AdminDashboardController implements Initializable {
     // Root container used to place toast/snackbar bottom-right; will be looked up from any child
     private StackPane rootStack;
 
-    // Dark mode toggle: adds/removes dark stylesheet at scene level
-    private static final String DARK_STYLESHEET = "/org/example/co_po_assessment/styles-dark.css";
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         if (headerLabel != null) headerLabel.setText("Welcome, Administrator!");
@@ -51,8 +48,24 @@ public class AdminDashboardController implements Initializable {
             if (centerContent != null) {
                 Parent sceneRoot = centerContent.getScene() != null ? centerContent.getScene().getRoot() : null;
                 if (sceneRoot instanceof StackPane sp) { rootStack = sp; }
+                // Load home view by default
+                loadHomeView();
             }
         });
+    }
+
+    // Public method to return to home view (called by child controllers)
+    public void loadHomeView() {
+        setBreadcrumb("Home");
+        clearActiveButtons();
+        setCenterFromFXML("adminDashboard-home.fxml");
+    }
+
+    private void clearActiveButtons() {
+        Button[] buttons = new Button[]{ manageFacultiesButton, manageStudentsButton, manageCoursesButton, manageEnrollmentsButton,
+                manageCourseAssignmentsButton, culminationCoursesButton, manageThresholdsButton, manageGraduatingStudentsButton,
+                graduatingCohortPOReportButton, viewReportsButton };
+        for (Button b : buttons) { if (b != null) b.getStyleClass().remove("active"); }
     }
 
     public void onManageFacultiesButton(ActionEvent event) { setBreadcrumb("Home > Manage Faculties"); setActive(manageFacultiesButton); setCenterFromFXML("manageFaculties-view.fxml"); }
@@ -71,6 +84,20 @@ public class AdminDashboardController implements Initializable {
             String resource = fxml.startsWith("/") ? fxml : "/org/example/co_po_assessment/" + fxml;
             FXMLLoader loader = new FXMLLoader(AdminDashboardController.class.getResource(resource));
             Parent root = loader.load();
+            
+            // Try to inject dashboard controller reference into child controller
+            Object controller = loader.getController();
+            if (controller != null) {
+                try {
+                    java.lang.reflect.Method method = controller.getClass().getMethod("setDashboardController", AdminDashboardController.class);
+                    method.invoke(controller, this);
+                } catch (NoSuchMethodException ignored) {
+                    // Child doesn't have setDashboardController method, that's fine
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            
             if (centerContent != null) centerContent.getChildren().setAll(root);
         } catch (IOException e) { showErrorAlert("Navigation Error", "Failed to open view: " + e.getMessage()); }
     }
@@ -137,35 +164,5 @@ public class AdminDashboardController implements Initializable {
                 Platform.runLater(() -> stackRef.getChildren().remove(toastRef));
             }).start();
         });
-    }
-
-    @FXML
-    public void onDarkModeToggle(ActionEvent event) {
-        // If wired from a CheckBox/ToggleButton, infer selected state if possible, else toggle
-        boolean enable = true;
-        Object src = event != null ? event.getSource() : null;
-        if (src instanceof javafx.scene.control.ToggleButton tb) enable = tb.isSelected();
-        else if (src instanceof javafx.scene.control.CheckBox cb) enable = cb.isSelected();
-        else {
-            // fallback: toggle based on presence
-            enable = !isDarkModeEnabled();
-        }
-        setDarkMode(enable);
-    }
-
-    private boolean isDarkModeEnabled() {
-        if (centerContent == null || centerContent.getScene() == null) return false;
-        return centerContent.getScene().getStylesheets().stream().anyMatch(s -> s.endsWith("styles-dark.css"));
-    }
-
-    public void setDarkMode(boolean enable) {
-        if (centerContent == null || centerContent.getScene() == null) return;
-        var sheets = centerContent.getScene().getStylesheets();
-        String darkUrl = null;
-        try { darkUrl = AdminDashboardController.class.getResource(DARK_STYLESHEET).toExternalForm(); }
-        catch (Exception ignored) {}
-        if (darkUrl == null) return;
-        if (enable) { if (sheets.stream().noneMatch(s -> s.endsWith("styles-dark.css"))) sheets.add(darkUrl); }
-        else { sheets.removeIf(s -> s.endsWith("styles-dark.css")); }
     }
 }

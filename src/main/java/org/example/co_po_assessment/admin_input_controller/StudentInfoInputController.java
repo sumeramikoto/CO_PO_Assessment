@@ -1,5 +1,6 @@
 package org.example.co_po_assessment.admin_input_controller;
 
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,6 +25,8 @@ public class StudentInfoInputController implements Initializable {
     @FXML
     TextField departmentTextField;
     @FXML
+    ComboBox<String> degreeComboBox;
+    @FXML
     TextField programmeTextField;
     @FXML
     Button confirmButton;
@@ -31,18 +34,28 @@ public class StudentInfoInputController implements Initializable {
     Button backButton;
 
     private ManageStudentsController parentController;
+    private boolean isEditMode = false;
+    private String originalStudentId = null;
 
     // Regex patterns according to requirements
     private static final Pattern ID_PATTERN = Pattern.compile("^\\d{9}$");
     private static final Pattern BATCH_PATTERN = Pattern.compile("^\\d{2}$");
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.edu$");
     private static final Pattern DEPT_PATTERN = Pattern.compile("^[A-Z]{3}$");
-    private static final Pattern PROGRAMME_PATTERN = Pattern.compile("^(?:BSc|MSc|PhD) in [A-Z]{2,3}$");
+    private static final Pattern PROGRAMME_ABBR_PATTERN = Pattern.compile("^[A-Z]{2,3}$");
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Set up the form labels and initial state
         headLabel.setText("Add Student Information");
+        
+        // Initialize degree dropdown
+        degreeComboBox.setItems(FXCollections.observableArrayList(
+            "BSc in",
+            "MSc in",
+            "PhD in",
+            "BBA in"
+        ));
     }
 
     /**
@@ -50,6 +63,34 @@ public class StudentInfoInputController implements Initializable {
      */
     public void setParentController(ManageStudentsController parentController) {
         this.parentController = parentController;
+    }
+
+    /**
+     * Set edit mode and populate fields with existing student data
+     */
+    public void setEditMode(String id, String name, String batch, String email, String department, String programme) {
+        this.isEditMode = true;
+        this.originalStudentId = id;
+        
+        headLabel.setText("Edit Student Information");
+        
+        // Populate fields with existing data
+        idTextField.setText(id);
+        idTextField.setDisable(true); // Don't allow editing the ID
+        nameTextField.setText(name);
+        batchTextField.setText(batch);
+        emailTextField.setText(email);
+        departmentTextField.setText(department);
+        
+        // Parse programme to set degree and programme abbreviation
+        // Programme format: "BSc in CSE" or "MSc in EEE", etc.
+        if (programme != null && programme.contains(" in ")) {
+            String[] parts = programme.split(" in ", 2);
+            if (parts.length == 2) {
+                degreeComboBox.setValue(parts[0] + " in");
+                programmeTextField.setText(parts[1]);
+            }
+        }
     }
 
     public void onConfirmButton(ActionEvent event) {
@@ -64,12 +105,18 @@ public class StudentInfoInputController implements Initializable {
         String batch = batchTextField.getText().trim();
         String email = emailTextField.getText().trim();
         String department = departmentTextField.getText().trim();
-        String programme = programmeTextField.getText().trim();
+        String degree = degreeComboBox.getValue();
+        String programmeAbbr = programmeTextField.getText().trim();
+        String programme = degree + " " + programmeAbbr;
 
         try {
-            // Call parent controller to add the student
+            // Call parent controller to add or update the student
             if (parentController != null) {
-                parentController.addNewStudent(id, name, batch, email, department, programme);
+                if (isEditMode) {
+                    parentController.updateStudent(originalStudentId, id, name, batch, email, department, programme);
+                } else {
+                    parentController.addNewStudent(id, name, batch, email, department, programme);
+                }
             }
 
             // Close the current window
@@ -77,7 +124,7 @@ public class StudentInfoInputController implements Initializable {
             currentStage.close();
 
         } catch (Exception e) {
-            showErrorAlert("Error", "Failed to add student: " + e.getMessage());
+            showErrorAlert("Error", "Failed to " + (isEditMode ? "update" : "add") + " student: " + e.getMessage());
         }
     }
 
@@ -131,12 +178,18 @@ public class StudentInfoInputController implements Initializable {
             errors.append("Department must be 3 uppercase letters, e.g., CSE.\n");
         }
 
-        // Validate programme: (BSc|MSc|PhD) in [A-Z]{2,3}
-        String programme = programmeTextField.getText().trim();
-        if (programme.isEmpty()) {
-            errors.append("Programme is required.\n");
-        } else if (!PROGRAMME_PATTERN.matcher(programme).matches()) {
-            errors.append("Programme must be 'BSc in XX/XXX', 'MSc in XX/XXX', or 'PhD in XX/XXX'.\n");
+        // Validate degree selection
+        String degree = degreeComboBox.getValue();
+        if (degree == null || degree.isEmpty()) {
+            errors.append("Degree is required. Please select from dropdown.\n");
+        }
+
+        // Validate programme abbreviation: 2-3 uppercase letters
+        String programmeAbbr = programmeTextField.getText().trim();
+        if (programmeAbbr.isEmpty()) {
+            errors.append("Programme abbreviation is required.\n");
+        } else if (!PROGRAMME_ABBR_PATTERN.matcher(programmeAbbr).matches()) {
+            errors.append("Programme must be 2-3 uppercase letters, e.g., SWE or CS.\n");
         }
 
         if (errors.length() > 0) {

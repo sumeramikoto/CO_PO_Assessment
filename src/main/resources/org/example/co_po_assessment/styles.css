@@ -1,109 +1,432 @@
-/* Shared styles for dashboard buttons */
-.dashboard-button {
-  -fx-background-color: #ffffff;
-  -fx-text-fill: #1f2937;
-  -fx-border-color: #d1d5db;
-  -fx-border-width: 1;
-  -fx-background-radius: 24; /* more round */
-  -fx-border-radius: 24;
-  -fx-background-insets: 0;
-  -fx-padding: 10 18; /* bigger */
-  -fx-font-weight: bold; /* bold labels */
+/* ============================================
+   MODERN DASHBOARD STYLES - CO-PO ASSESSMENT
+   ============================================ */
+
+/* Root and Background */
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: #f5f7fa;
 }
 
-/* Hover: slightly darker background and border */
-.dashboard-button:hover {
-  -fx-background-color: #f3f4f6;
-  -fx-border-color: #c0c8d2;
+/* ============================================
+   SIDEBAR NAVIGATION
+   ============================================ */
+.sidebar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 1 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 2, 0);
 }
 
-/* Pressed: darker background and subtle inset effect */
-.dashboard-button:pressed {
-  -fx-background-color: #e5e7eb;
-  -fx-border-color: #b6bec9;
-  -fx-background-insets: 1;
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #475569;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 12 16;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
 }
 
-/* Active selection in sidebar */
-.dashboard-button.active,
-.dashboard-button:selected {
-  -fx-background-color: #e0ecff; /* light accent */
-  -fx-border-color: #93c5fd;
+.sidebar-button:hover {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #1e293b;
 }
 
-/* Focus ring for accessibility */
-.dashboard-button:focused {
-  -fx-effect: dropshadow( three-pass-box , rgba(37,99,235,0.5) , 6, 0.0 , 0 , 0 );
+.sidebar-button:pressed {
+    -fx-background-color: #e2e8f0;
 }
 
-/* Emphasis for primary actions if needed */
-.dashboard-button.primary {
-  -fx-background-color: #2563eb;
-  -fx-text-fill: white;
-  -fx-border-color: transparent;
-}
-.dashboard-button.primary:hover { -fx-background-color: #1d4ed8; }
-.dashboard-button.primary:pressed { -fx-background-color: #1e40af; }
-
-/* Global button styling to cover remaining buttons */
-.button {
-  -fx-background-color: rgba(255,255,255,0.85);
-  -fx-text-fill: #1f2937;
-  -fx-border-color: #d1d5db;
-  -fx-border-width: 1;
-  -fx-background-radius: 24; /* rounded shape */
-  -fx-border-radius: 24;
-  -fx-background-insets: 0;
-  -fx-padding: 10 18; /* bigger buttons */
-  -fx-font-weight: bold; /* bold text */
-}
-.button:hover { -fx-background-color: rgba(243,244,246,0.9); -fx-border-color: #c0c8d2; }
-.button:pressed { -fx-background-color: rgba(229,231,235,0.95); -fx-border-color: #b6bec9; -fx-background-insets: 1; }
-.button:focused { -fx-effect: dropshadow( three-pass-box , rgba(37,99,235,0.4) , 6, 0.0 , 0 , 0 ); }
-
-/* Sidebar specific: highlight active item */
-.sidebar .button.active,
-.button.active { /* fallback if not inside sidebar */
-  -fx-background-color: #e0ecff;
-  -fx-border-color: #93c5fd;
+.sidebar-button.active {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #3b82f6;
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 0 0 0 3;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.15), 4, 0, 0, 0);
 }
 
-/* Breadcrumb label emphasis */
-#breadcrumbLabel { -fx-font-weight: bold; -fx-text-fill: #4b5563; }
+.sidebar-button.sidebar-button-active {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1e40af;
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 0 0 0 4;
+    -fx-font-weight: 700;
+}
 
-/* Card-like container style (optional) */
+/* Status Labels */
+.status-label-complete {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #065f46;
+    -fx-padding: 4 12;
+    -fx-background-radius: 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.status-label-incomplete {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #991b1b;
+    -fx-padding: 4 12;
+    -fx-background-radius: 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.status-label-partial {
+    -fx-background-color: #fed7aa;
+    -fx-text-fill: #92400e;
+    -fx-padding: 4 12;
+    -fx-background-radius: 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.sidebar-title {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-padding: 8 16;
+}
+
+/* ============================================
+   TOP HEADER BAR
+   ============================================ */
+.top-bar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 4, 0, 0, 2);
+}
+
+.header-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1e293b;
+}
+
+.breadcrumb-text {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+/* ============================================
+   KPI CARDS
+   ============================================ */
+.kpi-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 4);
+}
+
+.kpi-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 16, 0, 0, 6);
+    -fx-translate-y: -2;
+}
+
+.kpi-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #64748b;
+}
+
+.kpi-value {
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1e293b;
+}
+
+.kpi-icon {
+    -fx-font-size: 36px;
+    -fx-text-fill: #3b82f6;
+}
+
+/* Card Color Variants */
+.kpi-card.blue {
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 0 0 0 4;
+}
+
+.kpi-card.green {
+    -fx-border-color: #10b981;
+    -fx-border-width: 0 0 0 4;
+}
+
+.kpi-card.purple {
+    -fx-border-color: #8b5cf6;
+    -fx-border-width: 0 0 0 4;
+}
+
+.kpi-card.orange {
+    -fx-border-color: #f59e0b;
+    -fx-border-width: 0 0 0 4;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.dashboard-button, .button {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #1e293b;
+    -fx-border-color: #d1d5db;
+    -fx-border-width: 1;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 10 20;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.dashboard-button:hover, .button:hover {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: #9ca3af;
+}
+
+.dashboard-button:pressed, .button:pressed {
+    -fx-background-color: #f3f4f6;
+}
+
+.button-primary {
+    -fx-background-color: linear-gradient(to bottom, #3b82f6 0%, #2563eb 100%);
+    -fx-text-fill: #ffffff;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.3), 8, 0, 0, 2);
+}
+
+.button-primary:hover {
+    -fx-background-color: linear-gradient(to bottom, #2563eb 0%, #1d4ed8 100%);
+}
+
+.button-success {
+    -fx-background-color: linear-gradient(to bottom, #10b981 0%, #059669 100%);
+    -fx-text-fill: #ffffff;
+    -fx-border-color: transparent;
+}
+
+.button-danger {
+    -fx-background-color: linear-gradient(to bottom, #ef4444 0%, #dc2626 100%);
+    -fx-text-fill: #ffffff;
+    -fx-border-color: transparent;
+}
+
+/* ============================================
+   TABLE VIEWS
+   ============================================ */
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);
+}
+
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.table-view .column-header {
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 0 2 0;
+}
+
+.table-view .column-header .label {
+    -fx-font-weight: 700;
+    -fx-text-fill: #475569;
+    -fx-font-size: 13px;
+}
+
+.table-view .table-cell {
+    -fx-border-color: #f1f5f9;
+    -fx-padding: 12 8;
+}
+
+.table-row-cell {
+    -fx-background-color: #ffffff;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f9fafb;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #eff6ff;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1e293b;
+}
+
+/* ============================================
+   CARDS & CONTAINERS
+   ============================================ */
 .card {
-  -fx-background-color: #ffffff;
-  -fx-background-radius: 12;
-  -fx-border-color: #e5e7eb;
-  -fx-border-radius: 12;
-  -fx-padding: 12;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 3);
 }
 
-/* Table view improvements */
-.table-view .column-header-background { -fx-background-color: #f3f4f6; }
-.table-view .column-header .label { -fx-font-weight: bold; }
-.table-row-cell:filled:hover { -fx-background-color: #f9fafb; }
-.table-row-cell:filled:selected { -fx-background-color: #dbeafe; }
+.card-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1e293b;
+}
 
-/* Snackbar / toast container */
+.card-subtitle {
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-text-fill: #64748b;
+}
+
+/* ============================================
+   TABS
+   ============================================ */
+.tab-pane {
+    -fx-background-color: transparent;
+}
+
+.tab-pane .tab-header-area {
+    -fx-background-color: #ffffff;
+    -fx-padding: 0 0 0 0;
+}
+
+.tab-pane .tab {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 2 0;
+    -fx-padding: 12 24;
+}
+
+.tab-pane .tab:selected {
+    -fx-border-color: transparent transparent #3b82f6 transparent;
+    -fx-border-width: 0 0 3 0;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #64748b;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #3b82f6;
+}
+
+/* ============================================
+   LABELS & TEXT
+   ============================================ */
+.section-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1e293b;
+}
+
+.label-muted {
+    -fx-text-fill: #64748b;
+}
+
+.label-success {
+    -fx-text-fill: #10b981;
+    -fx-font-weight: 600;
+}
+
+.label-warning {
+    -fx-text-fill: #f59e0b;
+    -fx-font-weight: 600;
+}
+
+.label-danger {
+    -fx-text-fill: #ef4444;
+    -fx-font-weight: 600;
+}
+
+/* ============================================
+   TOAST / ALERTS
+   ============================================ */
 .toast-container {
-  -fx-background-color: rgba(31,41,55,0.92);
-  -fx-text-fill: white;
-  -fx-background-radius: 8;
-  -fx-padding: 10 14;
-  -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 10, 0.0 , 0 , 2 );
+    -fx-background-color: rgba(30, 41, 59, 0.95);
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 12 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 12, 0, 0, 4);
 }
-.toast-container.success { -fx-background-color: rgba(16,185,129,0.95); }
-.toast-container.error { -fx-background-color: rgba(239,68,68,0.95); }
 
-/* Progress overlay */
-.progress-overlay {
-  -fx-background-color: rgba(0,0,0,0.18);
+.toast-container.success {
+    -fx-background-color: rgba(16, 185, 129, 0.95);
 }
+
+.toast-container.error {
+    -fx-background-color: rgba(239, 68, 68, 0.95);
+}
+
+.toast-container.warning {
+    -fx-background-color: rgba(245, 158, 11, 0.95);
+}
+
+/* ============================================
+   PROGRESS & OVERLAYS
+   ============================================ */
+.progress-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+}
+
 .progress-card {
-  -fx-background-color: #ffffff;
-  -fx-background-radius: 12;
-  -fx-padding: 16;
-  -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.25) , 16, 0.0 , 0 , 4 );
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-padding: 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 6);
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #cbd5e1;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #94a3b8;
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+.text-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 10 12;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused {
+    -fx-border-color: #3b82f6;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.2), 4, 0, 0, 0);
+}
+
+.combo-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
 }

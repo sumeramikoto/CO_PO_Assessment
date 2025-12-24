@@ -28,6 +28,7 @@
             <Insets bottom="10.0" top="10.0" />
         </padding>
         <Button fx:id="addCourseButton" mnemonicParsing="false" onAction="#onAddCourseButton" prefHeight="36.0" prefWidth="120.0" text="Add Course" />
+        <Button fx:id="editCourseButton" mnemonicParsing="false" onAction="#onEditCourseButton" prefHeight="36.0" prefWidth="120.0" text="Edit Course" />
       <Button fx:id="excelTemplateButton" mnemonicParsing="false" onAction="#onExcelTemplateButton" prefHeight="36.0" prefWidth="160.0" text="Get Excel Template" />
         <Button fx:id="bulkImportCoursesButton" mnemonicParsing="false" onAction="#onBulkImportCourses" prefHeight="36.0" prefWidth="160.0" text="Bulk Import (Excel)" />
         <Button fx:id="removeCourseButton" mnemonicParsing="false" onAction="#onRemoveCourseButton" prefHeight="36.0" prefWidth="120.0" text="Remove Course" />

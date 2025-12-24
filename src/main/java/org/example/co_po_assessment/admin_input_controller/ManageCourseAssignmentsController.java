@@ -48,6 +48,13 @@ public class ManageCourseAssignmentsController implements Initializable {
     TableColumn<CourseAssignment, String> programmeColumn;
     @FXML
     Button assignCourseButton;
+
+    // Reference to parent dashboard controller
+    private org.example.co_po_assessment.dashboard_controller.AdminDashboardController dashboardController;
+
+    public void setDashboardController(org.example.co_po_assessment.dashboard_controller.AdminDashboardController controller) {
+        this.dashboardController = controller;
+    }
     @FXML
     Button removeCourseButton;
     @FXML
@@ -367,9 +374,10 @@ public class ManageCourseAssignmentsController implements Initializable {
     }
 
     public void onBackButton(ActionEvent actionEvent) {
-        // Close the current window
-        Stage currentStage = (Stage) backButton.getScene().getWindow();
-        currentStage.close();
+        // Navigate back to dashboard home
+        if (dashboardController != null) {
+            dashboardController.loadHomeView();
+        }
     }
 
     /**

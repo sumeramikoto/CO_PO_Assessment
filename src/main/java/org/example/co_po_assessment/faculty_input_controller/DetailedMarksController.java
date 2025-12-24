@@ -25,6 +25,7 @@ public class DetailedMarksController {
     private String programme;
     private final DatabaseService dbService = DatabaseService.getInstance();
     private boolean hasUnsavedChanges = false;
+    private Runnable onCloseAction;
 
     @FXML
     public void initialize() {
@@ -47,6 +48,10 @@ public class DetailedMarksController {
         } catch (SQLException e) {
             showError("Error Initializing", e.getMessage());
         }
+    }
+
+    public void setOnCloseAction(Runnable action) {
+        this.onCloseAction = action;
     }
 
     // Backward compatibility (if only courseId provided, fall back to latest year assumption via existing hard-coded method)
@@ -322,8 +327,12 @@ public class DetailedMarksController {
     }
 
     private void closeWindow() {
-        Stage stage = (Stage) quiz1TableView.getScene().getWindow();
-        stage.close();
+        if (onCloseAction != null) {
+            onCloseAction.run();
+        } else {
+            Stage stage = (Stage) quiz1TableView.getScene().getWindow();
+            stage.close();
+        }
     }
 
     private void showError(String header, String content) {

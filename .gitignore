@@ -2,6 +2,8 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+!**/src/main/resources/dbcreds.properties
+!**/src/main/java/org/example/co_po_assessment/DB_Configuration/dbcreds.properties
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

@@ -27,6 +27,7 @@ public class ManageEnrollmentsController {
     @FXML private TableColumn<StudentDatabaseHelper.StudentData, Integer> batchColumn;
     @FXML private TableColumn<StudentDatabaseHelper.StudentData, String> departmentColumn;
     @FXML private TableColumn<StudentDatabaseHelper.StudentData, String> programmeColumn;
+    @FXML private TableColumn<StudentDatabaseHelper.StudentData, String> enrollmentStatusColumn;
 
     @FXML private ComboBox<Integer> batchFilterCombo;
     @FXML private ComboBox<String> departmentFilterCombo;
@@ -50,6 +51,10 @@ public class ManageEnrollmentsController {
         setupTable();
         loadStaticCombos();
         loadStudents();
+        
+        // Update enrollment status when course or academic year changes
+        courseCombo.valueProperty().addListener((obs, o, n) -> updateEnrollmentStatus());
+        academicYearCombo.valueProperty().addListener((obs, o, n) -> updateEnrollmentStatus());
     }
 
     private void setupTable() {
@@ -58,6 +63,7 @@ public class ManageEnrollmentsController {
         if (batchColumn != null) batchColumn.setCellValueFactory(new PropertyValueFactory<>("batch"));
         if (departmentColumn != null) departmentColumn.setCellValueFactory(new PropertyValueFactory<>("department"));
         if (programmeColumn != null) programmeColumn.setCellValueFactory(new PropertyValueFactory<>("programme"));
+        if (enrollmentStatusColumn != null) enrollmentStatusColumn.setCellValueFactory(new PropertyValueFactory<>("enrollmentStatus"));
         studentTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
@@ -101,6 +107,7 @@ public class ManageEnrollmentsController {
             List<StudentDatabaseHelper.StudentData> list = studentDb.getStudents(batch, dept, prog);
             ObservableList<StudentDatabaseHelper.StudentData> data = FXCollections.observableArrayList(list);
             studentTableView.setItems(data);
+            updateEnrollmentStatus(); // Update enrollment status after loading students
         } catch (SQLException e) {
             showError("Load Students", e.getMessage());
         }
@@ -143,6 +150,7 @@ public class ManageEnrollmentsController {
         List<String> ids = eligible.stream().map(s -> s.id).collect(Collectors.toList());
         try {
             db.enrollStudents(courseCode, courseProg, year, ids);
+            updateEnrollmentStatus(); // Refresh enrollment status
             StringBuilder msg = new StringBuilder();
             msg.append("Enrolled/updated ").append(ids.size()).append(" students for course ").append(courseCode).append(" (" + year + ")");
             if (!mismatched.isEmpty()) {
@@ -173,6 +181,7 @@ public class ManageEnrollmentsController {
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
         try {
             int removed = db.unenrollStudents(courseCode, courseProg, year, ids);
+            updateEnrollmentStatus(); // Refresh enrollment status
             showInfo("Unenrollment", "Removed " + removed + " enrollments for course " + courseCode + " (" + year + ")");
         } catch (SQLException e) {
             showError("Unenrollment Failed", e.getMessage());
@@ -352,10 +361,42 @@ public class ManageEnrollmentsController {
             for (int i=0;i<Math.min(10, issues.size()); i++) sb.append("- ").append(issues.get(i)).append('\n');
             if (issues.size() > 10) sb.append("... and ").append(issues.size()-10).append(" more");
         }
+        updateEnrollmentStatus(); // Refresh enrollment status after bulk import
         showInfo("Enrollment Import", sb.toString());
     }
 
     @FXML private void onClose() { closeButton.getScene().getWindow().hide(); }
+    
+    private void updateEnrollmentStatus() {
+        String courseDisplay = courseCombo.getValue();
+        String year = academicYearCombo.getValue();
+        
+        if (courseDisplay == null || courseDisplay.isBlank() || year == null || year.isBlank()) {
+            // Clear enrollment status
+            for (StudentDatabaseHelper.StudentData student : studentTableView.getItems()) {
+                student.enrollmentStatus = "";
+            }
+            studentTableView.refresh();
+            return;
+        }
+        
+        String[] parts = courseDisplay.split(" - ");
+        String courseCode = parts[0];
+        
+        try {
+            Set<String> enrolledIds = db.getEnrolledStudentIds(courseCode, year);
+            for (StudentDatabaseHelper.StudentData student : studentTableView.getItems()) {
+                if (enrolledIds.contains(student.id)) {
+                    student.enrollmentStatus = "✓ Enrolled";
+                } else {
+                    student.enrollmentStatus = "Not Enrolled";
+                }
+            }
+            studentTableView.refresh();
+        } catch (Exception e) {
+            showError("Status Update Failed", e.getMessage());
+        }
+    }
 
     private void showError(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();

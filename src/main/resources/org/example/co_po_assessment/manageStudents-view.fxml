@@ -18,11 +18,12 @@
         <TableView fx:id="studentTableView" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="70.0">
             <columns>
                 <TableColumn fx:id="idColumn" prefWidth="90.0" text="ID" />
-                <TableColumn fx:id="nameColumn" prefWidth="209.0" text="Name" />
+                <TableColumn fx:id="nameColumn" prefWidth="180.0" text="Name" />
                 <TableColumn fx:id="batchColumn" prefWidth="79.0" text="Batch" />
-                <TableColumn fx:id="departmentColumn" prefWidth="132.0" text="Department" />
+                <TableColumn fx:id="departmentColumn" prefWidth="100.0" text="Department" />
                 <TableColumn fx:id="programmeColumn" prefWidth="94.0" text="Programme" />
-                <TableColumn fx:id="emailColumn" prefWidth="230.0" text="Email" />
+                <TableColumn fx:id="emailColumn" prefWidth="200.0" text="Email" />
+                <TableColumn fx:id="enrolledCoursesColumn" prefWidth="150.0" text="Enrolled Courses (Double-click row for details)" />
             </columns>
         </TableView>
 
@@ -31,6 +32,7 @@
                 <Insets bottom="10.0" top="10.0" />
             </padding>
             <Button fx:id="addStudentButton" mnemonicParsing="false" onAction="#onAddStudentButton" prefWidth="120.0" text="Add Student" />
+            <Button fx:id="editStudentButton" mnemonicParsing="false" onAction="#onEditStudentButton" prefWidth="120.0" text="Edit Student" />
             <Button fx:id="excelTemplateButton" mnemonicParsing="false" onAction="#onExcelTemplateButton" text="Get Excel Template" />
             <Button fx:id="bulkImportStudentsButton" mnemonicParsing="false" onAction="#onBulkImportStudents" prefWidth="160.0" text="Bulk Import (Excel)" />
             <Button fx:id="removeStudentButton" mnemonicParsing="false" onAction="#onRemoveStudentButton" prefWidth="120.0" text="Remove Student" />

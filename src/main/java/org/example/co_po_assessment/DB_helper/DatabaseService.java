@@ -114,6 +114,53 @@ public class DatabaseService {
         String sql = "INSERT INTO Admin (email,password) VALUES (?,?)";
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) { ps.setString(1,email); ps.setString(2,password); ps.executeUpdate(); }
     }
+    
+    // ------------------------------------------------------------------
+    // Update methods
+    // ------------------------------------------------------------------
+    public void updateFaculty(String oldId, String newId, String shortname, String fullName, String email, String password) throws SQLException {
+        String sql;
+        if (password != null && !password.isEmpty()) {
+            // Update with password
+            if (!PasswordUtils.isHashed(password)) password = PasswordUtils.hash(password);
+            sql = "UPDATE Faculty SET id=?, shortname=?, full_name=?, email=?, password=? WHERE id=?";
+            try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+                ps.setString(1, newId);
+                ps.setString(2, shortname);
+                ps.setString(3, fullName);
+                ps.setString(4, email);
+                ps.setString(5, password);
+                ps.setString(6, oldId);
+                ps.executeUpdate();
+            }
+        } else {
+            // Update without changing password
+            sql = "UPDATE Faculty SET id=?, shortname=?, full_name=?, email=? WHERE id=?";
+            try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+                ps.setString(1, newId);
+                ps.setString(2, shortname);
+                ps.setString(3, fullName);
+                ps.setString(4, email);
+                ps.setString(5, oldId);
+                ps.executeUpdate();
+            }
+        }
+    }
+    
+    public void updateStudent(String oldId, String newId, int batch, String name, String email, String department, String programme) throws SQLException {
+        String sql = "UPDATE Student SET id=?, batch=?, name=?, email=?, department=?, programme=? WHERE id=?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, newId);
+            ps.setInt(2, batch);
+            ps.setString(3, name);
+            ps.setString(4, email);
+            ps.setString(5, department);
+            ps.setString(6, programme);
+            ps.setString(7, oldId);
+            ps.executeUpdate();
+        }
+    }
+    
     public void assignCourseToFaculty(String facultyId, String courseCode, String academicYear) throws SQLException {
         String fetch = "SELECT department, programme FROM Course WHERE course_code=?";
         String ins = "INSERT INTO CourseAssignment (faculty_id, course_code, academic_year, department, programme) VALUES (?,?,?,?,?)";
@@ -631,6 +678,37 @@ public class DatabaseService {
         }
         return codes;
     }
+    
+    public List<String> getStudentEnrollments(String studentId) throws SQLException {
+        String sql = "SELECT course_id, academic_year FROM Enrollment WHERE student_id=? ORDER BY academic_year DESC, course_id";
+        List<String> enrollments = new ArrayList<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String courseCode = rs.getString("course_id");
+                    String academicYear = rs.getString("academic_year");
+                    enrollments.add(courseCode + " (" + academicYear + ")");
+                }
+            }
+        }
+        return enrollments;
+    }
+    
+    public Set<String> getEnrolledStudentIds(String courseCode, String academicYear) throws SQLException {
+        String sql = "SELECT student_id FROM Enrollment WHERE course_id=? AND academic_year=?";
+        Set<String> studentIds = new HashSet<>();
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, courseCode);
+            ps.setString(2, academicYear);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    studentIds.add(rs.getString("student_id"));
+                }
+            }
+        }
+        return studentIds;
+    }
 
     public List<String> getMissingPOsForCourses(String programme, List<String> courseCodes, int totalPOs) throws SQLException {
         if (courseCodes == null || courseCodes.isEmpty()) return Arrays.asList("PO1","PO2","PO3","PO4","PO5","PO6","PO7","PO8","PO9","PO10","PO11","PO12").subList(0, Math.min(totalPOs, 12));
@@ -779,5 +857,57 @@ public class DatabaseService {
             }
         }
         return list;
+    }
+
+    // Clone questions from source assessment to target assessment
+    public int cloneQuestions(String courseCode, String programme, String sourceAssessment, 
+                              int sourceQuizNum, String sourceYear, 
+                              String targetAssessment, int targetQuizNum, String targetYear) throws SQLException {
+        int count = 0;
+        
+        // First, DELETE all existing questions in target assessment
+        List<QuestionData> existingQuestions;
+        if (targetAssessment.startsWith("Quiz")) {
+            existingQuestions = getQuizQuestions(courseCode, programme, targetQuizNum, targetYear);
+        } else if (targetAssessment.equals("Mid")) {
+            existingQuestions = getMidQuestions(courseCode, programme, targetYear);
+        } else { // Final
+            existingQuestions = getFinalQuestions(courseCode, programme, targetYear);
+        }
+        
+        // Delete each existing question
+        for (QuestionData q : existingQuestions) {
+            if (targetAssessment.startsWith("Quiz")) {
+                deleteQuizQuestion(courseCode, programme, targetQuizNum, q.title, targetYear);
+            } else if (targetAssessment.equals("Mid")) {
+                deleteMidQuestion(courseCode, programme, q.title, targetYear);
+            } else { // Final
+                deleteFinalQuestion(courseCode, programme, q.title, targetYear);
+            }
+        }
+        
+        // Now get all questions from source assessment
+        List<QuestionData> sourceQuestions;
+        if (sourceAssessment.startsWith("Quiz")) {
+            sourceQuestions = getQuizQuestions(courseCode, programme, sourceQuizNum, sourceYear);
+        } else if (sourceAssessment.equals("Mid")) {
+            sourceQuestions = getMidQuestions(courseCode, programme, sourceYear);
+        } else { // Final
+            sourceQuestions = getFinalQuestions(courseCode, programme, sourceYear);
+        }
+        
+        // Clone each question to target assessment using existing save methods
+        for (QuestionData q : sourceQuestions) {
+            if (targetAssessment.startsWith("Quiz")) {
+                saveQuizQuestion(courseCode, programme, targetQuizNum, q.title, q.marks, q.co, q.po, targetYear);
+            } else if (targetAssessment.equals("Mid")) {
+                saveMidQuestion(courseCode, programme, q.title, q.marks, q.co, q.po, targetYear);
+            } else { // Final
+                saveFinalQuestion(courseCode, programme, q.title, q.marks, q.co, q.po, targetYear);
+            }
+            count++;
+        }
+        
+        return count;
     }
 }

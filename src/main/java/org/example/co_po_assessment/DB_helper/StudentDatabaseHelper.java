@@ -107,6 +107,7 @@ public class StudentDatabaseHelper {
         public final int batch;
         public final String programme;
         public final String department;
+        public String enrollmentStatus;
 
         public StudentData(String id, String name, String email, int batch, String programme, String department) {
             this.id = id;
@@ -115,6 +116,7 @@ public class StudentDatabaseHelper {
             this.batch = batch;
             this.programme = programme;
             this.department = department;
+            this.enrollmentStatus = "";
         }
 
         public String getId() { return id; }
@@ -123,5 +125,7 @@ public class StudentDatabaseHelper {
         public int getBatch() { return batch; }
         public String getProgramme() { return programme; }
         public String getDepartment() { return department; }
+        public String getEnrollmentStatus() { return enrollmentStatus; }
+        public void setEnrollmentStatus(String status) { this.enrollmentStatus = status; }
     }
 }

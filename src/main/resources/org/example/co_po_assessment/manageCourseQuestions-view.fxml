@@ -21,9 +21,10 @@
                         <TableColumn fx:id="q1POCol" minWidth="0.0" prefWidth="128.0" text="PO" />
                     </columns>
                   </TableView>
-                  <Button fx:id="quiz1AddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz1AddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
-                  <Button fx:id="quiz1RemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz1RemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
-                  <Button fx:id="q1BackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ1BackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+                  <Button fx:id="quiz1AddQuestionButton" layoutX="20.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz1AddQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Add Question" />
+                  <Button fx:id="quiz1EditQuestionButton" layoutX="140.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz1EditQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Edit Question" />
+                  <Button fx:id="quiz1RemoveQuestionButton" layoutX="260.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz1RemoveQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Remove Question" />
+                  <Button fx:id="q1BackButton" layoutX="500.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ1BackButton" prefHeight="38.0" prefWidth="110.0" text="Go Back" />
                </children></AnchorPane>
       </content>
     </Tab>
@@ -39,9 +40,10 @@
                         <TableColumn fx:id="q2POCol" minWidth="0.0" prefWidth="128.0" text="PO" />
                      </columns>
                   </TableView>
-                  <Button fx:id="quiz2AddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz2AddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
-                  <Button fx:id="quiz2RemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz2RemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
-                  <Button fx:id="q2BackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ2BackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+                  <Button fx:id="quiz2AddQuestionButton" layoutX="20.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz2AddQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Add Question" />
+                  <Button fx:id="quiz2EditQuestionButton" layoutX="140.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz2EditQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Edit Question" />
+                  <Button fx:id="quiz2RemoveQuestionButton" layoutX="260.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz2RemoveQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Remove Question" />
+                  <Button fx:id="q2BackButton" layoutX="500.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ2BackButton" prefHeight="38.0" prefWidth="110.0" text="Go Back" />
                </children></AnchorPane>
       </content>
     </Tab>
@@ -57,9 +59,10 @@
                         <TableColumn fx:id="q3POCol" minWidth="0.0" prefWidth="128.0" text="PO" />
                      </columns>
                   </TableView>
-                  <Button fx:id="quiz3AddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz3AddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
-                  <Button fx:id="quiz3RemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz3RemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
-                  <Button fx:id="q3BackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ3BackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+                  <Button fx:id="quiz3AddQuestionButton" layoutX="20.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz3AddQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Add Question" />
+                  <Button fx:id="quiz3EditQuestionButton" layoutX="140.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz3EditQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Edit Question" />
+                  <Button fx:id="quiz3RemoveQuestionButton" layoutX="260.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz3RemoveQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Remove Question" />
+                  <Button fx:id="q3BackButton" layoutX="500.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ3BackButton" prefHeight="38.0" prefWidth="110.0" text="Go Back" />
                </children>
             </AnchorPane>
         </content>
@@ -76,9 +79,10 @@
                         <TableColumn fx:id="q4POCol" minWidth="0.0" prefWidth="128.0" text="PO" />
                      </columns>
                   </TableView>
-                  <Button fx:id="quiz4AddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz4AddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
-                  <Button fx:id="quiz4RemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz4RemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
-                  <Button fx:id="q4BackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ4BackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+                  <Button fx:id="quiz4AddQuestionButton" layoutX="20.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz4AddQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Add Question" />
+                  <Button fx:id="quiz4EditQuestionButton" layoutX="140.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz4EditQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Edit Question" />
+                  <Button fx:id="quiz4RemoveQuestionButton" layoutX="260.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQuiz4RemoveQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Remove Question" />
+                  <Button fx:id="q4BackButton" layoutX="500.0" layoutY="517.0" mnemonicParsing="false" onAction="#onQ4BackButton" prefHeight="38.0" prefWidth="110.0" text="Go Back" />
                </children>
             </AnchorPane>
         </content>
@@ -95,9 +99,10 @@
                         <TableColumn fx:id="midPOCol" minWidth="0.0" prefWidth="128.0" text="PO" />
                      </columns>
                   </TableView>
-                  <Button fx:id="midAddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onMidAddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
-                  <Button fx:id="midRemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onMidRemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
-                  <Button fx:id="midBackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onMidBackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+                  <Button fx:id="midAddQuestionButton" layoutX="20.0" layoutY="517.0" mnemonicParsing="false" onAction="#onMidAddQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Add Question" />
+                  <Button fx:id="midEditQuestionButton" layoutX="140.0" layoutY="517.0" mnemonicParsing="false" onAction="#onMidEditQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Edit Question" />
+                  <Button fx:id="midRemoveQuestionButton" layoutX="260.0" layoutY="517.0" mnemonicParsing="false" onAction="#onMidRemoveQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Remove Question" />
+                  <Button fx:id="midBackButton" layoutX="500.0" layoutY="517.0" mnemonicParsing="false" onAction="#onMidBackButton" prefHeight="38.0" prefWidth="110.0" text="Go Back" />
                </children>
             </AnchorPane>
         </content>
@@ -114,9 +119,10 @@
                         <TableColumn fx:id="finalPOCol" minWidth="0.0" prefWidth="128.0" text="PO" />
                      </columns>
                   </TableView>
-                  <Button fx:id="finalAddQuestionButton" layoutX="163.0" layoutY="517.0" mnemonicParsing="false" onAction="#onFinalAddQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Add Question" />
-                  <Button fx:id="finalRemoveQuestionButton" layoutX="330.0" layoutY="517.0" mnemonicParsing="false" onAction="#onFinalRemoveQuestionButton" prefHeight="38.0" prefWidth="141.0" text="Remove Question" />
-                  <Button fx:id="finalBackButton" layoutX="497.0" layoutY="517.0" mnemonicParsing="false" onAction="#onFinalBackButton" prefHeight="38.0" prefWidth="141.0" text="Go Back" />
+                  <Button fx:id="finalAddQuestionButton" layoutX="20.0" layoutY="517.0" mnemonicParsing="false" onAction="#onFinalAddQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Add Question" />
+                  <Button fx:id="finalEditQuestionButton" layoutX="140.0" layoutY="517.0" mnemonicParsing="false" onAction="#onFinalEditQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Edit Question" />
+                  <Button fx:id="finalRemoveQuestionButton" layoutX="260.0" layoutY="517.0" mnemonicParsing="false" onAction="#onFinalRemoveQuestionButton" prefHeight="38.0" prefWidth="110.0" text="Remove Question" />
+                  <Button fx:id="finalBackButton" layoutX="500.0" layoutY="517.0" mnemonicParsing="false" onAction="#onFinalBackButton" prefHeight="38.0" prefWidth="110.0" text="Go Back" />
                </children>
             </AnchorPane>
         </content>

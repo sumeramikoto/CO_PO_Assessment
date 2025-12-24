@@ -11,6 +11,7 @@
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.control.ScrollPane?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
     fx:controller="org.example.co_po_assessment.dashboard_controller.FacultyDashboardController" 
@@ -34,6 +35,7 @@
 
     <!-- Left navigation sidebar -->
     <left>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent;">
         <VBox spacing="8.0" styleClass="sidebar" prefWidth="260.0">
             <children>
                 <!-- Logo at the top -->
@@ -79,10 +81,12 @@
                 <Insets top="0" right="12" bottom="16" left="12" />
             </padding>
         </VBox>
+        </ScrollPane>
     </left>
 
     <!-- Center content area becomes a swappable container -->
     <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: #f5f7fa; -fx-background: #f5f7fa;">
         <VBox fx:id="centerContent" spacing="16.0" style="-fx-background-color: #f5f7fa;">
             <children>
                 <!-- Default pane showing assigned courses; controller can restore this -->
@@ -107,5 +111,6 @@
                 <Insets top="24" right="24" bottom="24" left="24" />
             </padding>
         </VBox>
+        </ScrollPane>
     </center>
 </BorderPane>
